@@ -32,61 +32,61 @@ namespace Schnoz
     public event EventHandler<Player> OnAbort;
     public void StartGame(object sender, GameSettings settings)
     {
-      //// Debug.Log("EventManger:StartGame() Sender: " + sender);
+      // Debug.Log("EventManger:StartGame() Sender: " + sender);
       if (OnStartGame != null)
         OnStartGame(sender, settings);
     }
     public void StartTurn(object sender, Player player)
     {
-      //// Debug.Log("EventManger:StartTurn() Sender: " + sender + ". It's " + player.playerName + "'s turn.");
+      // Debug.Log("EventManger:StartTurn() Sender: " + sender + ". It's " + player.playerName + "'s turn.");
       if (OnStartTurn != null)
         OnStartTurn(sender, player);
     }
     public void EndTurn(object sender, Player player)
     {
-      //// Debug.Log("EventManger:EndTurn() Sender: " + sender);
+      // Debug.Log("EventManger:EndTurn() Sender: " + sender);
       if (OnEndTurn != null)
         OnEndTurn(sender, player);
     }
     public void DrawCard(object sender, Card card)
     {
-      //// Debug.Log("EventManger:DrawCard() Sender: " + sender);
+      // Debug.Log("EventManger:DrawCard() Sender: " + sender);
       if (OnDrawCard != null)
         OnDrawCard(sender, card);
     }
     public void ClickCard(object sender, ClickCardEventArgs e)
     {
-      //// Debug.Log("EventManger:ClickCard() Sender: " + sender);
+      // Debug.Log("EventManger:ClickCard() Sender: " + sender);
       if (OnClickCard != null)
         OnClickCard(sender, e);
     }
     public void ClickTile(object sender, ClickTileEventArgs e)
     {
-      //// Debug.Log("EventManger:ClickTile() Sender: " + sender);
+      // Debug.Log("EventManger:ClickTile() Sender: " + sender);
       if (OnClickTile != null)
         OnClickTile(sender, e);
     }
     public void SelectCard(object sender, Card card)
     {
-      //// Debug.Log("EventManger:ClickCard() Sender: " + sender);
+      // Debug.Log("EventManger:ClickCard() Sender: " + sender);
       if (OnSelectCard != null)
         OnSelectCard(sender, card);
     }
     public void AllPlayersPresent()
     {
-      //// Debug.Log("EventManger:AllPlayersPresent()");
+      // Debug.Log("EventManger:AllPlayersPresent()");
       if (OnAllPlayersPresent != null)
         OnAllPlayersPresent();
     }
     public void SpaceButton(object sender, Player player)
     {
-      //// Debug.Log("EventManager:SpaceButton() Sender: " + sender + ". Player " + player.playerName + " pressed the space bar.");
+      // Debug.Log("EventManager:SpaceButton() Sender: " + sender + ". Player " + player.playerName + " pressed the space bar.");
       if (OnSpaceButton != null)
         OnSpaceButton(sender, player);
     }
     public void Abort(object sender, Player player)
     {
-      //// Debug.Log("EventManager:Abort() Sender: " + sender + ". Player " + player.playerName + " pressed the secondary mouse button.");
+      // Debug.Log("EventManager:Abort() Sender: " + sender + ". Player " + player.playerName + " pressed the secondary mouse button.");
       if (OnAbort != null)
         OnAbort(sender, player);
     }
