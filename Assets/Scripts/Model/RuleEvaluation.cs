@@ -8,7 +8,7 @@ namespace Schnoz
   /// Points are the points scored/lost in this evaluation of the rule.
   /// RelevantTiles hold either List or a nested List of Tiles.
   /// </summary>
-  [System.Serializable]
+  [Serializable]
   public class RuleEvaluation
   {
     private int points;

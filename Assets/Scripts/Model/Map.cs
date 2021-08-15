@@ -4,9 +4,11 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Schnoz;
+using UnityEngine;
 
 namespace Schnoz
 {
+  [Serializable]
   public class Map
   {
     private Map() { }
@@ -66,7 +68,7 @@ namespace Schnoz
     {
       return this.tiles.Where(tile =>
       {
-        float distance = Math.Abs(Vector2.Distance(new Vector2(baseTile.Row, baseTile.Col), new Vector2(tile.Row, tile.Col)));
+        float distance = Math.Abs(System.Numerics.Vector2.Distance(new System.Numerics.Vector2(baseTile.Row, baseTile.Col), new System.Numerics.Vector2(tile.Row, tile.Col)));
         return distance <= radius + 0.2f;
       }).ToList();
     }
@@ -146,7 +148,7 @@ namespace Schnoz
 
     private void Randomize(Tile tile)
     {
-      Random rnd = new Random();
+      System.Random rnd = new System.Random();
       List<Terrain> terrainProbabilityList = new List<Terrain>();
 
       float total = partsGrass + partsWater + partsBush + partsStone;

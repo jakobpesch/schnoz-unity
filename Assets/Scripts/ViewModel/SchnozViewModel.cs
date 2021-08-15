@@ -1,12 +1,11 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-
+using UnityEngine;
 namespace Schnoz
 {
-  public class SchnozViewModel
+  public class SchnozViewModel : MonoBehaviour
   {
-    private Schnoz schnoz;
-
+    [SerializeField] private Schnoz schnoz;
   }
 }

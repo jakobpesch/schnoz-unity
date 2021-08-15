@@ -3,10 +3,12 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Schnoz;
+using UnityEngine;
 
 namespace Schnoz
 {
   public delegate RuleEvaluation RuleLogic(Player player);
+  [Serializable]
   public class Rule
   {
     private string name { get; set; }

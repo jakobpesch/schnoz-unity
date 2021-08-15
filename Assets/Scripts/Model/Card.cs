@@ -4,6 +4,7 @@ using System.Linq;
 
 namespace Schnoz
 {
+  [Serializable]
   public class Card
   {
     private Guid id;

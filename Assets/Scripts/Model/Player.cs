@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Schnoz;
+using UnityEngine;
 
 namespace Schnoz
 {
@@ -10,26 +11,68 @@ namespace Schnoz
   //   public bool placing;
   //   public bool inMenu;
   // }
+  [Serializable]
   public class Player
   {
-    public string playerName;
-    public int id;
-    public int score = 0;
-    private List<List<RuleEvaluation>> evaluationHistory = new List<List<RuleEvaluation>>();
-    public int singlePieces;
-    public int stones;
-    public string soundName;
-    private Card selectedCard;
+    [SerializeField] private string playerName;
+    public string PlayerName
+    {
+      get => this.playerName;
+    }
+    [SerializeField] private int id;
+    public int Id
+    {
+      get => this.id;
+    }
+    [SerializeField] private int score = 0;
+    public int Score
+    {
+      get => this.score;
+    }
+    [SerializeField] private List<List<RuleEvaluation>> evaluationHistory = new List<List<RuleEvaluation>>();
+    public List<List<RuleEvaluation>> EvaluationHistory
+    {
+      get => this.evaluationHistory;
+    }
+    [SerializeField] private int singlePieces;
+    public int SinglePieces
+    {
+      get => this.singlePieces;
+    }
+    [SerializeField] private int stones;
+    public int Stones
+    {
+      get => this.stones;
+    }
+    [SerializeField] private string soundName;
+    public string SoundName
+    {
+      get => this.soundName;
+    }
+    [SerializeField] private Card selectedCard;
+    public Card SelectedCard
+    {
+      get => this.selectedCard;
+    }
+
     // public PlayerInput Input;
 
-    public bool active;
-    public bool placing
+    [SerializeField] private bool active;
+    public bool Active
+    {
+      get => this.active;
+    }
+    public bool Placing
     {
       get => this.selectedCard != null;
     }
-    // public PlayerState state;
+    // [SerializeField] private PlayerState state;
 
-    public List<Rule> rules = new List<Rule>();
+    [SerializeField] private List<Rule> rules = new List<Rule>();
+    public List<Rule> Rules
+    {
+      get => this.rules;
+    }
 
     public Player(int id)
     {
@@ -82,6 +125,14 @@ namespace Schnoz
       EventManager.I.ClickTile(this, new ClickTileEventArgs(tile));
     }
 
+    public void SetActive(bool value)
+    {
+      this.active = value;
+    }
+    public void SetSinglePieces(int singlePieces)
+    {
+      this.singlePieces = singlePieces;
+    }
 
     //   [System.Serializable]
     //   public class PlayerInput

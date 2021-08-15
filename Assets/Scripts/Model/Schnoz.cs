@@ -1,20 +1,21 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-
+using UnityEngine;
 namespace Schnoz
 {
+  [Serializable]
   public class Schnoz
   {
-    private Map map;
-    private Deck deck;
-    private List<Player> players;
-    private GameSettings settings;
-    private int turn;
-    private int stage;
+    [SerializeField] private Map map;
+    [SerializeField] private Deck deck;
+    [SerializeField] private List<Player> players;
+    [SerializeField] private GameSettings settings;
+    [SerializeField] private int turn;
+    [SerializeField] private int stage;
     public List<Player> Players { get => settings.Players; }
-    private Player activePlayer;
-    public Player ActivePlayer { get => Players.Find(player => player.active); }
+    [SerializeField] private Player activePlayer;
+    public Player ActivePlayer { get => Players.Find(player => player.Active); }
     public Player NeutralPlayer;
     private void Start()
     {
@@ -73,7 +74,7 @@ namespace Schnoz
       }
       Player player = (Player)sender;
 
-      if (player.active)
+      if (player.Active)
       {
         if (player.IsHoldingCard())
         {
@@ -85,9 +86,9 @@ namespace Schnoz
     private void OnAbortHandler(object sender, Player player)
     // here the GM should check what to do when the player clicks a card
     {
-      if (player.active)
+      if (player.Active)
       {
-        if (player.placing)
+        if (player.Placing)
         {
           player.DiscardCard();
         }
@@ -119,7 +120,7 @@ namespace Schnoz
 
       foreach (Player player in this.settings.Players)
       {
-        player.singlePieces = this.settings.NumberOfSinglePieces;
+        player.SetSinglePieces(this.settings.NumberOfSinglePieces);
       }
 
       // this.NeutralPlayer = new Player(3, Color.white, this.capital.GetComponent<SpriteRenderer>().sprite, 0);
@@ -149,7 +150,7 @@ namespace Schnoz
     {
 
       Player player = this.settings.TurnOrder[turn];
-      player.active = true;
+      player.SetActive(true);
       EventManager.I.StartTurn(this, player);
     }
     private void EndTurn(object sender, Player player)

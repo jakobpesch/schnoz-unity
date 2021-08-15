@@ -3,30 +3,32 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Schnoz;
+using UnityEngine;
 
 namespace Schnoz
 {
+  [Serializable]
   public class GameSettings
   {
     public List<Rule> Rules = new List<Rule>() { RuleCollection.NullRule, RuleCollection.NullRule };
-    private List<Player> turnOrder = new List<Player>();
+    [SerializeField] private List<Player> turnOrder = new List<Player>();
     public List<Player> TurnOrder { get => this.turnOrder; }
-    private int numberOfStages = 6;
+    [SerializeField] private int numberOfStages = 6;
     public int NumberOfStages
     {
       get => this.numberOfStages;
     }
-    private int numberOfSinglePieces = 1;
+    [SerializeField] private int numberOfSinglePieces = 1;
     public int NumberOfSinglePieces
     {
       get => this.numberOfSinglePieces;
     }
-    private int numberOfCardsPerTurn = 4;
+    [SerializeField] private int numberOfCardsPerTurn = 4;
     public int NumberOfCardsPerTurn
     {
       get => this.numberOfCardsPerTurn;
     }
-    private List<Player> players;
+    [SerializeField] private List<Player> players;
     public List<Player> Players
     {
       get => players;

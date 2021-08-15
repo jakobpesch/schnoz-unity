@@ -3,10 +3,11 @@ using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 using Schnoz;
+using UnityEngine;
 
 namespace Schnoz
 {
-  [System.Serializable]
+  [Serializable]
   public class Deck
   {
     private List<Card> cards = new List<Card>();

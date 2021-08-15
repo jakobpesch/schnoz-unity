@@ -3,9 +3,11 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Xml.Schema;
 using Schnoz;
+using UnityEngine;
 
 namespace Schnoz
 {
+  [Serializable]
   public class Tile
   {
     private Guid id;

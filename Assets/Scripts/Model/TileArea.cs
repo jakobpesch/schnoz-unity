@@ -2,9 +2,11 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using Schnoz;
+using UnityEngine;
 
 namespace Schnoz
 {
+  [Serializable]
   public class TileArea : IEquatable<TileArea>
   {
     private Guid id;
@@ -44,7 +46,7 @@ namespace Schnoz
       }
 
       // Optimization for a common success case.
-      if (Object.ReferenceEquals(this, tileArea))
+      if (System.Object.ReferenceEquals(this, tileArea))
       {
         return true;
       }
