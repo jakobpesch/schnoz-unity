@@ -9,7 +9,9 @@ namespace Schnoz
 {
   public class Map
   {
-
+    private Map() { }
+    private static readonly Lazy<Map> lazy = new Lazy<Map>(() => new Map());
+    public static Map I { get { return lazy.Value; } }
     public List<Card> CurrentCards;
     public Deck Deck;
     private float tileGenerationInterval = 0f, terrainGenerationInterval = 0.4f;
