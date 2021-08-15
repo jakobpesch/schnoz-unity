@@ -13,9 +13,9 @@ namespace Schnoz
     [SerializeField] private GameSettings settings;
     [SerializeField] private int turn;
     [SerializeField] private int stage;
-    public List<Player> Players { get => settings.Players; }
+    public List<Player> Players { get => this.settings.Players; }
     [SerializeField] private Player activePlayer;
-    public Player ActivePlayer { get => Players.Find(player => player.Active); }
+    public Player ActivePlayer { get => this.Players.Find(player => player.Active); }
     public Player NeutralPlayer;
     private void Start()
     {

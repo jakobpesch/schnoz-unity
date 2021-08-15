@@ -9,34 +9,33 @@ using UnityEngine;
 namespace Schnoz
 {
   [Serializable]
-  public class Map
+  public sealed class Map
   {
     private Map() { }
     private static readonly Lazy<Map> lazy = new Lazy<Map>(() => new Map());
     public static Map I { get { return lazy.Value; } }
     public List<Card> CurrentCards;
     public Deck Deck;
-    private float tileGenerationInterval = 0f, terrainGenerationInterval = 0.4f;
-    public List<Player> Players;
+    [SerializeField] private float tileGenerationInterval = 0f, terrainGenerationInterval = 0.4f;
     public bool GameStarted;
     public bool LocalGame;
     public Tile CenterTile;
-    private bool randomizeMap = false, increaseChanceOfAccumulation;
-    private int nRows = 0, nCols = 0;
-    private float tileSize = 1;
+    [SerializeField] private bool randomizeMap = false, increaseChanceOfAccumulation;
+    [SerializeField] private int nRows = 0, nCols = 0;
+    [SerializeField] private float tileSize = 1;
     public float HalfTileSize { get => tileSize / 2; }
     public Terrain terrainBush, terrainStone, terrainWater;
-    private List<Tile> tiles, visibleTiles, bushTiles, waterTiles, stoneTiles;
-    private List<TileArea> areas;
-    private List<List<Tile>> diagonalsFromBottomLeftToTopRight, diagonalsFromTopLeftToBottomRight;
-    private uint partsGrass, partsWater, partsBush, partsStone;
-    private float chanceGrass, chanceWater, chanceBush, chanceStone;
+    [SerializeField] private List<Tile> tiles, visibleTiles, bushTiles, waterTiles, stoneTiles;
+    [SerializeField] private List<TileArea> areas;
+    [SerializeField] private List<List<Tile>> diagonalsFromBottomLeftToTopRight, diagonalsFromTopLeftToBottomRight;
+    [SerializeField] private uint partsGrass, partsWater, partsBush, partsStone;
+    [SerializeField] private float chanceGrass, chanceWater, chanceBush, chanceStone;
     public int NRows { get => nRows; set => nRows = value; }
     public int NCols { get => nCols; set => nCols = value; }
     public float TileSize { get => tileSize; set => tileSize = value; }
     public List<Tile> Tiles
     {
-      get => tiles;
+      get => this.tiles;
     }
     public List<Tile> BushTiles { get => bushTiles; set => bushTiles = value; }
     public List<Tile> WaterTiles { get => waterTiles; set => waterTiles = value; }

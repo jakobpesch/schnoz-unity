@@ -21,8 +21,11 @@ namespace Schnoz
       this.Tile = tile;
     }
   }
-  public class EventManager : Singleton<EventManager>
+  public sealed class EventManager
   {
+    private EventManager() { }
+    private static readonly Lazy<EventManager> lazy = new Lazy<EventManager>(() => new EventManager());
+    public static EventManager I { get { return lazy.Value; } }
     public event EventHandler<GameSettings> OnStartGame;
     public Action OnAllPlayersPresent;
     public event EventHandler<Player> OnStartTurn, OnEndTurn;
