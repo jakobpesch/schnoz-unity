@@ -6,7 +6,6 @@ using UnityEngine;
 
 namespace Schnoz
 {
-  [Serializable]
   public class TileArea : IEquatable<TileArea>
   {
     private Guid id;

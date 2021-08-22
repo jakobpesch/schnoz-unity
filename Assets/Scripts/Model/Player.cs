@@ -116,14 +116,14 @@ namespace Schnoz
     {
       return this.selectedCard != null;
     }
-    public void ClickCard(Card card)
-    {
-      EventManager.I.ClickCard(this, new ClickCardEventArgs(card));
-    }
-    public void ClickTile(Tile tile)
-    {
-      EventManager.I.ClickTile(this, new ClickTileEventArgs(tile));
-    }
+    // public void ClickCard(Card card)
+    // {
+    //   EventManager.I.ClickCard(this, new ClickCardEventArgs(card));
+    // }
+    // public void ClickTile(Tile tile)
+    // {
+    //   EventManager.I.ClickTile(this, new ClickTileEventArgs(tile));
+    // }
 
     public void SetActive(bool value)
     {

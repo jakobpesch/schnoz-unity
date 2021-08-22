@@ -21,12 +21,9 @@ namespace Schnoz
       this.Tile = tile;
     }
   }
-  public sealed class EventManager
+  public class EventManager
   {
-    private EventManager() { }
-    private static readonly Lazy<EventManager> lazy = new Lazy<EventManager>(() => new EventManager());
-    public static EventManager I { get { return lazy.Value; } }
-    public event EventHandler<GameSettings> OnStartGame;
+    public Action OnStartGame;
     public Action OnAllPlayersPresent;
     public event EventHandler<Player> OnStartTurn, OnEndTurn;
     public event EventHandler<Card> OnDrawCard, OnRotate, OnMirror, OnSelectCard;
@@ -34,11 +31,11 @@ namespace Schnoz
     public event EventHandler<ClickTileEventArgs> OnClickTile;
     public event EventHandler<Player> OnSpaceButton;
     public event EventHandler<Player> OnAbort;
-    public void StartGame(object sender, GameSettings settings)
+    public void StartGame()
     {
       // Debug.Log("EventManger:StartGame() Sender: " + sender);
       if (OnStartGame != null)
-        OnStartGame(sender, settings);
+        OnStartGame();
     }
     public void StartTurn(object sender, Player player)
     {

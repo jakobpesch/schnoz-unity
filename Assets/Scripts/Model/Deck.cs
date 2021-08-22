@@ -44,7 +44,7 @@ namespace Schnoz
         }
         Card drawnCard = cards[0];
         cards.RemoveAt(0);
-        EventManager.I.DrawCard(this, drawnCard);
+        Schnoz.I.eventManager.DrawCard(this, drawnCard);
       }
     }
     public void Shuffle()

@@ -14,12 +14,12 @@ namespace Schnoz
     private int points;
     public int Points
     {
-      get => points;
+      get => this.points;
     }
     private IList<object> relevantTiles;
     public IList<object> RelevantTiles
     {
-      get => relevantTiles;
+      get => this.relevantTiles;
       // set
       // {
       //   points = (value).Count * (name.Contains("min") ? -1 : 1);
@@ -28,8 +28,8 @@ namespace Schnoz
     }
     public RuleEvaluation(int Points, IList<object> RelevantTiles)
     {
-      points = Points;
-      relevantTiles = RelevantTiles;
+      this.points = Points;
+      this.relevantTiles = RelevantTiles;
     }
   }
 }

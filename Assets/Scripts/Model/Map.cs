@@ -9,19 +9,20 @@ using UnityEngine;
 namespace Schnoz
 {
   [Serializable]
-  public sealed class Map
+  public class Map
   {
-    private Map() { }
-    private static readonly Lazy<Map> lazy = new Lazy<Map>(() => new Map());
-    public static Map I { get { return lazy.Value; } }
-    public List<Card> CurrentCards;
     public Deck Deck;
     [SerializeField] private float tileGenerationInterval = 0f, terrainGenerationInterval = 0.4f;
     public bool GameStarted;
     public bool LocalGame;
-    public Tile CenterTile;
-    [SerializeField] private bool randomizeMap = false, increaseChanceOfAccumulation;
-    [SerializeField] private int nRows = 0, nCols = 0;
+    [SerializeField] private Tile centerTile;
+    public Tile CenterTile
+    {
+      get => this.centerTile;
+    }
+    [SerializeField]
+    private bool randomizeMap = false, increaseChanceOfAccumulation;
+
     [SerializeField] private float tileSize = 1;
     public float HalfTileSize { get => tileSize / 2; }
     public Terrain terrainBush, terrainStone, terrainWater;
@@ -30,8 +31,7 @@ namespace Schnoz
     [SerializeField] private List<List<Tile>> diagonalsFromBottomLeftToTopRight, diagonalsFromTopLeftToBottomRight;
     [SerializeField] private uint partsGrass, partsWater, partsBush, partsStone;
     [SerializeField] private float chanceGrass, chanceWater, chanceBush, chanceStone;
-    public int NRows { get => nRows; set => nRows = value; }
-    public int NCols { get => nCols; set => nCols = value; }
+
     public float TileSize { get => tileSize; set => tileSize = value; }
     public List<Tile> Tiles
     {
@@ -108,15 +108,22 @@ namespace Schnoz
     }
     public void Generate()
     {
+      Debug.Log(Schnoz.I);
+      Debug.Log(Schnoz.I.gameSettings);
       tiles = new List<Tile>();
-      for (int row = 0; row < nRows; row++)
+      for (int row = 0; row < Schnoz.I.gameSettings.NRows; row++)
       {
-        for (int col = 0; col < nCols; col++)
+        for (int col = 0; col < Schnoz.I.gameSettings.NCols; col++)
         {
           Tile tile = new Tile(row, col);
           tiles.Add(tile);
+          if (tile.Pos == (Math.Ceiling((float)(Schnoz.I.gameSettings.NRows / 2)), Math.Ceiling((float)(Schnoz.I.gameSettings.NCols / 2))))
+          {
+            this.centerTile = tile;
+          }
         }
       }
+
 
       if (randomizeMap)
       {
@@ -332,7 +339,7 @@ namespace Schnoz
     private List<List<Tile>> GetDiagonalsFromTopLeftToBottomRight()
     {
       IEnumerable<Tile> topAndLeftBorderTiles = this.tiles.Where(tile =>
-        tile.Row == this.nRows || tile.Col == 0);
+        tile.Row == Schnoz.I.gameSettings.NRows || tile.Col == 0);
 
       List<List<Tile>> diagonals = new List<List<Tile>>();
 

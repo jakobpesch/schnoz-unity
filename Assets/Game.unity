@@ -154,13 +154,29 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   schnoz:
     map:
-      CurrentCards: []
-      Players: []
+      tileGenerationInterval: 0
+      terrainGenerationInterval: 0.4
       GameStarted: 0
       LocalGame: 0
+      randomizeMap: 0
+      increaseChanceOfAccumulation: 0
+      tileSize: 1
+      tiles: []
+      visibleTiles: []
+      bushTiles: []
+      waterTiles: []
+      stoneTiles: []
+      areas: []
+      partsGrass: 0
+      partsWater: 0
+      partsBush: 0
+      partsStone: 0
+      chanceGrass: 0
+      chanceWater: 0
+      chanceBush: 0
+      chanceStone: 0
+    currentCards: []
     players: []
-    settings:
-      Rules: []
     turn: 0
     stage: 0
     activePlayer:
@@ -170,6 +186,8 @@ MonoBehaviour:
       singlePieces: 0
       stones: 0
       soundName: 
+      selectedCard:
+        type: 0
       active: 0
       rules: []
     NeutralPlayer:
@@ -179,6 +197,8 @@ MonoBehaviour:
       singlePieces: 0
       stones: 0
       soundName: 
+      selectedCard:
+        type: 0
       active: 0
       rules: []
 --- !u!4 &1248771129

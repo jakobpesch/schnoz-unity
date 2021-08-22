@@ -7,19 +7,20 @@ using UnityEngine;
 
 namespace Schnoz
 {
-  public delegate RuleEvaluation RuleLogic(Player player);
+  /// </summary>
+  /// A function delegate that contains the rules logic.
+  /// </summary>
+  public delegate RuleEvaluation RuleLogic(Player player, Map map);
   [Serializable]
   public class Rule
   {
-    private string name { get; set; }
     /// <summary>
     /// Contains the rule logic. 
     /// </summary>
-    private RuleLogic RuleLogic;
-    public Rule(string Name, RuleLogic Logic)
+    [SerializeField] private RuleLogic RuleLogic;
+    public Rule(RuleLogic ruleLogic)
     {
-      name = Name;
-      RuleLogic = Logic;
+      this.RuleLogic = ruleLogic;
     }
 
     /// <summary>
@@ -27,9 +28,10 @@ namespace Schnoz
     /// </summary>
     /// <param name="player">The player for who the rule will be evaluated for.</param>
     /// <returns>A RuleEvaluation object containing information about the </returns>
-    public RuleEvaluation Evaluate(Player player)
+    public RuleEvaluation Evaluate(Player player, Map map)
     {
-      return RuleLogic(player);
+      RuleEvaluation eval = RuleLogic(player, map);
+      return eval;
     }
 
     // public void TerrainRule(string terrain, string minmax, Player player)
@@ -62,54 +64,6 @@ namespace Schnoz
     //   AddRuleToPlayer(player, ruleName, validTerrainTiles);
     // }
 
-    // public void GeometryRule(string geometry, string minmax, Player player)
-    // {
-    //   string ruleName = geometry + minmax;
-
-    //   int points = 0;
-
-    //   if (geometry == "diagonal")
-    //   {
-    //     List<List<GameObject>> unitDiagonals = new List<List<GameObject>>();
-    //     foreach (List<GameObject> diagonal in M.I.Map_Diagonals())
-    //     {
-    //       List<GameObject> unitDiagonal = new List<GameObject>();
-    //       foreach (GameObject tile in diagonal)
-    //         if (tile.UnitProperties?.Owner != player)
-    //         {
-    //           if (unitDiagonal.Count() >= 3)
-    //             unitDiagonals.Add(unitDiagonal);
-    //           unitDiagonal = new List<GameObject>();
-    //         }
-    //         else
-    //           unitDiagonal.Add(tile);
-    //     }
-    //     List<List<GameObject>> validUnitDiagonals = new List<List<GameObject>>();
-    //     foreach (List<GameObject> unitDiagonal in unitDiagonals.Where(ud => ud.Count() >= 3))
-    //       validUnitDiagonals.Add(unitDiagonal);
-
-    //     points = validUnitDiagonals.Count() * (minmax == "min" ? -1 : 1);
-
-    //     AddRuleToPlayer(player, ruleName, validUnitDiagonals);
-
-    //   }
-
-    //   if (geometry == "holes")
-    //   {
-    //     List<GameObject> holes = new List<GameObject>();
-    //     Func<GameObject, bool> emptyAndPlaceableAndAtLeasteOnePlayer = H.And(T.Empty, H.And(T.Placeable, T.AdjacentUnitPlayer));
-    //     foreach (GameObject emptyPlaceableTile in M.I.Map_Tiles().Where(emptyAndPlaceableAndAtLeasteOnePlayer))
-    //     {
-    //       List<GameObject> adjacentTiles = T.AdjacentTiles(emptyPlaceableTile);
-    //       Func<GameObject, bool> allyOrTerrain = H.Or(T.UnitIsAllied, H.Not(T.Placeable));
-    //       if (adjacentTiles.All(allyOrTerrain)) holes.Add(emptyPlaceableTile);
-    //     }
-
-    //     points = holes.Count() * (minmax == "min" ? -1 : 1);
-
-    //     AddRuleToPlayer(player, ruleName, holes);
-    //   }
-    // }
 
 
   }
