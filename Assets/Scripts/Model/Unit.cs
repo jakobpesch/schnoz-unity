@@ -29,8 +29,11 @@ namespace Schnoz
     {
       get => owner;
     }
-    public Unit()
+    public Unit(Player owner, string unitName = "Bob", float vision = 3f)
     {
+      this.owner = owner;
+      this.unitName = unitName;
+      this.vision = vision;
       this.id = Guid.NewGuid();
     }
   }

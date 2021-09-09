@@ -134,7 +134,7 @@ GameObject:
   - component: {fileID: 1248771129}
   - component: {fileID: 1248771128}
   m_Layer: 0
-  m_Name: ViewModel
+  m_Name: StandardGame
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -149,32 +149,20 @@ MonoBehaviour:
   m_GameObject: {fileID: 1248771127}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: df545e09e7abf4948a2f73f0162acb9c, type: 3}
+  m_Script: {fileID: 11500000, guid: ddfc8ad3bdc434a83aab42df8df00f15, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   schnoz:
-    map:
-      tileGenerationInterval: 0
-      terrainGenerationInterval: 0.4
-      GameStarted: 0
-      LocalGame: 0
-      randomizeMap: 0
-      increaseChanceOfAccumulation: 0
-      tileSize: 1
-      tiles: []
-      visibleTiles: []
-      bushTiles: []
-      waterTiles: []
-      stoneTiles: []
-      areas: []
-      partsGrass: 0
-      partsWater: 0
-      partsBush: 0
-      partsStone: 0
-      chanceGrass: 0
-      chanceWater: 0
-      chanceBush: 0
-      chanceStone: 0
+    gameSettings:
+      Rules: []
+      turnOrder: []
+      numberOfStages: 6
+      numberOfSinglePieces: 1
+      numberOfCardsPerTurn: 4
+      deckSize: 0
+      players: []
+      nRows: 11
+      nCols: 11
     currentCards: []
     players: []
     turn: 0

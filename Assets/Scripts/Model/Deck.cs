@@ -3,53 +3,63 @@ using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 using Schnoz;
+using Utils;
 using UnityEngine;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
 
 namespace Schnoz
 {
   [Serializable]
-  public class Deck
+  public class Deck : Observable
   {
-    private List<Card> cards = new List<Card>();
+    private List<Card> cards;
     public List<Card> Cards
-    { get => cards; }
-
+    {
+      get => this.cards;
+      set
+      {
+        this.cards = value;
+        this.NotifyPropertyChanged();
+      }
+    }
     public Deck(int size = Defaults.DeckSize)
     {
+      this.cards = new List<Card>();
       int i = 0;
-      var cardTypes = Enum.GetValues(typeof(CardType)).Cast<CardType>().ToList();
+      List<CardType> cardTypes = Enum.GetValues(typeof(CardType)).Cast<CardType>().ToList();
       while (true)
       {
         foreach (CardType cardType in cardTypes)
         {
-          cards.Add(new Card(cardType));
+          this.cards.Add(new Card(cardType));
           if (++i == size)
           {
             return;
           }
         }
       }
+    }
 
-    }
-    /// <summary>
-    /// Draws cards. Fires an Event for each drawn card.
-    /// </summary>
-    public void Draw(int numberOfCards = 1)
+    public Card Draw()
     {
-      for (int i = 0; i < numberOfCards; i++)
+      Debug.Log("Drawing Card");
+      if (this.Cards.Count == 0)
       {
-        if (cards.Count == 0)
-        {
-          return;
-        }
-        Card drawnCard = cards[0];
-        cards.RemoveAt(0);
-        Schnoz.I.eventManager.DrawCard(this, drawnCard);
+        return null;
       }
+
+      Card drawnCard = this.Cards[0];
+      this.Cards.RemoveAt(0);
+      this.NotifyPropertyChanged("Deck.Cards");
+      return drawnCard;
     }
+
     public void Shuffle()
     {
-      cards.OrderBy(x => UnityEngine.Random.value).ToList();
+      Debug.Log("Shuffling Deck");
+      Cards.OrderBy(x => UnityEngine.Random.value).ToList();
+      this.NotifyPropertyChanged("Deck.Cards");
     }
   }
 }

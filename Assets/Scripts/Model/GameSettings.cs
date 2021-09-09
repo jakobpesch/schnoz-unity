@@ -28,6 +28,11 @@ namespace Schnoz
     {
       get => this.numberOfCardsPerTurn;
     }
+    [SerializeField] private int deckSize = 30;
+    public int DeckSize
+    {
+      get => this.deckSize;
+    }
     [SerializeField] private List<Player> players;
     public List<Player> Players
     {
@@ -37,14 +42,24 @@ namespace Schnoz
     public int NRows { get => nRows; }
     public int NCols { get => nCols; }
 
-    public void SetPlayers(List<Player> players)
+    public GameSettings(int nRows, int nCols, int numberOfCardsPerTurn, int numberOfSinglePieces, int numberOfStages, int deckSize, List<Player> players)
+    {
+      Debug.Log("GameSettings constructor");
+      this.nCols = nCols;
+      this.nRows = nRows;
+      this.numberOfCardsPerTurn = numberOfCardsPerTurn;
+      this.numberOfSinglePieces = numberOfSinglePieces;
+      this.numberOfStages = numberOfStages;
+      this.SetPlayers(players);
+      this.CreateStages();
+    }
+    private void SetPlayers(List<Player> players)
     {
       this.players = players;
     }
-    public void CreateStages()
+    private void CreateStages()
     {
       // if (this.players.Count == 2) ... TODO: Player count dependant stage
-      Debug.Log(this.players.Count);
       List<Player> stage = new List<Player>() { this.players[0], this.players[1], this.players[1], this.players[0], this.players[0], this.players[1] };
       List<Player> reverseStage = new List<Player>(stage);
       reverseStage.Reverse();

@@ -1,63 +1,125 @@
 using System;
+using System.Linq;
 using System.Collections;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
 using System.Collections.Generic;
+using Utils;
 using UnityEngine;
 namespace Schnoz
 {
   [Serializable]
-  public class Schnoz
+  public class Schnoz : Observable
   {
-    private static readonly Schnoz instance = new Schnoz();
-    static Schnoz()
+    // private static readonly Schnoz instance = new Schnoz();
+    // static Schnoz()
+    // {
+    //   Debug.Log("static Schnoz");
+    // }
+    // private Schnoz()
+    // {
+    //   Debug.Log("private Schnoz");
+    //   this.gameSettings = new GameSettings();
+    //   this.eventManager = new EventManager();
+    // }
+    // public static Schnoz I { get => instance; }
+    public Schnoz(GameSettings gameSettings)
     {
-      Debug.Log("static Schnoz");
-    }
-    private Schnoz()
-    {
-      Debug.Log("private Schnoz");
-      this.gameSettings = new GameSettings();
+      this.gameSettings = gameSettings;
       this.eventManager = new EventManager();
     }
-    public static Schnoz I { get => instance; }
-
-    public Map map;
     public EventManager eventManager;
     public GameSettings gameSettings;
+    private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
+    {
+      Debug.Log($"{this} was notified about change in {e.PropertyName}.");
+      this.NotifyPropertyChanged(e.PropertyName);
+    }
+
+    private Map map;
+    public Map Map
+    {
+      get => this.map;
+      set
+      {
+        this.map = value;
+      }
+    }
     [SerializeField] private Deck deck;
-    [SerializeField] private List<Card> currentCards;
+    public Deck Deck
+    {
+      get => this.deck;
+      set
+      {
+        // TODO: Custom Equality and HashCode
+        bool bothNull = this.deck == null && value == null;
+        bool bothNotNull = this.deck != null && value != null;
+        bool bothCardsNull = bothNotNull && this.deck.Cards == null && value.Cards == null;
+        bool bothCardsExistingAndEqualSequence = bothNotNull && this.deck.Cards != null && value.Cards != null && value.Cards.SequenceEqual(this.deck.Cards);
+
+        if (bothNotNull && this.deck.Cards != null && value.Cards != null)
+        {
+          Debug.Log($"this.deck.Cards: {this.deck.Cards.Count}, value.Cards: {value.Cards.Count}");
+        }
+        Debug.Log($"bothNull: {bothNull}, bothCardsNull: {bothCardsNull}, bothCardsExistingAndEqualSequence: {bothCardsExistingAndEqualSequence}");
+
+        if (!bothNull && !bothCardsNull && !bothCardsExistingAndEqualSequence)
+        {
+          this.deck = value;
+          this.NotifyPropertyChanged();
+        }
+      }
+    }
+    [SerializeField] private List<Card> currentCards = new List<Card>();
+    public List<Card> CurrentCards
+    {
+      get => this.currentCards;
+      set
+      {
+        if (value != this.currentCards)
+        {
+          this.currentCards = value;
+          this.NotifyPropertyChanged();
+        }
+      }
+    }
     [SerializeField] private List<Player> players;
     [SerializeField] private int turn;
     [SerializeField] private int stage;
-    public List<Player> Players { get => gameSettings.Players; }
+    public List<Player> Players { get => this.gameSettings.Players; }
     [SerializeField] private Player activePlayer;
     public Player ActivePlayer { get => this.Players.Find(player => player.Active); }
     public Player NeutralPlayer;
     public void Start()
     {
-      this.eventManager = new EventManager();
-      Debug.Log("GameManager listens to: OnStartGame");
-      this.eventManager.OnStartGame += this.StartGame;
-      this.eventManager.OnClickCard += this.OnClickCardHandler;
-      this.eventManager.OnAbort += this.OnAbortHandler;
+      // this.eventManager = new EventManager();
+      // Debug.Log("GameManager listens to: OnStartGame");
+      // this.eventManager.OnStartGame += this.StartGame;
+      // this.eventManager.OnClickCard += this.OnClickCardHandler;
+      // this.eventManager.OnAbort += this.OnAbortHandler;
 
-      this.eventManager.StartGame();
+      // this.eventManager.StartGame();
     }
     private void StartGame()
     {
-      Debug.Log("Starting Game");
-      this.map = new Map();
+      // Debug.Log("Starting Game");
+      // Debug.Log(this.Map);
+      // this.Map = new Map(this.gameSettings.NRows, this.gameSettings.NCols);
+      // Debug.Log(this.Map);
+      // Debug.Log(this.Map.Tiles);
+
       // if (sender.GetType() != typeof(Menu)) { return; } TODO:SenderCheck
 
       // Debug.Log("GameManager listens to: OnEndTurn");
-      this.eventManager.OnEndTurn += this.EndTurn;
+      // this.eventManager.OnEndTurn += this.EndTurn;
 
-      // Debug.Log("GameManager listens to: OnAllPlayersPresent");
-      this.eventManager.OnAllPlayersPresent += this.Init;
+      // // Debug.Log("GameManager listens to: OnAllPlayersPresent");
+      // this.eventManager.OnAllPlayersPresent += this.Init;
 
-      // Debug.Log("GameManager listens to: OnSpaceButton");
-      this.eventManager.OnSpaceButton += this.SpaceButton;
+      // // Debug.Log("GameManager listens to: OnSpaceButton");
+      // this.eventManager.OnSpaceButton += this.SpaceButton;
 
-      this.eventManager.AllPlayersPresent();
+      // this.eventManager.AllPlayersPresent();
       // StartCoroutine(WaitForPlayers());
 
       // IEnumerator WaitForPlayers()
@@ -119,42 +181,82 @@ namespace Schnoz
       List<RuleEvaluation> turnEvaluation = new List<RuleEvaluation>();
       foreach (Rule rule in rules)
       {
-        turnEvaluation.Add(rule.Evaluate(player, this.map));
+        turnEvaluation.Add(rule.Evaluate(player, this.Map));
       }
       player.AddTurnEvaluation(turnEvaluation);
     }
+    public void CreateMap()
+    {
+      Debug.Log("Map will be Created");
+      Map newMap = new Map(this.gameSettings.NRows, this.gameSettings.NCols);
+      newMap.PropertyChanged -= new PropertyChangedEventHandler(this.OnPropertyChanged);
+      newMap.PropertyChanged += new PropertyChangedEventHandler(this.OnPropertyChanged);
+      bool mapWasNull = this.Map == null;
+      this.Map = newMap;
+      this.NotifyPropertyChanged("Map");
+    }
+
+    public void CreateDeck()
+    {
+      Debug.Log("Deck will be Created");
+      this.Deck = new Deck(this.gameSettings.DeckSize);
+      this.Deck.PropertyChanged -= new PropertyChangedEventHandler(this.OnPropertyChanged);
+      this.Deck.PropertyChanged += new PropertyChangedEventHandler(this.OnPropertyChanged);
+      this.NotifyPropertyChanged("Deck");
+
+    }
+
+    public void ShuffleDeck()
+    {
+      Debug.Log("Deck will be Shuffled");
+      this.Deck.Shuffle();
+      this.NotifyPropertyChanged("Deck");
+    }
+
+    public void DrawCards()
+    {
+      for (int i = 0; i < gameSettings.NumberOfCardsPerTurn; i++)
+      {
+        Card drawnCard = this.Deck.Draw();
+        Debug.Log($"Card drawn. Remaining cards in deck: {this.Deck.Cards.Count}");
+        this.CurrentCards.Add(drawnCard);
+        this.NotifyPropertyChanged("Deck");
+        // this.eventManager.DrawCard(this, drawnCard);
+      }
+    }
+
+    public void PlaceUnit((int, int) pos)
+    {
+      Debug.Log("Placing Unit");
+      Unit unit = new Unit(this.gameSettings.Players[0], "Peter", 2);
+      Tile tile = this.map.Tiles.Find(tile => tile.Pos == pos);
+      tile.Unit = unit;
+      this.NotifyPropertyChanged("Map");
+    }
     public void Init()
     {
-      // Debug.Log("GameManager unlistens to: OnAllPlayersPresent");
-      this.eventManager.OnAllPlayersPresent -= this.Init;
+      // // Debug.Log("GameManager unlistens to: OnAllPlayersPresent");
+      // this.eventManager.OnAllPlayersPresent -= this.Init;
 
-      this.map.Generate();
-      this.map.Deck = new Deck();
-      this.map.Deck.Shuffle();
-      this.gameSettings.SetPlayers(new List<Player>() { new Player(0), new Player(1) });
-      this.gameSettings.CreateStages();
+      // this.turn = 0;
 
-      this.currentCards = new List<Card>();
+      // this.Map.ClearTiles();
 
-      this.turn = 0;
-
-      this.map.ClearTiles();
-
-      foreach (Player player in gameSettings.Players)
-      {
-        player.SetSinglePieces(gameSettings.NumberOfSinglePieces);
-      }
+      // foreach (Player player in gameSettings.Players)
+      // {
+      //   player.SetSinglePieces(gameSettings.NumberOfSinglePieces);
+      // }
 
       // this.NeutralPlayer = new Player(3, Color.white, this.capital.GetComponent<SpriteRenderer>().sprite, 0);
       // SpawnManager.I.SpawnUnit(this.capital, this.map.CenterTile, this.NeutralPlayer);
 
-      this.map.Scan();
+      // this.Map.Scan();
 
-      this.map.Deck.Draw(gameSettings.NumberOfCardsPerTurn);
 
-      this.SetActivePlayer(0);
 
-      this.map.GameStarted = true;
+      // this.SetActivePlayer(0);
+
+      // this.Map.GameStarted = true;
       // UIManager.I.Init();
 
       // M.I.UI_UpdateScore();
@@ -168,12 +270,12 @@ namespace Schnoz
       // M.I.Map_Scan();
       // this.map.GameStarted = true;
     }
-    private void SetActivePlayer(int turn)
+    public void SetActivePlayer(int turn)
     {
-
       Player player = gameSettings.TurnOrder[turn];
       player.SetActive(true);
       this.eventManager.StartTurn(this, player);
+      Debug.Log($"{player.Id} is the current Player");
     }
     private void EndTurn(object sender, Player player)
     {
@@ -196,7 +298,7 @@ namespace Schnoz
       List<RuleEvaluation> roundEvaluation = new List<RuleEvaluation>();
       foreach (Rule rule in gameSettings.Rules)
       {
-        roundEvaluation.Add(rule.Evaluate(player, this.map));
+        roundEvaluation.Add(rule.Evaluate(player, this.Map));
       }
       player.AddTurnEvaluation(roundEvaluation);
     }

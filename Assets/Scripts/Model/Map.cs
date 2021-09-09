@@ -1,17 +1,16 @@
 ﻿using System;
-using System.Numerics;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using Schnoz;
+using Utils;
 using UnityEngine;
 
 namespace Schnoz
 {
   [Serializable]
-  public class Map
+  public class Map : Observable
   {
-    public Deck Deck;
+    private int nRows;
+    private int nCols;
     [SerializeField] private float tileGenerationInterval = 0f, terrainGenerationInterval = 0.4f;
     public bool GameStarted;
     public bool LocalGame;
@@ -44,7 +43,35 @@ namespace Schnoz
     public List<List<Tile>> DiagonalsFromBottomLeftToTopRight { get => DiagonalsFromBottomLeftToTopRight; }
     public List<List<Tile>> DiagonalsFromTopLeftToBottomRight { get => DiagonalsFromTopLeftToBottomRight; }
     public List<Tile> VisibleTiles { get => visibleTiles; }
+    public Map(int nRows, int nCols)
+    {
+      this.nRows = nRows;
+      this.nCols = nCols;
+      tiles = new List<Tile>();
+      for (int row = 0; row < nRows; row++)
+      {
+        for (int col = 0; col < nCols; col++)
+        {
+          Tile tile = new Tile(row, col);
+          tiles.Add(tile);
+          if (tile.Pos == (Math.Ceiling((float)(nRows / 2)), Math.Ceiling((float)(nCols / 2))))
+          {
+            this.centerTile = tile;
+          }
+        }
+      }
+      // if (randomizeMap)
+      // {
+      //   foreach (Tile tile in tiles)
+      //   {
+      //     this.Randomize(tile);
+      //   }
+      // }
+      diagonalsFromBottomLeftToTopRight = GetDiagonalsFromBottomLeftToTopRight();
+      diagonalsFromTopLeftToBottomRight = GetDiagonalsFromTopLeftToBottomRight();
 
+      // UpdateTerrainTiles();
+    }
     public Tile GetTile(Guid id)
     {
       return this.tiles.Find(t => t.Id == id);
@@ -100,43 +127,11 @@ namespace Schnoz
           tile.SetAdjacentAllies(GetAdjacentAllies(tile, GetTilesWithUnitsFrom(this.GetTiles(tile.AdjacentTilesIds)).ToList()).ToList());
         }
         // Update Area
-        UpdateArea(tile, new TileArea());
+        this.UpdateArea(tile, new TileArea());
       }
       // UIManager.I.UpdateMaxZoomSize();
       // UpdateTerrainTiles();
       // UpdateTerrainTile("stone");
-    }
-    public void Generate()
-    {
-      Debug.Log(Schnoz.I);
-      Debug.Log(Schnoz.I.gameSettings);
-      tiles = new List<Tile>();
-      for (int row = 0; row < Schnoz.I.gameSettings.NRows; row++)
-      {
-        for (int col = 0; col < Schnoz.I.gameSettings.NCols; col++)
-        {
-          Tile tile = new Tile(row, col);
-          tiles.Add(tile);
-          if (tile.Pos == (Math.Ceiling((float)(Schnoz.I.gameSettings.NRows / 2)), Math.Ceiling((float)(Schnoz.I.gameSettings.NCols / 2))))
-          {
-            this.centerTile = tile;
-          }
-        }
-      }
-
-
-      if (randomizeMap)
-      {
-        foreach (Tile tile in tiles)
-        {
-          this.Randomize(tile);
-        }
-      }
-
-      diagonalsFromBottomLeftToTopRight = GetDiagonalsFromBottomLeftToTopRight();
-      diagonalsFromTopLeftToBottomRight = GetDiagonalsFromTopLeftToBottomRight();
-
-      // UpdateTerrainTiles();
     }
 
     public void ClearTiles()
@@ -150,6 +145,7 @@ namespace Schnoz
         return new Tile(tile.Row, tile.Col, tile.Terrain);
       }
       );
+      this.NotifyPropertyChanged();
     }
 
     private void Randomize(Tile tile)
@@ -207,11 +203,13 @@ namespace Schnoz
 
       this.CenterTile.SetTerrain(null);
 
-      //// Debug.Log("Rerolls successful: " + rerollSucceeded + "\nReroll failed: " + rerollFailed);
+      // Debug.Log("Rerolls successful: " + rerollSucceeded + "\nReroll failed: " + rerollFailed);
       foreach (Tile t in GetTilesWithinRadius(this.CenterTile, 2))//GameManager.I.safeArea))
         t.SetTerrain(null);
 
       // Scan();
+
+      this.NotifyPropertyChanged();
     }
 
     public IEnumerable<Unit> GetAdjacentEnemies(Tile centerTile, List<Tile> adjacentTiles)
@@ -339,7 +337,7 @@ namespace Schnoz
     private List<List<Tile>> GetDiagonalsFromTopLeftToBottomRight()
     {
       IEnumerable<Tile> topAndLeftBorderTiles = this.tiles.Where(tile =>
-        tile.Row == Schnoz.I.gameSettings.NRows || tile.Col == 0);
+        tile.Row == this.nRows || tile.Col == 0);
 
       List<List<Tile>> diagonals = new List<List<Tile>>();
 
