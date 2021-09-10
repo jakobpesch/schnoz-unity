@@ -1,13 +1,14 @@
 using System.ComponentModel;
 using UnityEngine;
+using Utils;
 using Schnoz;
 
 public class StandardGameViewManager : MonoBehaviour
 {
   public StandardGame game;
-
+  private InputManager inputManager;
   public Sprite sprite;
-
+  private Camera mainCam;
   private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
   {
     Debug.Log($"{this} was notified about change in {e.PropertyName}.");
@@ -17,6 +18,12 @@ public class StandardGameViewManager : MonoBehaviour
       this.RenderMap();
     }
   }
+
+  private void Start()
+  {
+    this.mainCam = Camera.main;
+  }
+
   public void StartListening()
   {
     this.game.Schnoz.PropertyChanged -= new PropertyChangedEventHandler(this.OnPropertyChanged);
@@ -34,6 +41,9 @@ public class StandardGameViewManager : MonoBehaviour
     GameObject tileGO = new GameObject($"{tile.Pos}");
     SpriteRenderer sr = tileGO.AddComponent<SpriteRenderer>();
     sr.sprite = Resources.Load<Sprite>("Sprites/tile_grass");
+    TileView tileView = tileGO.AddComponent<TileView>();
+    tileView.game = this.game;
+    tileView.tile = tile;
     return tileGO;
   }
 

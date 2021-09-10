@@ -1,8 +1,6 @@
 using System;
 using System.Linq;
-using System.Collections;
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
+// using System.ComponentModel;
 using System.Collections.Generic;
 using Utils;
 using UnityEngine;
@@ -11,31 +9,11 @@ namespace Schnoz
   [Serializable]
   public class Schnoz : Observable
   {
-    // private static readonly Schnoz instance = new Schnoz();
-    // static Schnoz()
-    // {
-    //   Debug.Log("static Schnoz");
-    // }
-    // private Schnoz()
-    // {
-    //   Debug.Log("private Schnoz");
-    //   this.gameSettings = new GameSettings();
-    //   this.eventManager = new EventManager();
-    // }
-    // public static Schnoz I { get => instance; }
     public Schnoz(GameSettings gameSettings)
     {
       this.gameSettings = gameSettings;
-      this.eventManager = new EventManager();
     }
-    public EventManager eventManager;
     public GameSettings gameSettings;
-    private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
-    {
-      Debug.Log($"{this} was notified about change in {e.PropertyName}.");
-      this.NotifyPropertyChanged(e.PropertyName);
-    }
-
     private Map map;
     public Map Map
     {
@@ -189,8 +167,6 @@ namespace Schnoz
     {
       Debug.Log("Map will be Created");
       Map newMap = new Map(this.gameSettings.NRows, this.gameSettings.NCols);
-      newMap.PropertyChanged -= new PropertyChangedEventHandler(this.OnPropertyChanged);
-      newMap.PropertyChanged += new PropertyChangedEventHandler(this.OnPropertyChanged);
       bool mapWasNull = this.Map == null;
       this.Map = newMap;
       this.NotifyPropertyChanged("Map");
@@ -200,10 +176,7 @@ namespace Schnoz
     {
       Debug.Log("Deck will be Created");
       this.Deck = new Deck(this.gameSettings.DeckSize);
-      this.Deck.PropertyChanged -= new PropertyChangedEventHandler(this.OnPropertyChanged);
-      this.Deck.PropertyChanged += new PropertyChangedEventHandler(this.OnPropertyChanged);
       this.NotifyPropertyChanged("Deck");
-
     }
 
     public void ShuffleDeck()
@@ -231,6 +204,32 @@ namespace Schnoz
       Unit unit = new Unit(this.gameSettings.Players[0], "Peter", 2);
       Tile tile = this.map.Tiles.Find(tile => tile.Pos == pos);
       tile.Unit = unit;
+      // this.NotifyPropertyChanged("Map");
+    }
+    public void RemoveUnit((int, int) pos)
+    {
+      Debug.Log("Removing Unit");
+      Tile tile = this.map.Tiles.Find(tile => tile.Pos == pos);
+      tile.Unit = null;
+      this.NotifyPropertyChanged("Map");
+    }
+    public void PlaceUnitFormation((int, int) pos, UnitFormation unitFormation)
+    {
+      foreach ((int, int) deviation in unitFormation.Arrangement)
+      {
+        (int, int) newPos = (pos.Item1 - deviation.Item1, pos.Item2 - deviation.Item2);
+        if (newPos.Item1 < 0 || newPos.Item2 < 0 || newPos.Item1 > this.gameSettings.NCols - 1 || newPos.Item2 > this.gameSettings.NRows - 1)
+        {
+          break;
+        }
+        this.PlaceUnit(newPos);
+      }
+
+
+      // Debug.Log("Placing Unit");
+      // Unit unit = new Unit(this.gameSettings.Players[0], "Peter", 2);
+      // Tile tile = this.map.Tiles.Find(tile => tile.Pos == pos);
+      // tile.Unit = unit;
       this.NotifyPropertyChanged("Map");
     }
     public void Init()
@@ -274,7 +273,7 @@ namespace Schnoz
     {
       Player player = gameSettings.TurnOrder[turn];
       player.SetActive(true);
-      this.eventManager.StartTurn(this, player);
+      // this.eventManager.StartTurn(this, player);
       Debug.Log($"{player.Id} is the current Player");
     }
     private void EndTurn(object sender, Player player)
