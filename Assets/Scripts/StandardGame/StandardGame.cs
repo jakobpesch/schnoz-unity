@@ -45,6 +45,9 @@ namespace Schnoz
       viewManager.StartListening();
 
       this.schnoz.CreateMap();
+      this.schnoz.CreateDeck();
+      this.schnoz.ShuffleDeck();
+      this.schnoz.DrawCards();
       // List<RuleLogic> ruleLogics = new List<RuleLogic>();
       // ruleLogics.Add(RuleLogicMethods.DiagonalToTopRight);
     }

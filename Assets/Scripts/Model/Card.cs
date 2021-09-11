@@ -1,6 +1,5 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
+using UnityEngine;
 
 namespace Schnoz
 {
@@ -12,7 +11,7 @@ namespace Schnoz
     {
       get => this.id;
     }
-    public CardType type;
+    [SerializeField] private CardType type;
     public CardType Type { get => this.type; }
 
     public Card(CardType type)

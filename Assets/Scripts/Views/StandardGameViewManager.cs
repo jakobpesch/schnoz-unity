@@ -20,6 +20,11 @@ public class StandardGameViewManager : MonoBehaviour
       this.RenderMap();
       // StartCoroutine(this.RenderMapSlowly());
     }
+    if (e.PropertyName == "CurrentCards")
+    {
+      this.RenderCurrentCards();
+      // StartCoroutine(this.RenderMapSlowly());
+    }
   }
 
   private void Start()
@@ -102,5 +107,30 @@ public class StandardGameViewManager : MonoBehaviour
     }
 
     Debug.Log("Rendered Map successfully!");
+  }
+
+  private GameObject RenderCard(Card card)
+  {
+    GameObject cardGO = new GameObject($"{card.Type}");
+    SpriteRenderer sr = cardGO.AddComponent<SpriteRenderer>();
+    var fileName = card.Type.ToString();
+    Debug.Log(fileName);
+    sr.sprite = Resources.Load<Sprite>($"Sprites/{fileName}");
+    sr.sortingOrder = 20;
+    return cardGO;
+  }
+  private void RenderCurrentCards()
+  {
+    Debug.Log("Rendering Current Cards");
+    GameObject currentCardsGO = GameObject.Find("CurrentCards");
+    Destroy(currentCardsGO);
+    currentCardsGO = new GameObject("CurrentCards");
+    int index = 0;
+    this.game.Schnoz.CurrentCards.ForEach(card =>
+    {
+      GameObject cardGO = this.RenderCard(card);
+      cardGO.transform.SetParent(currentCardsGO.transform);
+      cardGO.transform.localPosition = new Vector2(-3, index++);
+    });
   }
 }

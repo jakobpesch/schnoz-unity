@@ -9,7 +9,7 @@ namespace Schnoz
   [Serializable]
   public class Deck : Observable
   {
-    private List<Card> cards;
+    [SerializeField] private List<Card> cards;
     public List<Card> Cards
     {
       get => this.cards;
@@ -54,7 +54,7 @@ namespace Schnoz
     public void Shuffle()
     {
       Debug.Log("Shuffling Deck");
-      Cards.OrderBy(x => UnityEngine.Random.value).ToList();
+      this.cards = this.cards.OrderBy(x => UnityEngine.Random.value).ToList();
       this.NotifyPropertyChanged("Deck.Cards");
     }
   }

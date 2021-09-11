@@ -29,23 +29,7 @@ namespace Schnoz
       get => this.deck;
       set
       {
-        // TODO: Custom Equality and HashCode
-        bool bothNull = this.deck == null && value == null;
-        bool bothNotNull = this.deck != null && value != null;
-        bool bothCardsNull = bothNotNull && this.deck.Cards == null && value.Cards == null;
-        bool bothCardsExistingAndEqualSequence = bothNotNull && this.deck.Cards != null && value.Cards != null && value.Cards.SequenceEqual(this.deck.Cards);
-
-        if (bothNotNull && this.deck.Cards != null && value.Cards != null)
-        {
-          Debug.Log($"this.deck.Cards: {this.deck.Cards.Count}, value.Cards: {value.Cards.Count}");
-        }
-        Debug.Log($"bothNull: {bothNull}, bothCardsNull: {bothCardsNull}, bothCardsExistingAndEqualSequence: {bothCardsExistingAndEqualSequence}");
-
-        if (!bothNull && !bothCardsNull && !bothCardsExistingAndEqualSequence)
-        {
-          this.deck = value;
-          this.NotifyPropertyChanged();
-        }
+        this.deck = value;
       }
     }
     [SerializeField] private List<Card> currentCards = new List<Card>();
@@ -54,11 +38,7 @@ namespace Schnoz
       get => this.currentCards;
       set
       {
-        if (value != this.currentCards)
-        {
-          this.currentCards = value;
-          this.NotifyPropertyChanged();
-        }
+        this.currentCards = value;
       }
     }
     [SerializeField] private List<Player> players;
@@ -182,7 +162,7 @@ namespace Schnoz
     public void ShuffleDeck()
     {
       Debug.Log("Deck will be Shuffled");
-      this.Deck.Shuffle();
+      this.deck.Shuffle();
       this.NotifyPropertyChanged("Deck");
     }
 
@@ -193,9 +173,9 @@ namespace Schnoz
         Card drawnCard = this.Deck.Draw();
         Debug.Log($"Card drawn. Remaining cards in deck: {this.Deck.Cards.Count}");
         this.CurrentCards.Add(drawnCard);
-        this.NotifyPropertyChanged("Deck");
         // this.eventManager.DrawCard(this, drawnCard);
       }
+      this.NotifyPropertyChanged("CurrentCards");
     }
 
     public void PlaceUnit((int, int) pos)
