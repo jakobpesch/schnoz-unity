@@ -6,14 +6,12 @@ namespace Schnoz
 {
   public class UnitFormation
   {
-    public UnitFormation()
+    public UnitFormation(List<(int row, int col)> arrangement)
     {
-      this.arrangement = new List<(int, int)>();
-      this.arrangement.Add((0, 0));
-      this.arrangement.Add((0, 1));
+      this.arrangement = new List<(int row, int col)>(arrangement);
     }
-    private List<(int, int)> arrangement;
-    public List<(int, int)> Arrangement
+    private List<(int row, int col)> arrangement;
+    public List<(int row, int col)> Arrangement
     {
       get => this.arrangement;
     }

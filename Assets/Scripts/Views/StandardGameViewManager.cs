@@ -1,3 +1,5 @@
+
+using System.Collections;
 using System.ComponentModel;
 using UnityEngine;
 using Utils;
@@ -16,6 +18,7 @@ public class StandardGameViewManager : MonoBehaviour
     if (e.PropertyName == "Map")
     {
       this.RenderMap();
+      // StartCoroutine(this.RenderMapSlowly());
     }
   }
 
@@ -51,7 +54,7 @@ public class StandardGameViewManager : MonoBehaviour
   {
     GameObject unitGO = new GameObject($"Unit:{unit.UnitName}:{unit.Vision}");
     SpriteRenderer sr = unitGO.AddComponent<SpriteRenderer>();
-    sr.sprite = Resources.Load<Sprite>("Sprites/capital");
+    sr.sprite = Resources.Load<Sprite>("Sprites/bob");
     sr.sortingOrder = 10;
     return unitGO;
   }
@@ -75,6 +78,29 @@ public class StandardGameViewManager : MonoBehaviour
         unitGO.transform.localPosition = new Vector2(0, 0);
       }
     });
+    Debug.Log("Rendered Map successfully!");
+  }
+  private IEnumerator RenderMapSlowly(float interval = 0.1f)
+  {
+    Debug.Log("Rendering Map");
+    GameObject mapGO = GameObject.Find("Map");
+    Destroy(mapGO);
+    mapGO = new GameObject("Map");
+
+    foreach (Tile tile in this.game.Schnoz.Map.Tiles)
+    {
+      yield return new WaitForSeconds(interval);
+      GameObject tileGO = this.RenderTile(tile);
+      tileGO.transform.SetParent(mapGO.transform);
+      tileGO.transform.localPosition = new Vector2(tile.Pos.col, tile.Pos.row);
+      if (tile.Unit != null)
+      {
+        GameObject unitGO = this.RenderUnit(tile.Unit);
+        unitGO.transform.SetParent(tileGO.transform);
+        unitGO.transform.localPosition = new Vector2(0, 0);
+      }
+    }
+
     Debug.Log("Rendered Map successfully!");
   }
 }

@@ -213,12 +213,12 @@ namespace Schnoz
       tile.Unit = null;
       this.NotifyPropertyChanged("Map");
     }
-    public void PlaceUnitFormation((int, int) pos, UnitFormation unitFormation)
+    public void PlaceUnitFormation((int row, int col) pos, UnitFormation unitFormation)
     {
-      foreach ((int, int) deviation in unitFormation.Arrangement)
+      foreach ((int row, int col) deviation in unitFormation.Arrangement)
       {
-        (int, int) newPos = (pos.Item1 - deviation.Item1, pos.Item2 - deviation.Item2);
-        if (newPos.Item1 < 0 || newPos.Item2 < 0 || newPos.Item1 > this.gameSettings.NCols - 1 || newPos.Item2 > this.gameSettings.NRows - 1)
+        (int row, int col) newPos = (pos.row + deviation.row, pos.col + deviation.col);
+        if (newPos.row < 0 || newPos.col < 0 || newPos.row > this.gameSettings.NCols - 1 || newPos.col > this.gameSettings.NRows - 1)
         {
           break;
         }

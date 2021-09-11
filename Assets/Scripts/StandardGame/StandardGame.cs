@@ -36,7 +36,8 @@ namespace Schnoz
     {
       this.gameSettings = new GameSettings(5, 5, 3, 0, 6, 30, new List<Player>() { new Player(0), new Player(1) });
       this.schnoz = new Schnoz(this.gameSettings);
-      this.unitFormation = new UnitFormation();
+      List<(int row, int col)> arrangement = new List<(int, int)>() { (0, 0) };
+      this.unitFormation = new UnitFormation(arrangement);
 
       StandardGameViewManager viewManager = new GameObject("ViewManager").AddComponent<StandardGameViewManager>();
       viewManager.transform.SetParent(this.transform);
