@@ -4,14 +4,15 @@ using System.Linq;
 using System.Collections.Generic;
 using UnityEngine;
 using TypeAliases;
+using System.ComponentModel;
 namespace Schnoz
 {
   public class StandardGame : MonoBehaviour
   {
-
+    private StandardGameViewManager viewManager;
     [SerializeField] private Schnoz schnoz;
     private GameSettings gameSettings;
-    public List<Tile> HoveringTiles = new List<Tile>();
+    public List<Tile> HoveringTiles;
 
     public Coordinate p = new Coordinate(0, 0);
     public Schnoz Schnoz
@@ -20,9 +21,9 @@ namespace Schnoz
     }
     public void HandlePlayerInput(InputEventNames evt, object obj)
     {
-      if (typeof(Tile) == obj.GetType())
+      if (typeof(Coordinate) == obj.GetType())
       {
-        Tile tile = (Tile)obj;
+        Tile tile = this.Schnoz.Map.TileDict[(Coordinate)obj];
         if (evt == InputEventNames.OnMouseUp)
         {
           if (tile.Unit == null)
@@ -40,12 +41,22 @@ namespace Schnoz
 
         if (evt == InputEventNames.OnMouseEnter)
         {
-          List<Tile> tiles = this.schnoz.Map.Tiles.Where(
-            tileOnMap => this.schnoz.SelectedCard.unitFormation.Arrangement.Any(
-              arrangement => tileOnMap.Coordinate == tile.Coordinate + arrangement
-              )
-            ).ToList();
-          this.HoveringTiles = tiles;
+          this.HoveringTiles = new List<Tile>();
+          Arrangement arrangement = this.schnoz.SelectedCard?.unitFormation?.Arrangement;
+          if (arrangement == null)
+          {
+            return;
+          }
+          foreach (Coordinate offset in arrangement)
+          {
+            Coordinate c = tile.Coordinate + offset;
+            if (this.Schnoz.Map.TileDict.ContainsKey(c))
+            {
+              Tile t = this.Schnoz.Map.TileDict[c];
+              this.HoveringTiles.Add(t);
+            }
+          }
+          this.viewManager.OnPropertyChanged(this, new PropertyChangedEventArgs("Highlight"));
         }
 
         if (evt == InputEventNames.OnMouseExit)
@@ -67,10 +78,10 @@ namespace Schnoz
       this.gameSettings = new GameSettings(5, 5, 3, 0, 6, 30, new List<Player>() { new Player(0), new Player(1) });
       this.schnoz = new Schnoz(this.gameSettings);
 
-      StandardGameViewManager viewManager = new GameObject("ViewManager").AddComponent<StandardGameViewManager>();
-      viewManager.transform.SetParent(this.transform);
-      viewManager.game = this;
-      viewManager.StartListening();
+      this.viewManager = new GameObject("ViewManager").AddComponent<StandardGameViewManager>();
+      this.viewManager.transform.SetParent(this.transform);
+      this.viewManager.game = this;
+      this.viewManager.StartListening();
 
       this.schnoz.CreateMap();
       this.schnoz.CreateDeck();

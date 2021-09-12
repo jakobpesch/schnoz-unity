@@ -1,5 +1,4 @@
-
-using System.Collections.Generic;
+using System.Linq;
 using System.Collections;
 using System.ComponentModel;
 using UnityEngine;
@@ -11,15 +10,21 @@ public class StandardGameViewManager : MonoBehaviour
   public StandardGame game;
   private InputManager inputManager;
   private Camera mainCam;
+  private GameObject mapGO;
 
 
-  private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
+  public void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
   {
-    Debug.Log($"{this} was notified about change in {e.PropertyName}.");
+    // Debug.Log($"{this} was notified about change in {e.PropertyName}.");
 
     if (e.PropertyName == "Map")
     {
       this.RenderMap();
+      // StartCoroutine(this.RenderMapSlowly());
+    }
+    if (e.PropertyName == "Highlight")
+    {
+      this.RenderHighlights();
       // StartCoroutine(this.RenderMapSlowly());
     }
     if (e.PropertyName == "CurrentCards")
@@ -57,7 +62,7 @@ public class StandardGameViewManager : MonoBehaviour
     sr.sprite = Resources.Load<Sprite>("Sprites/tile_grass");
     TileView tileView = tileGO.AddComponent<TileView>();
     tileView.game = this.game;
-    tileView.tile = tile;
+    tileView.coordinate = tile.Coordinate;
     return tileGO;
   }
 
@@ -70,18 +75,33 @@ public class StandardGameViewManager : MonoBehaviour
     return unitGO;
   }
 
+  private void RenderHighlights()
+  {
+    foreach (Transform child in this.mapGO.transform)
+    {
+      TileView tileView = child.GetComponent<TileView>();
+      if (this.game.Schnoz.Map.TileDict.ContainsKey(tileView.coordinate))
+      {
+        Tile tile = this.game.Schnoz.Map.TileDict[tileView.coordinate];
+        SpriteRenderer sr = tileView.GetComponent<SpriteRenderer>();
+        sr.color = this.game.HoveringTiles.Any(t => t.Coordinate == tile.Coordinate) ? new Color(0.9f, 0.9f, 0.9f) : Color.white;
+      }
+    }
+  }
+
   private void RenderMap()
   {
-    Debug.Log("Rendering Map");
-    GameObject mapGO = GameObject.Find("Map");
-    Destroy(mapGO);
-    mapGO = new GameObject("Map");
+    // Debug.Log("Rendering Map");
+    if (this.mapGO != null)
+    {
+      Destroy(mapGO);
+    }
+    this.mapGO = new GameObject("Map");
 
     this.game.Schnoz.Map.Tiles.ForEach((Tile tile) =>
     {
       GameObject tileGO = this.RenderTile(tile);
-      tileGO.transform.SetParent(mapGO.transform);
-      Debug.Log(tile.Coordinate);
+      tileGO.transform.SetParent(this.mapGO.transform);
       tileGO.transform.localPosition = new Vector2(tile.Coordinate.col, tile.Coordinate.row);
       if (tile.Unit != null)
       {
@@ -90,11 +110,11 @@ public class StandardGameViewManager : MonoBehaviour
         unitGO.transform.localPosition = new Vector2(0, 0);
       }
     });
-    Debug.Log("Rendered Map successfully!");
+    // Debug.Log("Rendered Map successfully!");
   }
   private IEnumerator RenderMapSlowly(float interval = 0.1f)
   {
-    Debug.Log("Rendering Map");
+    // Debug.Log("Rendering Map");
     GameObject mapGO = GameObject.Find("Map");
     Destroy(mapGO);
     mapGO = new GameObject("Map");
@@ -113,7 +133,7 @@ public class StandardGameViewManager : MonoBehaviour
       }
     }
 
-    Debug.Log("Rendered Map successfully!");
+    // Debug.Log("Rendered Map successfully!");
   }
 
   private GameObject RenderCard(Card card)
@@ -125,14 +145,13 @@ public class StandardGameViewManager : MonoBehaviour
       sr.color = Color.green;
     }
     string fileName = card.Type.ToString();
-    Debug.Log(fileName);
     sr.sprite = Resources.Load<Sprite>($"Sprites/{fileName}");
     sr.sortingOrder = 20;
     return cardGO;
   }
   private void RenderCurrentCards()
   {
-    Debug.Log("Rendering Current Cards");
+    // Debug.Log("Rendering Current Cards");
     GameObject currentCardsGO = GameObject.Find("CurrentCards");
     Destroy(currentCardsGO);
     currentCardsGO = new GameObject("CurrentCards");

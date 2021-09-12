@@ -37,6 +37,7 @@ namespace Schnoz
     {
       get => this.tiles;
     }
+    public Dictionary<Coordinate, Tile> TileDict { get; }
     public List<Tile> BushTiles { get => bushTiles; set => bushTiles = value; }
     public List<Tile> WaterTiles { get => waterTiles; set => waterTiles = value; }
     public List<Tile> StoneTiles { get => stoneTiles; set => stoneTiles = value; }
@@ -48,19 +49,21 @@ namespace Schnoz
     {
       this.nRows = nRows;
       this.nCols = nCols;
-      tiles = new List<Tile>();
+      this.tiles = new List<Tile>();
+      this.TileDict = new Dictionary<Coordinate, Tile>();
       for (int row = 0; row < nRows; row++)
       {
         for (int col = 0; col < nCols; col++)
         {
           Tile tile = new Tile(row, col);
-          tiles.Add(tile);
+          this.tiles.Add(tile);
           int middleRow = (int)Math.Ceiling((float)(nRows / 2));
           int middleCol = (int)Math.Ceiling((float)(nCols / 2));
           if (tile.Coordinate == new Coordinate(middleRow, middleCol))
           {
             this.centerTile = tile;
           }
+          TileDict.Add(tile.Coordinate, tile);
         }
       }
       // if (randomizeMap)
