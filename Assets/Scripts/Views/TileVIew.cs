@@ -15,4 +15,14 @@ public class TileView : MonoBehaviour
   {
     this.game.HandlePlayerInput(InputEventNames.OnMouseUp, this.tile);
   }
+
+  private void OnMouseEnter()
+  {
+    this.game.HandlePlayerInput(InputEventNames.OnMouseEnter, this.tile);
+  }
+
+  private void OnMouseExit()
+  {
+    this.game.HandlePlayerInput(InputEventNames.OnMouseExit, this.tile);
+  }
 }

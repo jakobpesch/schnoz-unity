@@ -4,6 +4,7 @@ using System.Linq;
 using System.Collections.Generic;
 using Utils;
 using UnityEngine;
+using TypeAliases;
 namespace Schnoz
 {
   [Serializable]
@@ -30,6 +31,16 @@ namespace Schnoz
       set
       {
         this.deck = value;
+      }
+    }
+
+    [SerializeField] private Card selectedCard;
+    public Card SelectedCard
+    {
+      get => this.selectedCard;
+      set
+      {
+        this.selectedCard = value;
       }
     }
     [SerializeField] private List<Card> currentCards = new List<Card>();
@@ -178,37 +189,48 @@ namespace Schnoz
       this.NotifyPropertyChanged("CurrentCards");
     }
 
-    public void PlaceUnit((int, int) pos)
+    public void SelectCard(Card card)
+    {
+      this.selectedCard = card;
+      NotifyPropertyChanged("SelectedCard");
+    }
+
+    public void PlaceUnit(Coordinate coord)
     {
       Debug.Log("Placing Unit");
       Unit unit = new Unit(this.gameSettings.Players[0], "Peter", 2);
-      Tile tile = this.map.Tiles.Find(tile => tile.Pos == pos);
+      Tile tile = this.map.Tiles.Find(tile => tile.Coordinate == coord);
       tile.Unit = unit;
       // this.NotifyPropertyChanged("Map");
     }
-    public void RemoveUnit((int, int) pos)
+    public void RemoveUnit(Coordinate coord)
     {
       Debug.Log("Removing Unit");
-      Tile tile = this.map.Tiles.Find(tile => tile.Pos == pos);
+      Tile tile = this.map.Tiles.Find(tile => tile.Coordinate == coord);
       tile.Unit = null;
       this.NotifyPropertyChanged("Map");
     }
-    public void PlaceUnitFormation((int row, int col) pos, UnitFormation unitFormation)
+    public void PlaceUnitFormation(Coordinate coord, UnitFormation unitFormation)
     {
-      foreach ((int row, int col) deviation in unitFormation.Arrangement)
+      foreach (Coordinate offset in unitFormation.Arrangement)
       {
-        (int row, int col) newPos = (pos.row + deviation.row, pos.col + deviation.col);
-        if (newPos.row < 0 || newPos.col < 0 || newPos.row > this.gameSettings.NCols - 1 || newPos.col > this.gameSettings.NRows - 1)
+        int row = coord.row + offset.row;
+        int col = coord.col + offset.col;
+        Coordinate newCoord = coord + offset;
+        if (newCoord.row < 0 ||
+            newCoord.col < 0 ||
+            newCoord.row > this.gameSettings.NRows - 1 ||
+            newCoord.col > this.gameSettings.NCols - 1)
         {
           break;
         }
-        this.PlaceUnit(newPos);
+        this.PlaceUnit(newCoord);
       }
 
 
       // Debug.Log("Placing Unit");
       // Unit unit = new Unit(this.gameSettings.Players[0], "Peter", 2);
-      // Tile tile = this.map.Tiles.Find(tile => tile.Pos == pos);
+      // Tile tile = this.map.Tiles.Find(tile => tile.Coordinate == pos);
       // tile.Unit = unit;
       this.NotifyPropertyChanged("Map");
     }

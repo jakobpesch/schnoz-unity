@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Utils;
+using TypeAliases;
 using UnityEngine;
 
 namespace Schnoz
@@ -54,7 +55,9 @@ namespace Schnoz
         {
           Tile tile = new Tile(row, col);
           tiles.Add(tile);
-          if (tile.Pos == (Math.Ceiling((float)(nRows / 2)), Math.Ceiling((float)(nCols / 2))))
+          int middleRow = (int)Math.Ceiling((float)(nRows / 2));
+          int middleCol = (int)Math.Ceiling((float)(nCols / 2));
+          if (tile.Coordinate == new Coordinate(middleRow, middleCol))
           {
             this.centerTile = tile;
           }
@@ -316,17 +319,16 @@ namespace Schnoz
       foreach (Tile borderTile in bottomAndLeftBorderTiles)
       {
         List<Tile> diagonal = new List<Tile>() { borderTile };
-
-        (int borderTileRow, int borderTileCol) = borderTile.Pos;
         int i = 1;
         while (true)
         {
           // Checks the next tile to the top right
-          (int row, int col) nextPosInDiagonal = ((borderTileRow + i), (borderTileCol + i));
-          Tile nextTileInDiagonal = this.tiles.Find(tile => tile.Pos == nextPosInDiagonal);
+          Coordinate nextCoordInDiagonal = borderTile.Coordinate + new Coordinate(i, i);
+          Tile nextTileInDiagonal = this.tiles.Find(tile => tile.Coordinate == nextCoordInDiagonal);
           if (nextTileInDiagonal == null)
+          {
             break;
-
+          }
           diagonal.Add(nextTileInDiagonal);
           i++;
         }
@@ -344,17 +346,16 @@ namespace Schnoz
       foreach (Tile borderTile in topAndLeftBorderTiles)
       {
         List<Tile> diagonal = new List<Tile>() { borderTile };
-
-        (int borderTileRow, int borderTileCol) = borderTile.Pos;
         int i = 1;
         while (true)
         {
           // Checks the next tile to the top right
-          (int row, int col) nextPosInDiagonal = ((borderTileRow - i), (borderTileCol + i));
-          Tile nextTileInDiagonal = this.tiles.Find(tile => tile.Pos == nextPosInDiagonal);
+          Coordinate nextCoordInDiagonal = borderTile.Coordinate + new Coordinate(-i, i);
+          Tile nextTileInDiagonal = this.tiles.Find(tile => tile.Coordinate == nextCoordInDiagonal);
           if (nextTileInDiagonal == null)
+          {
             break;
-
+          }
           diagonal.Add(nextTileInDiagonal);
           i++;
         }

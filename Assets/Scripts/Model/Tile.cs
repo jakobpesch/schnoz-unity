@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Xml.Schema;
 using Schnoz;
+using TypeAliases;
 using UnityEngine;
 
 namespace Schnoz
@@ -15,19 +16,18 @@ namespace Schnoz
     {
       get => this.id;
     }
-    private int row;
-    private int col;
     public int Row
     {
-      get => this.row;
+      get => this.coordinate.row;
     }
     public int Col
     {
-      get => this.col;
+      get => this.coordinate.row;
     }
-    public (int row, int col) Pos
+    private Coordinate coordinate;
+    public Coordinate Coordinate
     {
-      get => (this.row, this.col);
+      get => this.coordinate;
     }
     private TileArea area;
     public TileArea Area
@@ -72,8 +72,7 @@ namespace Schnoz
     public Tile(int row, int col)
     {
       this.id = Guid.NewGuid();
-      this.row = row;
-      this.col = col;
+      this.coordinate = new Coordinate(row, col);
     }
 
     public Tile(int row, int col, Unit unit = null) : this(row, col)

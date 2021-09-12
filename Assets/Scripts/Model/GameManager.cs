@@ -973,8 +973,8 @@
 //     //   foreach ((int row, int col) in unitFormationProperties.arrangement)
 //     //   {
 //     //     GameObject ut = M.I.Map_Tiles().Find(tile =>
-//     //       (tile.Pos.row - row == hoveredTileProperties?.Pos.row &&
-//     //        tile.Pos.col - col == hoveredTileProperties?.Pos.col)
+//     //       (tile.Coordinate.row - row == hoveredTileProperties?.Coordinate.row &&
+//     //        tile.Coordinate.col - col == hoveredTileProperties?.Coordinate.col)
 //     //     );
 //     //     if (ut != null) underlayingTiles.Add(ut);
 //     //   }

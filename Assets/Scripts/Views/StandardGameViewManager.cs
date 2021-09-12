@@ -1,4 +1,5 @@
 
+using System.Collections.Generic;
 using System.Collections;
 using System.ComponentModel;
 using UnityEngine;
@@ -9,8 +10,9 @@ public class StandardGameViewManager : MonoBehaviour
 {
   public StandardGame game;
   private InputManager inputManager;
-  public Sprite sprite;
   private Camera mainCam;
+
+
   private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
   {
     Debug.Log($"{this} was notified about change in {e.PropertyName}.");
@@ -24,6 +26,10 @@ public class StandardGameViewManager : MonoBehaviour
     {
       this.RenderCurrentCards();
       // StartCoroutine(this.RenderMapSlowly());
+    }
+    if (e.PropertyName == "SelectedCard")
+    {
+      this.RenderCurrentCards();
     }
   }
 
@@ -45,8 +51,8 @@ public class StandardGameViewManager : MonoBehaviour
 
   private GameObject RenderTile(Tile tile)
   {
-    // Debug.Log($"Render Tile {tile.Pos}");
-    GameObject tileGO = new GameObject($"{tile.Pos}");
+    // Debug.Log($"Render Tile {tile.Coordinate}");
+    GameObject tileGO = new GameObject($"{tile.Coordinate}");
     SpriteRenderer sr = tileGO.AddComponent<SpriteRenderer>();
     sr.sprite = Resources.Load<Sprite>("Sprites/tile_grass");
     TileView tileView = tileGO.AddComponent<TileView>();
@@ -75,7 +81,8 @@ public class StandardGameViewManager : MonoBehaviour
     {
       GameObject tileGO = this.RenderTile(tile);
       tileGO.transform.SetParent(mapGO.transform);
-      tileGO.transform.localPosition = new Vector2(tile.Pos.col, tile.Pos.row);
+      Debug.Log(tile.Coordinate);
+      tileGO.transform.localPosition = new Vector2(tile.Coordinate.col, tile.Coordinate.row);
       if (tile.Unit != null)
       {
         GameObject unitGO = this.RenderUnit(tile.Unit);
@@ -97,7 +104,7 @@ public class StandardGameViewManager : MonoBehaviour
       yield return new WaitForSeconds(interval);
       GameObject tileGO = this.RenderTile(tile);
       tileGO.transform.SetParent(mapGO.transform);
-      tileGO.transform.localPosition = new Vector2(tile.Pos.col, tile.Pos.row);
+      tileGO.transform.localPosition = new Vector2(tile.Coordinate.col, tile.Coordinate.row);
       if (tile.Unit != null)
       {
         GameObject unitGO = this.RenderUnit(tile.Unit);
@@ -113,7 +120,11 @@ public class StandardGameViewManager : MonoBehaviour
   {
     GameObject cardGO = new GameObject($"{card.Type}");
     SpriteRenderer sr = cardGO.AddComponent<SpriteRenderer>();
-    var fileName = card.Type.ToString();
+    if (this.game.Schnoz.SelectedCard?.Id == card.Id)
+    {
+      sr.color = Color.green;
+    }
+    string fileName = card.Type.ToString();
     Debug.Log(fileName);
     sr.sprite = Resources.Load<Sprite>($"Sprites/{fileName}");
     sr.sortingOrder = 20;
@@ -131,6 +142,9 @@ public class StandardGameViewManager : MonoBehaviour
       GameObject cardGO = this.RenderCard(card);
       cardGO.transform.SetParent(currentCardsGO.transform);
       cardGO.transform.localPosition = new Vector2(-3, index++);
+      CardView cardView = cardGO.AddComponent<CardView>();
+      cardView.game = this.game;
+      cardView.card = card;
     });
   }
 }

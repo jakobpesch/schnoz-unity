@@ -12,7 +12,7 @@ namespace Schnoz
   }
   public enum InputEventNames
   {
-    OnMouseUp
+    OnMouseUp, OnMouseEnter, OnMouseExit
   }
 
   public static class RuleLogicMethods

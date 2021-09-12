@@ -13,11 +13,12 @@ namespace Schnoz
     }
     [SerializeField] private CardType type;
     public CardType Type { get => this.type; }
-
+    public UnitFormation unitFormation;
     public Card(CardType type)
     {
       this.id = Guid.NewGuid();
       this.type = type;
+      this.unitFormation = new UnitFormation(type);
     }
   }
 }
