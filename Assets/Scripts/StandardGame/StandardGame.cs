@@ -12,6 +12,16 @@ namespace Schnoz
     private StandardGameViewManager viewManager;
     [SerializeField] private Schnoz schnoz;
     private GameSettings gameSettings;
+    private Tile hoveringTile;
+    public Tile HoveringTile
+    {
+      get { return this.hoveringTile; }
+      set
+      {
+        this.hoveringTile = value;
+        SetHoveringTiles(this.HoveringTile);
+      }
+    }
     public List<Tile> HoveringTiles;
 
     public Coordinate p = new Coordinate(0, 0);
@@ -19,9 +29,30 @@ namespace Schnoz
     {
       get => this.schnoz;
     }
-    public void HandlePlayerInput(InputEventNames evt, object obj)
+    public void HandlePlayerInput(InputEventNames evt, object obj = null)
     {
-      if (typeof(Coordinate) == obj.GetType())
+      if (evt == InputEventNames.RotateRightButton)
+      {
+        this.schnoz.SelectedCard.unitFormation.RotateRight();
+        SetHoveringTiles(this.hoveringTile);
+      }
+      if (evt == InputEventNames.RotateLeftButton)
+      {
+        this.schnoz.SelectedCard.unitFormation.RotateLeft();
+        SetHoveringTiles(this.hoveringTile);
+      }
+      if (evt == InputEventNames.MirrorHorizontalButton)
+      {
+        this.schnoz.SelectedCard.unitFormation.MirrorHorizontal();
+        SetHoveringTiles(this.hoveringTile);
+      }
+      if (evt == InputEventNames.MirrorVerticalButton)
+      {
+        this.schnoz.SelectedCard.unitFormation.MirrorVertical();
+        SetHoveringTiles(this.hoveringTile);
+      }
+
+      if (typeof(Coordinate) == obj?.GetType())
       {
         Tile tile = this.Schnoz.Map.TileDict[(Coordinate)obj];
         if (evt == InputEventNames.OnMouseUp)
@@ -41,30 +72,15 @@ namespace Schnoz
 
         if (evt == InputEventNames.OnMouseEnter)
         {
-          this.HoveringTiles = new List<Tile>();
-          Arrangement arrangement = this.schnoz.SelectedCard?.unitFormation?.Arrangement;
-          if (arrangement == null)
-          {
-            return;
-          }
-          foreach (Coordinate offset in arrangement)
-          {
-            Coordinate c = tile.Coordinate + offset;
-            if (this.Schnoz.Map.TileDict.ContainsKey(c))
-            {
-              Tile t = this.Schnoz.Map.TileDict[c];
-              this.HoveringTiles.Add(t);
-            }
-          }
-          this.viewManager.OnPropertyChanged(this, new PropertyChangedEventArgs("Highlight"));
+
+          this.HoveringTile = tile;
         }
 
         if (evt == InputEventNames.OnMouseExit)
         {
-          // this.HoveringTiles.Remove(tile);
         }
       }
-      if (typeof(Card) == obj.GetType())
+      if (typeof(Card) == obj?.GetType())
       {
         Card card = (Card)obj;
         if (evt == InputEventNames.OnMouseUp)
@@ -72,10 +88,30 @@ namespace Schnoz
           this.Schnoz.SelectCard(card);
         }
       }
+
+    }
+    private void SetHoveringTiles(Tile tile)
+    {
+      this.HoveringTiles = new List<Tile>();
+      Arrangement arrangement = this.schnoz.SelectedCard?.unitFormation?.Arrangement;
+      if (arrangement == null)
+      {
+        return;
+      }
+      foreach (Coordinate offset in arrangement)
+      {
+        Coordinate c = tile.Coordinate + offset;
+        if (this.Schnoz.Map.TileDict.ContainsKey(c))
+        {
+          Tile t = this.Schnoz.Map.TileDict[c];
+          this.HoveringTiles.Add(t);
+        }
+      }
+      this.viewManager.OnPropertyChanged(this, new PropertyChangedEventArgs("Highlight"));
     }
     private void Start()
     {
-      this.gameSettings = new GameSettings(5, 5, 3, 0, 6, 30, new List<Player>() { new Player(0), new Player(1) });
+      this.gameSettings = new GameSettings(49, 49, 3, 0, 6, 30, new List<Player>() { new Player(0), new Player(1) });
       this.schnoz = new Schnoz(this.gameSettings);
 
       this.viewManager = new GameObject("ViewManager").AddComponent<StandardGameViewManager>();

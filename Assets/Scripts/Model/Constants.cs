@@ -12,7 +12,7 @@ namespace Schnoz
   }
   public enum InputEventNames
   {
-    OnMouseUp, OnMouseEnter, OnMouseExit
+    OnMouseUp, OnMouseEnter, OnMouseExit, RotateRightButton, RotateLeftButton, MirrorHorizontalButton, MirrorVerticalButton
   }
 
   public static class RuleLogicMethods

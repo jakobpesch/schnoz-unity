@@ -12,7 +12,25 @@ public class StandardGameViewManager : MonoBehaviour
   private Camera mainCam;
   private GameObject mapGO;
 
-
+  public void Update()
+  {
+    if (Input.GetKeyDown(KeyCode.E))
+    {
+      this.game.HandlePlayerInput(InputEventNames.RotateRightButton);
+    }
+    if (Input.GetKeyDown(KeyCode.Q))
+    {
+      this.game.HandlePlayerInput(InputEventNames.RotateLeftButton);
+    }
+    if (Input.GetKeyDown(KeyCode.W))
+    {
+      this.game.HandlePlayerInput(InputEventNames.MirrorHorizontalButton);
+    }
+    if (Input.GetKeyDown(KeyCode.S))
+    {
+      this.game.HandlePlayerInput(InputEventNames.MirrorVerticalButton);
+    }
+  }
   public void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
   {
     // Debug.Log($"{this} was notified about change in {e.PropertyName}.");
@@ -41,6 +59,7 @@ public class StandardGameViewManager : MonoBehaviour
   private void Start()
   {
     this.mainCam = Camera.main;
+
   }
 
   public void StartListening()

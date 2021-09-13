@@ -1,7 +1,9 @@
 using System;
+using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 using TypeAliases;
+using UnityEngine;
 
 namespace Schnoz
 {
@@ -21,20 +23,57 @@ namespace Schnoz
     };
     public UnitFormation(Arrangement arrangement)
     {
-      this.arrangement = arrangement;
+      this.defaultArrangement = arrangement;
     }
     public UnitFormation(CardType type)
     {
-      this.arrangement = UnitFormation.arrangements[type];
+      this.defaultArrangement = UnitFormation.arrangements[type];
     }
-    private Arrangement arrangement;
+    private Arrangement defaultArrangement;
+    public Arrangement DefaultArrangement
+    {
+      get => this.defaultArrangement;
+    }
     public Arrangement Arrangement
     {
-      get => this.arrangement;
+      get
+      {
+        Arrangement newArrangement = new Arrangement();
+        foreach (Coordinate coordinate in this.defaultArrangement)
+        {
+          Coordinate tempCoord = new Coordinate(coordinate.row, coordinate.col);
+          for (int i = 0; i < this.rotation; i++)
+          {
+            tempCoord = this.RotateRight(tempCoord);
+          }
+          if (this.mirrorHorizontal)
+          {
+            tempCoord = this.MirrorHorizontal(tempCoord);
+          }
+          if (this.mirrorVertical)
+          {
+            tempCoord = this.MirrorVertical(tempCoord);
+          }
+          newArrangement.Add(tempCoord);
+        }
+        return newArrangement;
+      }
     }
     private int rotation = 0;
     private bool mirrorHorizontal = false;
     private bool mirrorVertical = false;
+    private Coordinate RotateRight(Coordinate coordinate)
+    {
+      return new Coordinate(coordinate.col, -coordinate.row);
+    }
+    public Coordinate MirrorHorizontal(Coordinate coordinate)
+    {
+      return new Coordinate(coordinate.row, -coordinate.col);
+    }
+    public Coordinate MirrorVertical(Coordinate coordinate)
+    {
+      return new Coordinate(-coordinate.row, coordinate.col);
+    }
     public void RotateRight()
     {
       this.rotation++;
@@ -54,10 +93,12 @@ namespace Schnoz
     public void MirrorHorizontal()
     {
       this.mirrorHorizontal = !this.mirrorHorizontal;
+      Debug.Log($"MirrorHorizontal={this.mirrorHorizontal}");
     }
     public void MirrorVertical()
     {
       this.mirrorVertical = !this.mirrorVertical;
+      Debug.Log($"MirrorVertical={this.mirrorVertical}");
     }
   }
 }

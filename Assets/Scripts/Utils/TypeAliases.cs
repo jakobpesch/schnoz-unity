@@ -7,7 +7,7 @@ namespace TypeAliases
 {
   public struct Coordinate
   {
-    public Coordinate(int row, int col)
+    public Coordinate(int row = 0, int col = 0)
     {
       this.row = row;
       this.col = col;
