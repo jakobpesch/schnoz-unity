@@ -59,7 +59,14 @@ public class StandardGameViewManager : MonoBehaviour
   private void Start()
   {
     this.mainCam = Camera.main;
-
+    float nCols = (float)this.game.Schnoz.gameSettings.NCols;
+    float boardSize = (nCols + 1);
+    float zoomMaxSize = 1 + boardSize / 2;
+    // float min = 5; float max = (float)nCols;
+    // float initialZoomSize = 1.3f * (Mathf.Abs(min) + Mathf.Abs(max)) / 2;
+    float initialZoomSize = nCols / 2;
+    Camera.main.orthographicSize = initialZoomSize;
+    Camera.main.transform.position = new Vector3(nCols / 2 - 0.5f, nCols / 2 - 0.5f, -10);
   }
 
   public void StartListening()

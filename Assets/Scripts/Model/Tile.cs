@@ -22,7 +22,7 @@ namespace Schnoz
     }
     public int Col
     {
-      get => this.coordinate.row;
+      get => this.coordinate.col;
     }
     private Coordinate coordinate;
     public Coordinate Coordinate

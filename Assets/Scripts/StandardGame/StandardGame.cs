@@ -5,10 +5,15 @@ using System.Collections.Generic;
 using UnityEngine;
 using TypeAliases;
 using System.ComponentModel;
+using Unity.Networking.Transport;
 namespace Schnoz
 {
   public class StandardGame : MonoBehaviour
   {
+    // Multiplayer logic
+
+    private int playerCount = -1;
+    private int currentTeam = -1;
     private StandardGameViewManager viewManager;
     [SerializeField] private Schnoz schnoz;
     private GameSettings gameSettings;
@@ -61,7 +66,18 @@ namespace Schnoz
           {
             if (this.Schnoz.SelectedCard != null)
             {
-              this.schnoz.PlaceUnitFormation(tile.Coordinate, this.Schnoz.SelectedCard.unitFormation);
+              // this.schnoz.PlaceUnitFormation(tile.Coordinate, this.Schnoz.SelectedCard.unitFormation);
+              UnitFormation untiFormation = this.schnoz.SelectedCard.unitFormation;
+              NetMakeMove mm = new NetMakeMove();
+              mm.row = tile.Row;
+              mm.col = tile.Col;
+              mm.unitFormationId = UnitFormation.unitFormationTypeToIdDict[untiFormation.Type];
+              mm.rotation = untiFormation.rotation;
+              mm.mirrorHorizontal = untiFormation.mirrorHorizontal ? 1 : 0;
+              mm.mirrorVertical = untiFormation.mirrorVertical ? 1 : 0;
+              mm.teamId = this.currentTeam;
+              Debug.Log(JsonUtility.ToJson(mm));
+              Client.Instance.SendToServer(mm);
             }
           }
           else
@@ -109,9 +125,81 @@ namespace Schnoz
       }
       this.viewManager.OnPropertyChanged(this, new PropertyChangedEventArgs("Highlight"));
     }
+
+    private void RegisterEvents()
+    {
+      NetUtility.S_WELCOME += this.OnWelcomeServer;
+      NetUtility.C_WELCOME += this.OnWelcomeClient;
+      NetUtility.C_START_GAME += this.OnStartGameClient;
+      NetUtility.S_MAKE_MOVE += this.OnMakeMoveServer;
+      NetUtility.C_MAKE_MOVE += this.OnMakeMoveClient;
+    }
+    private void UnregisterEvents()
+    {
+    }
+
+    private void Awake()
+    {
+      this.RegisterEvents();
+    }
+    private void OnDestroy()
+    {
+      this.UnregisterEvents();
+    }
+
+    // Server
+    private void OnWelcomeServer(NetMessage msg, NetworkConnection cnn)
+    {
+      NetWelcome nw = msg as NetWelcome;
+
+      nw.AssinedTeam = ++this.playerCount;
+
+      Server.Instance.SendToClient(cnn, nw);
+
+      if (this.playerCount == 1)
+      {
+        Server.Instance.Broadcast(new NetStartGame());
+      }
+    }
+    // Client
+    private void OnWelcomeClient(NetMessage msg)
+    {
+      NetWelcome nw = msg as NetWelcome;
+
+      this.currentTeam = nw.AssinedTeam;
+
+
+      Debug.Log($"My assigned team is {nw.AssinedTeam}");
+    }
+    private void OnStartGameClient(NetMessage msg)
+    {
+      NetWelcome nw = msg as NetWelcome;
+
+      this.currentTeam = nw.AssinedTeam;
+
+
+      Debug.Log($"My assigned team is {nw.AssinedTeam}");
+    }
+    private void OnMakeMoveClient(NetMessage msg)
+    {
+      NetMakeMove mm = msg as NetMakeMove;
+
+      Coordinate coordinate = new Coordinate(mm.row, mm.col);
+      Debug.Log(coordinate);
+      UnitFormation unitFormation = new UnitFormation(UnitFormation.unitFormationIdToTypeDict[mm.unitFormationId]);
+      unitFormation.rotation = mm.rotation;
+      unitFormation.mirrorHorizontal = mm.mirrorHorizontal == 1 ? true : false;
+      unitFormation.mirrorVertical = mm.mirrorVertical == 1 ? true : false;
+      this.schnoz.PlaceUnitFormation(coordinate, unitFormation);
+    }
+    private void OnMakeMoveServer(NetMessage msg, NetworkConnection cnn)
+    {
+      NetMakeMove mm = msg as NetMakeMove;
+      Server.Instance.Broadcast(mm);
+    }
     private void Start()
     {
-      this.gameSettings = new GameSettings(49, 49, 3, 0, 6, 30, new List<Player>() { new Player(0), new Player(1) });
+      this.gameSettings = new GameSettings(9, 9, 3, 0, 6, 30, new List<Player>() { new Player(0), new Player(1) });
       this.schnoz = new Schnoz(this.gameSettings);
 
       this.viewManager = new GameObject("ViewManager").AddComponent<StandardGameViewManager>();
@@ -126,5 +214,7 @@ namespace Schnoz
       // List<RuleLogic> ruleLogics = new List<RuleLogic>();
       // ruleLogics.Add(RuleLogicMethods.DiagonalToTopRight);
     }
+
+
   }
 }
