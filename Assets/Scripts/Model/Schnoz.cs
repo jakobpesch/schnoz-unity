@@ -34,15 +34,7 @@ namespace Schnoz
       }
     }
 
-    [SerializeField] private Card selectedCard;
-    public Card SelectedCard
-    {
-      get => this.selectedCard;
-      set
-      {
-        this.selectedCard = value;
-      }
-    }
+
     [SerializeField] private List<Card> currentCards = new List<Card>();
     public List<Card> CurrentCards
     {
@@ -182,17 +174,10 @@ namespace Schnoz
       for (int i = 0; i < gameSettings.NumberOfCardsPerTurn; i++)
       {
         Card drawnCard = this.Deck.Draw();
-        Debug.Log($"Card drawn. Remaining cards in deck: {this.Deck.Cards.Count}");
         this.CurrentCards.Add(drawnCard);
         // this.eventManager.DrawCard(this, drawnCard);
       }
       this.NotifyPropertyChanged("CurrentCards");
-    }
-
-    public void SelectCard(Card card)
-    {
-      this.selectedCard = card;
-      NotifyPropertyChanged("SelectedCard");
     }
 
     public void PlaceUnit(Coordinate coord)

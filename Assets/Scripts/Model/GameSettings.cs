@@ -42,7 +42,6 @@ namespace Schnoz
 
     public GameSettings(int nRows, int nCols, int numberOfCardsPerTurn, int numberOfSinglePieces, int numberOfStages, int deckSize, List<Player> players)
     {
-      Debug.Log("GameSettings constructor");
       this.nCols = nCols;
       this.nRows = nRows;
       this.numberOfCardsPerTurn = numberOfCardsPerTurn;

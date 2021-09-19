@@ -6,11 +6,11 @@ public class NetStartGame : NetMessage
   public int AssinedTeam { get; set; }
   public NetStartGame()
   {
-    this.Code = OpCode.WELCOME;
+    this.Code = OpCode.START_GAME;
   }
   public NetStartGame(DataStreamReader reader)
   {
-    this.Code = OpCode.WELCOME;
+    this.Code = OpCode.START_GAME;
     this.Deserialize(reader);
   }
   public override void Serialize(ref DataStreamWriter writer)

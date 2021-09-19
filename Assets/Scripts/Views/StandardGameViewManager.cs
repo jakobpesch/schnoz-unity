@@ -10,25 +10,37 @@ public class StandardGameViewManager : MonoBehaviour
   public StandardGame game;
   private InputManager inputManager;
   private Camera mainCam;
-  private GameObject mapGO;
+  private Vector2 resolution;
 
+  private GameObject mapGO;
+  private void Awake()
+  {
+    this.resolution = new Vector2(Screen.width, Screen.height);
+  }
   public void Update()
   {
+    if (resolution.x != Screen.width || resolution.y != Screen.height)
+    {
+      this.RenderCurrentCards();
+
+      resolution.x = Screen.width;
+      resolution.y = Screen.height;
+    }
     if (Input.GetKeyDown(KeyCode.E))
     {
-      this.game.HandlePlayerInput(InputEventNames.RotateRightButton);
+      this.game.HandlePlayerInput(this, InputEventNames.RotateRightButton);
     }
     if (Input.GetKeyDown(KeyCode.Q))
     {
-      this.game.HandlePlayerInput(InputEventNames.RotateLeftButton);
+      this.game.HandlePlayerInput(this, InputEventNames.RotateLeftButton);
     }
     if (Input.GetKeyDown(KeyCode.W))
     {
-      this.game.HandlePlayerInput(InputEventNames.MirrorHorizontalButton);
+      this.game.HandlePlayerInput(this, InputEventNames.MirrorHorizontalButton);
     }
     if (Input.GetKeyDown(KeyCode.S))
     {
-      this.game.HandlePlayerInput(InputEventNames.MirrorVerticalButton);
+      this.game.HandlePlayerInput(this, InputEventNames.MirrorVerticalButton);
     }
   }
   public void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -64,9 +76,9 @@ public class StandardGameViewManager : MonoBehaviour
     float zoomMaxSize = 1 + boardSize / 2;
     // float min = 5; float max = (float)nCols;
     // float initialZoomSize = 1.3f * (Mathf.Abs(min) + Mathf.Abs(max)) / 2;
-    float initialZoomSize = nCols / 2;
+    float initialZoomSize = 1.3f * nCols / 2;
     Camera.main.orthographicSize = initialZoomSize;
-    Camera.main.transform.position = new Vector3(nCols / 2 - 0.5f, nCols / 2 - 0.5f, -10);
+    Camera.main.transform.position = new Vector3(nCols / 2, nCols / 2, -10);
   }
 
   public void StartListening()
@@ -88,7 +100,7 @@ public class StandardGameViewManager : MonoBehaviour
     sr.sprite = Resources.Load<Sprite>("Sprites/tile_grass");
     TileView tileView = tileGO.AddComponent<TileView>();
     tileView.game = this.game;
-    tileView.coordinate = tile.Coordinate;
+    tileView.tileId = tile.Id;
     return tileGO;
   }
 
@@ -106,9 +118,9 @@ public class StandardGameViewManager : MonoBehaviour
     foreach (Transform child in this.mapGO.transform)
     {
       TileView tileView = child.GetComponent<TileView>();
-      if (this.game.Schnoz.Map.TileDict.ContainsKey(tileView.coordinate))
+      if (this.game.TileDict.ContainsKey(tileView.tileId))
       {
-        Tile tile = this.game.Schnoz.Map.TileDict[tileView.coordinate];
+        Tile tile = this.game.TileDict[tileView.tileId];
         SpriteRenderer sr = tileView.GetComponent<SpriteRenderer>();
         sr.color = this.game.HoveringTiles.Any(t => t.Coordinate == tile.Coordinate) ? new Color(0.9f, 0.9f, 0.9f) : Color.white;
       }
@@ -166,7 +178,8 @@ public class StandardGameViewManager : MonoBehaviour
   {
     GameObject cardGO = new GameObject($"{card.Type}");
     SpriteRenderer sr = cardGO.AddComponent<SpriteRenderer>();
-    if (this.game.Schnoz.SelectedCard?.Id == card.Id)
+    Debug.Log(this.game.SelectedCardId == card.Id);
+    if (this.game.SelectedCardId == card.Id)
     {
       sr.color = Color.green;
     }
@@ -181,15 +194,24 @@ public class StandardGameViewManager : MonoBehaviour
     GameObject currentCardsGO = GameObject.Find("CurrentCards");
     Destroy(currentCardsGO);
     currentCardsGO = new GameObject("CurrentCards");
+    currentCardsGO.transform.SetParent(GameObject.Find("Canvas").transform);
+    RectTransform rect = currentCardsGO.AddComponent<RectTransform>();
+    rect.anchorMin = new Vector2(0, 0);
+    rect.anchorMax = new Vector2(0, 0);
+    Debug.Log(rect.position);
+    currentCardsGO.transform.localPosition = new Vector3(0, 0, 0);
+    rect.anchoredPosition = new Vector3(Screen.width * 0.01f, Screen.width * 0.01f, 0);
+    rect.sizeDelta = new Vector2(100, 100);
+    Debug.Log(rect.anchoredPosition);
     int index = 0;
     this.game.Schnoz.CurrentCards.ForEach(card =>
     {
       GameObject cardGO = this.RenderCard(card);
       cardGO.transform.SetParent(currentCardsGO.transform);
-      cardGO.transform.localPosition = new Vector2(-3, index++);
+      cardGO.transform.localPosition = new Vector2(0, index++);
       CardView cardView = cardGO.AddComponent<CardView>();
       cardView.game = this.game;
-      cardView.card = card;
+      cardView.cardId = card.Id;
     });
   }
 }

@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Linq;
 using System.Collections.Generic;
 using UnityEngine;
@@ -24,50 +23,70 @@ namespace Schnoz
       set
       {
         this.hoveringTile = value;
-        SetHoveringTiles(this.HoveringTile);
+        this.SetHoveringTiles(this.HoveringTile);
       }
     }
     public List<Tile> HoveringTiles;
+    public Guid selectedCardId;
+    public Guid SelectedCardId
+    {
+      get => this.selectedCardId;
+      set
+      {
+        this.selectedCardId = value;
+        this.viewManager.OnPropertyChanged(this, new PropertyChangedEventArgs("SelectedCard"));
+      }
+    }
+
+
+    public Dictionary<Guid, Card> CurrentCardsDict
+    {
+      get => this.schnoz.CurrentCards.ToDictionary(card => card.Id);
+    }
+    public Dictionary<Guid, Tile> TileDict
+    {
+      get => this.schnoz.Map.Tiles.ToDictionary(tile => tile.Id);
+    }
 
     public Coordinate p = new Coordinate(0, 0);
     public Schnoz Schnoz
     {
       get => this.schnoz;
     }
-    public void HandlePlayerInput(InputEventNames evt, object obj = null)
+    public void HandlePlayerInput(object sender, InputEventNames evt, object obj = null)
     {
       if (evt == InputEventNames.RotateRightButton)
       {
-        this.schnoz.SelectedCard.unitFormation.RotateRight();
-        SetHoveringTiles(this.hoveringTile);
+        this.CurrentCardsDict[this.SelectedCardId].unitFormation.RotateRight();
+        this.SetHoveringTiles(this.hoveringTile);
       }
       if (evt == InputEventNames.RotateLeftButton)
       {
-        this.schnoz.SelectedCard.unitFormation.RotateLeft();
-        SetHoveringTiles(this.hoveringTile);
+        this.CurrentCardsDict[this.SelectedCardId].unitFormation.RotateLeft();
+        this.SetHoveringTiles(this.hoveringTile);
       }
       if (evt == InputEventNames.MirrorHorizontalButton)
       {
-        this.schnoz.SelectedCard.unitFormation.MirrorHorizontal();
-        SetHoveringTiles(this.hoveringTile);
+        this.CurrentCardsDict[this.SelectedCardId].unitFormation.MirrorHorizontal();
+        this.SetHoveringTiles(this.hoveringTile);
       }
       if (evt == InputEventNames.MirrorVerticalButton)
       {
-        this.schnoz.SelectedCard.unitFormation.MirrorVertical();
-        SetHoveringTiles(this.hoveringTile);
+        this.CurrentCardsDict[this.SelectedCardId].unitFormation.MirrorVertical();
+        this.SetHoveringTiles(this.hoveringTile);
       }
 
-      if (typeof(Coordinate) == obj?.GetType())
+      if (typeof(TileView) == sender?.GetType())
       {
-        Tile tile = this.Schnoz.Map.TileDict[(Coordinate)obj];
+        Tile tile = this.TileDict[(Guid)obj];
         if (evt == InputEventNames.OnMouseUp)
         {
           if (tile.Unit == null)
           {
-            if (this.Schnoz.SelectedCard != null)
+            if (this.CurrentCardsDict[this.SelectedCardId] != null)
             {
-              // this.schnoz.PlaceUnitFormation(tile.Coordinate, this.Schnoz.SelectedCard.unitFormation);
-              UnitFormation untiFormation = this.schnoz.SelectedCard.unitFormation;
+              // this.schnoz.PlaceUnitFormation(tile.Coordinate, this.CurrentCardsDict[this.SelectedCardId].unitFormation);
+              UnitFormation untiFormation = this.CurrentCardsDict[this.SelectedCardId].unitFormation;
               NetMakeMove mm = new NetMakeMove();
               mm.row = tile.Row;
               mm.col = tile.Col;
@@ -76,7 +95,7 @@ namespace Schnoz
               mm.mirrorHorizontal = untiFormation.mirrorHorizontal ? 1 : 0;
               mm.mirrorVertical = untiFormation.mirrorVertical ? 1 : 0;
               mm.teamId = this.currentTeam;
-              Debug.Log(JsonUtility.ToJson(mm));
+              // Debug.Log(JsonUtility.ToJson(mm));
               Client.Instance.SendToServer(mm);
             }
           }
@@ -88,7 +107,6 @@ namespace Schnoz
 
         if (evt == InputEventNames.OnMouseEnter)
         {
-
           this.HoveringTile = tile;
         }
 
@@ -96,20 +114,24 @@ namespace Schnoz
         {
         }
       }
-      if (typeof(Card) == obj?.GetType())
+      if (typeof(CardView) == sender?.GetType())
       {
-        Card card = (Card)obj;
+        Guid cardId = (Guid)obj;
         if (evt == InputEventNames.OnMouseUp)
         {
-          this.Schnoz.SelectCard(card);
+          this.SelectedCardId = cardId;
         }
       }
 
     }
     private void SetHoveringTiles(Tile tile)
     {
+      if (this.SelectedCardId == Guid.Empty)
+      {
+        return;
+      }
       this.HoveringTiles = new List<Tile>();
-      Arrangement arrangement = this.schnoz.SelectedCard?.unitFormation?.Arrangement;
+      Arrangement arrangement = this.CurrentCardsDict[this.SelectedCardId]?.unitFormation?.Arrangement;
       if (arrangement == null)
       {
         return;
@@ -161,6 +183,11 @@ namespace Schnoz
         Server.Instance.Broadcast(new NetStartGame());
       }
     }
+    private void OnMakeMoveServer(NetMessage msg, NetworkConnection cnn)
+    {
+      NetMakeMove mm = msg as NetMakeMove;
+      Server.Instance.Broadcast(mm);
+    }
     // Client
     private void OnWelcomeClient(NetMessage msg)
     {
@@ -173,12 +200,10 @@ namespace Schnoz
     }
     private void OnStartGameClient(NetMessage msg)
     {
-      NetWelcome nw = msg as NetWelcome;
+      NetStartGame sg = msg as NetStartGame;
+      Debug.Log($"Game has been started.");
 
-      this.currentTeam = nw.AssinedTeam;
-
-
-      Debug.Log($"My assigned team is {nw.AssinedTeam}");
+      this.schnoz.DrawCards();
     }
     private void OnMakeMoveClient(NetMessage msg)
     {
@@ -192,11 +217,7 @@ namespace Schnoz
       unitFormation.mirrorVertical = mm.mirrorVertical == 1 ? true : false;
       this.schnoz.PlaceUnitFormation(coordinate, unitFormation);
     }
-    private void OnMakeMoveServer(NetMessage msg, NetworkConnection cnn)
-    {
-      NetMakeMove mm = msg as NetMakeMove;
-      Server.Instance.Broadcast(mm);
-    }
+
     private void Start()
     {
       this.gameSettings = new GameSettings(9, 9, 3, 0, 6, 30, new List<Player>() { new Player(0), new Player(1) });
@@ -210,10 +231,12 @@ namespace Schnoz
       this.schnoz.CreateMap();
       this.schnoz.CreateDeck();
       this.schnoz.ShuffleDeck();
-      this.schnoz.DrawCards();
+      // this.schnoz.DrawCards();
+
       // List<RuleLogic> ruleLogics = new List<RuleLogic>();
       // ruleLogics.Add(RuleLogicMethods.DiagonalToTopRight);
     }
+
 
 
   }

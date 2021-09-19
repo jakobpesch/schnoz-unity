@@ -18,8 +18,6 @@ public static class NetUtility
   {
     NetMessage msg = null;
     var opCode = (OpCode)stream.ReadByte();
-    Debug.Log("OPCODE");
-    Debug.Log(opCode);
     switch (opCode)
     {
       case OpCode.KEEP_ALIVE: msg = new NetKeepAlive(stream); break;
