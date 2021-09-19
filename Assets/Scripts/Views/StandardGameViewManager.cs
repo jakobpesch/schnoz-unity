@@ -8,17 +8,29 @@ using Schnoz;
 public class StandardGameViewManager : MonoBehaviour
 {
   public StandardGame game;
-  private InputManager inputManager;
-  private Camera mainCam;
   private Vector2 resolution;
-
   private GameObject mapGO;
+
+  #region Camera movement properties
+  private Camera mainCam;
+  [SerializeField] private float zoomMaxSize, zoomMinSize = 2f;
+  [SerializeField] private Vector3 panStart, mousePositionWorldPoint;
+  #endregion
+
   private void Awake()
   {
     this.resolution = new Vector2(Screen.width, Screen.height);
+
   }
-  public void Update()
+  private void Update()
   {
+    #region Camera movement update
+    this.mousePositionWorldPoint = this.mainCam.ScreenToWorldPoint(Input.mousePosition);
+    this.Pan();
+    this.Zoom();
+    #endregion
+
+    #region On resize
     if (resolution.x != Screen.width || resolution.y != Screen.height)
     {
       this.RenderCurrentCards();
@@ -26,6 +38,9 @@ public class StandardGameViewManager : MonoBehaviour
       resolution.x = Screen.width;
       resolution.y = Screen.height;
     }
+    #endregion
+
+    #region Player input
     if (Input.GetKeyDown(KeyCode.E))
     {
       this.game.HandlePlayerInput(this, InputEventNames.RotateRightButton);
@@ -41,6 +56,33 @@ public class StandardGameViewManager : MonoBehaviour
     if (Input.GetKeyDown(KeyCode.S))
     {
       this.game.HandlePlayerInput(this, InputEventNames.MirrorVerticalButton);
+    }
+    #endregion
+  }
+  public void Zoom()
+  {
+    Debug.Log(Input.GetAxis("Mouse ScrollWheel"));
+    var scroll = Input.GetAxis("Mouse ScrollWheel");
+    if (scroll == 0)
+    {
+      return;
+    }
+    // var zoomDirection = scroll > 0 ? -1 : -1;
+    float orthographicSizeAfterZoom = this.mainCam.orthographicSize + scroll;
+    this.mainCam.orthographicSize =
+      orthographicSizeAfterZoom > this.zoomMaxSize ? this.zoomMaxSize :
+      orthographicSizeAfterZoom < this.zoomMinSize ? this.zoomMinSize : orthographicSizeAfterZoom;
+  }
+  public void Pan()
+  {
+    if (Input.GetMouseButton(0))
+    {
+      if (Input.GetMouseButtonDown(0))
+      {
+        this.panStart = this.mousePositionWorldPoint;
+      }
+      Vector3 delta = this.panStart - this.mousePositionWorldPoint;
+      this.mainCam.transform.position += delta;
     }
   }
   public void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -70,15 +112,15 @@ public class StandardGameViewManager : MonoBehaviour
 
   private void Start()
   {
+    #region Camera movement setup
     this.mainCam = Camera.main;
     float nCols = (float)this.game.Schnoz.gameSettings.NCols;
     float boardSize = (nCols + 1);
-    float zoomMaxSize = 1 + boardSize / 2;
-    // float min = 5; float max = (float)nCols;
-    // float initialZoomSize = 1.3f * (Mathf.Abs(min) + Mathf.Abs(max)) / 2;
     float initialZoomSize = 1.3f * nCols / 2;
-    Camera.main.orthographicSize = initialZoomSize;
-    Camera.main.transform.position = new Vector3(nCols / 2, nCols / 2, -10);
+    this.mainCam.orthographicSize = initialZoomSize;
+    this.mainCam.transform.position = new Vector3(nCols / 2, nCols / 2, -10);
+    this.zoomMaxSize = 1 + boardSize / 2;
+    #endregion
   }
 
   public void StartListening()

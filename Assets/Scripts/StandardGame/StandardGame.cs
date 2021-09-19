@@ -15,6 +15,10 @@ namespace Schnoz
     private int currentTeam = -1;
     private StandardGameViewManager viewManager;
     [SerializeField] private Schnoz schnoz;
+    public Schnoz Schnoz
+    {
+      get => this.schnoz;
+    }
     private GameSettings gameSettings;
     private Tile hoveringTile;
     public Tile HoveringTile
@@ -49,10 +53,7 @@ namespace Schnoz
     }
 
     public Coordinate p = new Coordinate(0, 0);
-    public Schnoz Schnoz
-    {
-      get => this.schnoz;
-    }
+
     public void HandlePlayerInput(object sender, InputEventNames evt, object obj = null)
     {
       if (evt == InputEventNames.RotateRightButton)
@@ -83,7 +84,7 @@ namespace Schnoz
         {
           if (tile.Unit == null)
           {
-            if (this.CurrentCardsDict[this.SelectedCardId] != null)
+            if (this.CurrentCardsDict.ContainsKey(this.SelectedCardId) && this.CurrentCardsDict[this.SelectedCardId] != null)
             {
               // this.schnoz.PlaceUnitFormation(tile.Coordinate, this.CurrentCardsDict[this.SelectedCardId].unitFormation);
               UnitFormation untiFormation = this.CurrentCardsDict[this.SelectedCardId].unitFormation;
@@ -223,8 +224,8 @@ namespace Schnoz
       this.gameSettings = new GameSettings(9, 9, 3, 0, 6, 30, new List<Player>() { new Player(0), new Player(1) });
       this.schnoz = new Schnoz(this.gameSettings);
 
-      this.viewManager = new GameObject("ViewManager").AddComponent<StandardGameViewManager>();
-      this.viewManager.transform.SetParent(this.transform);
+      this.viewManager = this.gameObject.AddComponent<StandardGameViewManager>();
+      this.viewManager.enabled = true;
       this.viewManager.game = this;
       this.viewManager.StartListening();
 
