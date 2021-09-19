@@ -61,12 +61,21 @@ public class Server : MonoBehaviour
     {
       return;
     }
-    //this.KeepAlive();
+    this.KeepAlive();
 
     this.driver.ScheduleUpdate().Complete();
     this.CleanupConnections();
     this.AcceptNewConnections();
     this.UpdateMessagePump();
+  }
+
+  private void KeepAlive()
+  {
+    if (Time.time - this.lastKeepAlive > keepAliveTickRate)
+    {
+      this.lastKeepAlive = Time.deltaTime;
+      this.Broadcast(new NetKeepAlive());
+    }
   }
 
   private void CleanupConnections()
