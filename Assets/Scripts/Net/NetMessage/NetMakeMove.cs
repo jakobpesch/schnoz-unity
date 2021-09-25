@@ -1,4 +1,5 @@
 using UnityEngine;
+using Unity.Collections;
 using Unity.Networking.Transport;
 
 public class NetMakeMove : NetMessage

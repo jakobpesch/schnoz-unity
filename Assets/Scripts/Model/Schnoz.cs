@@ -177,22 +177,22 @@ namespace Schnoz
         this.CurrentCards.Add(drawnCard);
         // this.eventManager.DrawCard(this, drawnCard);
       }
-      this.NotifyPropertyChanged("CurrentCards");
+      // this.NotifyPropertyChanged("CurrentCards");
     }
 
     public void PlaceUnit(Coordinate coord)
     {
       Debug.Log("Placing Unit");
-      Unit unit = new Unit(this.gameSettings.Players[0], "Peter", 2);
       Tile tile = this.map.Tiles.Find(tile => tile.Coordinate == coord);
-      tile.Unit = unit;
+      Unit unit = new Unit(this.gameSettings.Players[0].Id, coord);
+      tile.SetUnit(unit);
       // this.NotifyPropertyChanged("Map");
     }
     public void RemoveUnit(Coordinate coord)
     {
       Debug.Log("Removing Unit");
       Tile tile = this.map.Tiles.Find(tile => tile.Coordinate == coord);
-      tile.Unit = null;
+      tile.SetUnit(null);
       this.NotifyPropertyChanged("Map");
     }
     public void PlaceUnitFormation(Coordinate coord, UnitFormation unitFormation)

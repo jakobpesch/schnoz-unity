@@ -3,38 +3,22 @@ using System.Collections;
 using System.Collections.Generic;
 using Schnoz;
 using UnityEngine;
+using TypeAliases;
 
 namespace Schnoz
 {
   [Serializable]
   public class Unit
   {
-    private Guid id;
-    public Guid Id
+    public int OwnerId { get; private set; }
+    [SerializeField] private int ownerId;
+    public Coordinate Coordinate { get; private set; }
+    public Unit(int ownerId, Coordinate coordinate)
     {
-      get => this.id;
+      this.OwnerId = ownerId;
+      this.ownerId = ownerId;
+      this.Coordinate = coordinate;
     }
-    private string unitName;
-    public string UnitName
-    {
-      get => this.unitName;
-    }
-    private float vision;
-    public float Vision
-    {
-      get => this.vision;
-    }
-    private Player owner;
-    public Player Owner
-    {
-      get => owner;
-    }
-    public Unit(Player owner, string unitName = "Bob", float vision = 3f)
-    {
-      this.owner = owner;
-      this.unitName = unitName;
-      this.vision = vision;
-      this.id = Guid.NewGuid();
-    }
+    public Unit(NetUnit netUnit) : this(netUnit.i, new Coordinate(netUnit.r, netUnit.c)) { }
   }
 }

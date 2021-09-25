@@ -15,6 +15,10 @@ public class Server : MonoBehaviour
   private NativeList<NetworkConnection> connections;
 
   private bool isActive;
+  public bool IsActive
+  {
+    get => this.isActive;
+  }
   private const float keepAliveTickRate = 20.0f;
   private float lastKeepAlive;
 

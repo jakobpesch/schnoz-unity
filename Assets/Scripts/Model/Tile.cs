@@ -1,8 +1,4 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Xml.Schema;
-using Schnoz;
 using TypeAliases;
 using UnityEngine;
 
@@ -11,98 +7,45 @@ namespace Schnoz
   [Serializable]
   public class Tile
   {
-    private Guid id;
-    public Guid Id
-    {
-      get => this.id;
-    }
-    public int Row
-    {
-      get => this.coordinate.row;
-    }
-    public int Col
-    {
-      get => this.coordinate.col;
-    }
-    private Coordinate coordinate;
-    public Coordinate Coordinate
-    {
-      get => this.coordinate;
-    }
-    private TileArea area;
-    public TileArea Area
-    {
-      get => this.Area;
-    }
-    public bool Visible { get => this.visible; }
-    private bool visible = false;
-    public List<Guid> AdjacentTilesIds;
-    private bool placeable;
+    public Guid Id { get; }
+    public Coordinate Coordinate { get; private set; }
+    public Terrain Terrain { get; private set; }
+    public Unit Unit { get; private set; }
+    public bool Visible { get; private set; }
+    public int Row { get => this.Coordinate.row; }
+    public int Col { get => this.Coordinate.col; }
     public bool Placeable
     {
-      get => this.terrain != null ? this.terrain.Placeable : false;
+      get => this.Terrain != null ? this.Terrain.Placeable : false;
     }
-    private Terrain terrain;
-    public Terrain Terrain
-    {
-      get => terrain;
-    }
-    private List<Tile> adjacentTiles;
-    public List<Tile> AdjacentTiles
-    {
-      get => adjacentTiles;
-    }
-    private List<Unit> adjacentEnemies;
-    public List<Unit> AdjacentEnemies
-    {
-      get => adjacentEnemies;
-    }
-    private List<Unit> adjacentAllies;
-    public List<Unit> AdjacentAllies
-    {
-      get => adjacentAllies;
-    }
-    private Unit unit = null;
-    public Unit Unit
-    {
-      get => unit;
-      set => unit = value;
-    }
-
     public Tile(int row, int col)
     {
-      this.id = Guid.NewGuid();
-      this.coordinate = new Coordinate(row, col);
+      this.Id = Guid.NewGuid();
+      this.Coordinate = new Coordinate(row, col);
+      this.Terrain = null;
+      this.Unit = null;
+      this.Visible = false;
     }
 
     public Tile(int row, int col, Unit unit = null) : this(row, col)
     {
-      this.unit = unit;
+      this.Unit = unit;
     }
     public Tile(int row, int col, Terrain terrain = null) : this(row, col)
     {
-      this.terrain = terrain;
+      this.Terrain = terrain;
     }
-
-    public void SetArea(TileArea area)
+    public void SetUnit(Unit unit)
     {
-      this.area = area;
+      this.Unit = unit;
     }
     public void SetTerrain(Terrain terrain)
     {
-      this.terrain = terrain;
+      this.Terrain = terrain;
     }
-    public void SetAdjacentEnemies(List<Unit> adjacentEnemies)
+    public void SetVisibility(bool visibility)
     {
-      this.adjacentEnemies = adjacentEnemies;
-    }
-    public void SetAdjacentAllies(List<Unit> adjacentAllies)
-    {
-      this.adjacentAllies = adjacentAllies;
-    }
-    public void SetVisibility(bool value)
-    {
-      this.visible = value;
+      this.Visible = visibility;
     }
   }
 }

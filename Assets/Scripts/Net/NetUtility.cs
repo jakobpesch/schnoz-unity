@@ -7,8 +7,9 @@ public enum OpCode
   KEEP_ALIVE = 1,
   WELCOME = 2,
   START_GAME = 3,
-  MAKE_MOVE = 4
-
+  MAKE_MOVE = 4,
+  DRAW_CARD = 5,
+  UPDATE_MAP = 6,
 }
 
 
@@ -24,6 +25,8 @@ public static class NetUtility
       case OpCode.WELCOME: msg = new NetWelcome(stream); break;
       case OpCode.START_GAME: msg = new NetStartGame(stream); break;
       case OpCode.MAKE_MOVE: msg = new NetMakeMove(stream); break;
+      case OpCode.DRAW_CARD: msg = new NetDrawCard(stream); break;
+      case OpCode.UPDATE_MAP: msg = new NetUpdateMap(stream); break;
       default:
         Debug.Log("Message received had no opCode");
         break;
@@ -42,8 +45,12 @@ public static class NetUtility
   public static Action<NetMessage> C_WELCOME;
   public static Action<NetMessage> C_START_GAME;
   public static Action<NetMessage> C_MAKE_MOVE;
+  public static Action<NetMessage> C_DRAW_CARD;
+  public static Action<NetMessage> C_UPDATE_MAP;
   public static Action<NetMessage, NetworkConnection> S_KEEP_ALIVE;
   public static Action<NetMessage, NetworkConnection> S_WELCOME;
   public static Action<NetMessage, NetworkConnection> S_START_GAME;
   public static Action<NetMessage, NetworkConnection> S_MAKE_MOVE;
+  public static Action<NetMessage, NetworkConnection> S_DRAW_CARD;
+  public static Action<NetMessage, NetworkConnection> S_UPDATE_MAP;
 }

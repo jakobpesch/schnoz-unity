@@ -1,9 +1,10 @@
 using UnityEngine;
 using Unity.Networking.Transport;
+using Unity.Collections;
 
 public class NetStartGame : NetMessage
 {
-  public int AssinedTeam { get; set; }
+  public FixedString4096 netMapString;
   public NetStartGame()
   {
     this.Code = OpCode.START_GAME;
@@ -16,11 +17,11 @@ public class NetStartGame : NetMessage
   public override void Serialize(ref DataStreamWriter writer)
   {
     writer.WriteByte((byte)this.Code);
-    writer.WriteInt(AssinedTeam);
+    writer.WriteFixedString4096(this.netMapString);
   }
   public override void Deserialize(DataStreamReader reader)
   {
-    AssinedTeam = reader.ReadInt();
+    this.netMapString = reader.ReadFixedString4096();
   }
   public override void ReceivedOnClient()
   {

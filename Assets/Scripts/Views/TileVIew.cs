@@ -6,24 +6,24 @@ using TypeAliases;
 
 public class TileView : MonoBehaviour
 {
-  public StandardGame game;
-  public Guid tileId;
+  public StandardGameClient game;
+  public Coordinate coordinate;
   private void Start()
   {
     this.gameObject.AddComponent<BoxCollider2D>();
   }
   private void OnMouseUp()
   {
-    this.game.HandlePlayerInput(this, InputEventNames.OnMouseUp, this.tileId);
+    this.game.HandlePlayerInput(this, InputEventNames.OnMouseUp, this.coordinate);
   }
 
   private void OnMouseEnter()
   {
-    this.game.HandlePlayerInput(this, InputEventNames.OnMouseEnter, this.tileId);
+    this.game.HandlePlayerInput(this, InputEventNames.OnMouseEnter, this.coordinate);
   }
 
   private void OnMouseExit()
   {
-    this.game.HandlePlayerInput(this, InputEventNames.OnMouseExit, this.tileId);
+    this.game.HandlePlayerInput(this, InputEventNames.OnMouseExit, this.coordinate);
   }
 }

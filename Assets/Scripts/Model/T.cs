@@ -43,10 +43,10 @@ public class T
     // return tp.UnitProperties.Owner == GameManager.I.TemporaryCurrentPlayer;
     return false;
   };
-  public static Func<Tile, Map, bool> AdjacentUnitPlayer = (tile, map) => map.GetTiles(tile.AdjacentTilesIds).Any(T.UnitIsPlayers);
-  public static Func<Tile, Map, bool> AdjacentUnitAllied = (tile, map) => map.GetTiles(tile.AdjacentTilesIds).Any(T.UnitIsAllied);
-  public static Func<Tile, Map, bool> AdjacentUnitHostile = (tile, map) => map.GetTiles(tile.AdjacentTilesIds).Any(T.UnitIsHostile);
-  public static Func<Tile, Map, bool> AllAdjacentTilesEmpty = (tile, map) => map.GetTiles(tile.AdjacentTilesIds).All(Empty);
+  // public static Func<Tile, Map, bool> AdjacentUnitPlayer = (tile, map) => map.GetTiles(tile.AdjacentTilesIds).Any(T.UnitIsPlayers);
+  // public static Func<Tile, Map, bool> AdjacentUnitAllied = (tile, map) => map.GetTiles(tile.AdjacentTilesIds).Any(T.UnitIsAllied);
+  // public static Func<Tile, Map, bool> AdjacentUnitHostile = (tile, map) => map.GetTiles(tile.AdjacentTilesIds).Any(T.UnitIsHostile);
+  // public static Func<Tile, Map, bool> AllAdjacentTilesEmpty = (tile, map) => map.GetTiles(tile.AdjacentTilesIds).All(Empty);
 
   /// <summary>
   /// Takes in a list of tiles and returns all the tiles that cannot be placed upon.

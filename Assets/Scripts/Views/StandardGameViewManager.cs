@@ -1,4 +1,5 @@
 using System.Linq;
+using System.Collections.Generic;
 using System.Collections;
 using System.ComponentModel;
 using UnityEngine;
@@ -7,9 +8,10 @@ using Schnoz;
 
 public class StandardGameViewManager : MonoBehaviour
 {
-  public StandardGame game;
+  public StandardGameClient game;
   private Vector2 resolution;
   private GameObject mapGO;
+  [SerializeField] private GameObject currentCardsGO;
 
   #region Camera movement properties
   private Camera mainCam;
@@ -61,7 +63,6 @@ public class StandardGameViewManager : MonoBehaviour
   }
   public void Zoom()
   {
-    Debug.Log(Input.GetAxis("Mouse ScrollWheel"));
     var scroll = Input.GetAxis("Mouse ScrollWheel");
     if (scroll == 0)
     {
@@ -114,24 +115,32 @@ public class StandardGameViewManager : MonoBehaviour
   {
     #region Camera movement setup
     this.mainCam = Camera.main;
-    float nCols = (float)this.game.Schnoz.gameSettings.NCols;
+    float nCols = (float)this.game.Game.gameSettings.NCols;
     float boardSize = (nCols + 1);
     float initialZoomSize = 1.3f * nCols / 2;
     this.mainCam.orthographicSize = initialZoomSize;
     this.mainCam.transform.position = new Vector3(nCols / 2, nCols / 2, -10);
     this.zoomMaxSize = 1 + boardSize / 2;
     #endregion
+
+    this.currentCardsGO = new GameObject("CurrentCards");
+    RectTransform rect = currentCardsGO.AddComponent<RectTransform>();
+    rect.anchorMin = new Vector2(0, 0);
+    rect.anchorMax = new Vector2(0, 0);
+    currentCardsGO.transform.localPosition = new Vector3(0, 0, 0);
+    rect.anchoredPosition = new Vector3(Screen.width * 0.01f, Screen.width * 0.01f, 0);
+    rect.sizeDelta = new Vector2(100, 100);
   }
 
   public void StartListening()
   {
-    this.game.Schnoz.PropertyChanged -= new PropertyChangedEventHandler(this.OnPropertyChanged);
-    this.game.Schnoz.PropertyChanged += new PropertyChangedEventHandler(this.OnPropertyChanged);
+    this.game.Game.PropertyChanged -= new PropertyChangedEventHandler(this.OnPropertyChanged);
+    this.game.Game.PropertyChanged += new PropertyChangedEventHandler(this.OnPropertyChanged);
   }
 
   private void OnDestroy()
   {
-    this.game.Schnoz.PropertyChanged -= new PropertyChangedEventHandler(this.OnPropertyChanged);
+    this.game.Game.PropertyChanged -= new PropertyChangedEventHandler(this.OnPropertyChanged);
   }
 
   private GameObject RenderTile(Tile tile)
@@ -142,13 +151,13 @@ public class StandardGameViewManager : MonoBehaviour
     sr.sprite = Resources.Load<Sprite>("Sprites/tile_grass");
     TileView tileView = tileGO.AddComponent<TileView>();
     tileView.game = this.game;
-    tileView.tileId = tile.Id;
+    tileView.coordinate = tile.Coordinate;
     return tileGO;
   }
 
   private GameObject RenderUnit(Unit unit)
   {
-    GameObject unitGO = new GameObject($"Unit:{unit.UnitName}:{unit.Vision}");
+    GameObject unitGO = new GameObject($"Player {unit.OwnerId}'s unit.");
     SpriteRenderer sr = unitGO.AddComponent<SpriteRenderer>();
     sr.sprite = Resources.Load<Sprite>("Sprites/bob");
     sr.sortingOrder = 10;
@@ -160,9 +169,9 @@ public class StandardGameViewManager : MonoBehaviour
     foreach (Transform child in this.mapGO.transform)
     {
       TileView tileView = child.GetComponent<TileView>();
-      if (this.game.TileDict.ContainsKey(tileView.tileId))
+      if (this.game.TileDict.ContainsKey(tileView.coordinate))
       {
-        Tile tile = this.game.TileDict[tileView.tileId];
+        Tile tile = this.game.TileDict[tileView.coordinate];
         SpriteRenderer sr = tileView.GetComponent<SpriteRenderer>();
         sr.color = this.game.HoveringTiles.Any(t => t.Coordinate == tile.Coordinate) ? new Color(0.9f, 0.9f, 0.9f) : Color.white;
       }
@@ -178,7 +187,7 @@ public class StandardGameViewManager : MonoBehaviour
     }
     this.mapGO = new GameObject("Map");
 
-    this.game.Schnoz.Map.Tiles.ForEach((Tile tile) =>
+    this.game.Game.Map.Tiles.ForEach((Tile tile) =>
     {
       GameObject tileGO = this.RenderTile(tile);
       tileGO.transform.SetParent(this.mapGO.transform);
@@ -199,7 +208,7 @@ public class StandardGameViewManager : MonoBehaviour
     Destroy(mapGO);
     mapGO = new GameObject("Map");
 
-    foreach (Tile tile in this.game.Schnoz.Map.Tiles)
+    foreach (Tile tile in this.game.Game.Map.Tiles)
     {
       yield return new WaitForSeconds(interval);
       GameObject tileGO = this.RenderTile(tile);
@@ -220,7 +229,6 @@ public class StandardGameViewManager : MonoBehaviour
   {
     GameObject cardGO = new GameObject($"{card.Type}");
     SpriteRenderer sr = cardGO.AddComponent<SpriteRenderer>();
-    Debug.Log(this.game.SelectedCardId == card.Id);
     if (this.game.SelectedCardId == card.Id)
     {
       sr.color = Color.green;
@@ -236,17 +244,15 @@ public class StandardGameViewManager : MonoBehaviour
     GameObject currentCardsGO = GameObject.Find("CurrentCards");
     Destroy(currentCardsGO);
     currentCardsGO = new GameObject("CurrentCards");
-    currentCardsGO.transform.SetParent(GameObject.Find("Canvas").transform);
+    currentCardsGO.transform.SetParent(GameObject.Find("UI").transform);
     RectTransform rect = currentCardsGO.AddComponent<RectTransform>();
     rect.anchorMin = new Vector2(0, 0);
     rect.anchorMax = new Vector2(0, 0);
-    Debug.Log(rect.position);
     currentCardsGO.transform.localPosition = new Vector3(0, 0, 0);
     rect.anchoredPosition = new Vector3(Screen.width * 0.01f, Screen.width * 0.01f, 0);
     rect.sizeDelta = new Vector2(100, 100);
-    Debug.Log(rect.anchoredPosition);
     int index = 0;
-    this.game.Schnoz.CurrentCards.ForEach(card =>
+    this.game.Game.CurrentCards.ForEach(card =>
     {
       GameObject cardGO = this.RenderCard(card);
       cardGO.transform.SetParent(currentCardsGO.transform);

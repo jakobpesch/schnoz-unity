@@ -5,7 +5,7 @@ using Schnoz;
 
 public class CardView : MonoBehaviour
 {
-  public StandardGame game;
+  public StandardGameClient game;
   public Guid cardId;
   private void Start()
   {

@@ -1,17 +1,29 @@
 
+using Schnoz;
 using UnityEngine;
 
 public class NetworkManager : MonoBehaviour
 {
+  public static NetworkManager Instance { set; get; }
+  private void Awake()
+  {
+    Instance = this;
+  }
   public Server server;
   public Client client;
-  public void OnOnlineHostButton()
+  public NetworkIdentity NI { get; set; }
+  public enum NetworkIdentity
   {
-    this.server.Init(8007);
-    this.client.Init("127.0.0.1", 8007);
+    DEDICATED_SERVER, HOST, CLIENT
   }
-  public void OnOnlineConnectButton()
+  public void Host()
   {
-    this.client.Init("127.0.0.1", 8007);
+    this.server.Init(Constants.port);
+    this.client.Init("127.0.0.1", Constants.port);
+    this.NI = NetworkIdentity.HOST;
+  }
+  public void Connect(string ip)
+  {
+    this.client.Init(ip, Constants.port);
   }
 }

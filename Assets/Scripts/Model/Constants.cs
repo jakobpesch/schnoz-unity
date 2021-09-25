@@ -2,13 +2,17 @@ using System.Linq;
 using System.Collections.Generic;
 namespace Schnoz
 {
+  public static class Constants
+  {
+    public const ushort port = 8007;
+  }
   public enum TerrainType
   {
     Bush, Water, Stone
   }
   public enum CardType
   {
-    Single_1, Straight_2, Straight_3, Straight_4, Diagonal_2, Corner_3, L_4, Z_4, Horse_3, Paralell_4,
+    Single_1 = 0, Straight_2 = 1, Straight_3 = 2, Straight_4 = 3, Diagonal_2 = 4, Corner_3 = 5, L_4 = 6, Z_4 = 7, Horse_3 = 8, Paralell_4 = 9
   }
   public enum InputEventNames
   {
@@ -26,7 +30,7 @@ namespace Schnoz
         List<Tile> unitDiagonal = new List<Tile>();
         foreach (Tile tile in diagonal)
         {
-          if (tile.Unit.Owner != player)
+          if (tile.Unit.OwnerId != player.Id)
           {
             if (unitDiagonal.Count >= 3)
             {
