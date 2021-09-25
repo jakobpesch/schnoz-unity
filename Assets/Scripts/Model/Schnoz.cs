@@ -35,13 +35,13 @@ namespace Schnoz
     }
 
 
-    [SerializeField] private List<Card> currentCards = new List<Card>();
-    public List<Card> CurrentCards
+    [SerializeField] private List<Card> openCards = new List<Card>();
+    public List<Card> OpenCards
     {
-      get => this.currentCards;
+      get => this.openCards;
       set
       {
-        this.currentCards = value;
+        this.openCards = value;
       }
     }
     [SerializeField] private List<Player> players;
@@ -173,11 +173,8 @@ namespace Schnoz
     {
       for (int i = 0; i < gameSettings.NumberOfCardsPerTurn; i++)
       {
-        Card drawnCard = this.Deck.Draw();
-        this.CurrentCards.Add(drawnCard);
-        // this.eventManager.DrawCard(this, drawnCard);
+        this.Deck.Draw();
       }
-      // this.NotifyPropertyChanged("CurrentCards");
     }
 
     public void PlaceUnit(Coordinate coord)

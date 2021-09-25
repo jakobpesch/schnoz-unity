@@ -24,19 +24,19 @@ namespace Schnoz
       }
     }
     public List<Tile> HoveringTiles;
-    public Guid selectedCardId;
-    public Guid SelectedCardId
+    public CardType? selectedCardType;
+    public CardType? SelectedCardType
     {
-      get => this.selectedCardId;
+      get => this.selectedCardType;
       set
       {
-        this.selectedCardId = value;
+        this.selectedCardType = value;
         this.viewManager.OnPropertyChanged(this, new PropertyChangedEventArgs("SelectedCard"));
       }
     }
-    public Dictionary<Guid, Card> CurrentCardsDict
+    public Dictionary<CardType, Card> OpenCardsDict
     {
-      get => this.Game.CurrentCards.ToDictionary(card => card.Id);
+      get => this.Game.OpenCards.ToDictionary(card => card.Type);
     }
     public Dictionary<Coordinate, Tile> TileDict
     {
@@ -45,25 +45,28 @@ namespace Schnoz
     public void HandlePlayerInput(object sender, InputEventNames evt, object obj = null)
     {
       #region Change card orientation
-      if (evt == InputEventNames.RotateRightButton)
+      if (this.SelectedCardType != null)
       {
-        this.CurrentCardsDict[this.SelectedCardId].unitFormation.RotateRight();
-        this.SetHoveringTiles(this.hoveringTile);
-      }
-      if (evt == InputEventNames.RotateLeftButton)
-      {
-        this.CurrentCardsDict[this.SelectedCardId].unitFormation.RotateLeft();
-        this.SetHoveringTiles(this.hoveringTile);
-      }
-      if (evt == InputEventNames.MirrorHorizontalButton)
-      {
-        this.CurrentCardsDict[this.SelectedCardId].unitFormation.MirrorHorizontal();
-        this.SetHoveringTiles(this.hoveringTile);
-      }
-      if (evt == InputEventNames.MirrorVerticalButton)
-      {
-        this.CurrentCardsDict[this.SelectedCardId].unitFormation.MirrorVertical();
-        this.SetHoveringTiles(this.hoveringTile);
+        if (evt == InputEventNames.RotateRightButton)
+        {
+          this.OpenCardsDict[(CardType)this.SelectedCardType].unitFormation.RotateRight();
+          this.SetHoveringTiles(this.hoveringTile);
+        }
+        if (evt == InputEventNames.RotateLeftButton)
+        {
+          this.OpenCardsDict[(CardType)this.SelectedCardType].unitFormation.RotateLeft();
+          this.SetHoveringTiles(this.hoveringTile);
+        }
+        if (evt == InputEventNames.MirrorHorizontalButton)
+        {
+          this.OpenCardsDict[(CardType)this.SelectedCardType].unitFormation.MirrorHorizontal();
+          this.SetHoveringTiles(this.hoveringTile);
+        }
+        if (evt == InputEventNames.MirrorVerticalButton)
+        {
+          this.OpenCardsDict[(CardType)this.SelectedCardType].unitFormation.MirrorVertical();
+          this.SetHoveringTiles(this.hoveringTile);
+        }
       }
       #endregion
 
@@ -75,16 +78,16 @@ namespace Schnoz
         // Place tile
         if (evt == InputEventNames.OnMouseUp)
         {
-          if (true) // || this.CurrentCardsDict.ContainsKey(this.SelectedCardId) && this.CurrentCardsDict[this.SelectedCardId] != null)
+          if (this.SelectedCardType != null && this.OpenCardsDict.ContainsKey((CardType)this.SelectedCardType) && this.OpenCardsDict[(CardType)this.SelectedCardType] != null)
           {
-            // UnitFormation untiFormation = this.CurrentCardsDict[this.SelectedCardId].unitFormation;
+            UnitFormation untiFormation = this.OpenCardsDict[(CardType)this.SelectedCardType].unitFormation;
             NetMakeMove mm = new NetMakeMove();
             mm.row = tile.Row;
             mm.col = tile.Col;
-            mm.unitFormationId = 3; // UnitFormation.unitFormationTypeToIdDict[untiFormation.Type];
-            mm.rotation = 0; //untiFormation.rotation;
-            mm.mirrorHorizontal = 0; //untiFormation.mirrorHorizontal ? 1 : 0;
-            mm.mirrorVertical = 0; //untiFormation.mirrorVertical ? 1 : 0;
+            mm.unitFormationId = UnitFormation.unitFormationTypeToIdDict[untiFormation.Type];
+            mm.rotation = untiFormation.rotation;
+            mm.mirrorHorizontal = untiFormation.mirrorHorizontal ? 1 : 0;
+            mm.mirrorVertical = untiFormation.mirrorVertical ? 1 : 0;
             mm.teamId = this.currentTeam;
             Debug.Log(JsonUtility.ToJson(mm));
             Client.Instance.SendToServer(mm);
@@ -108,10 +111,10 @@ namespace Schnoz
       #region Card events
       if (typeof(CardView) == sender?.GetType())
       {
-        Guid cardId = (Guid)obj;
+        CardType cardType = (CardType)obj;
         if (evt == InputEventNames.OnMouseUp)
         {
-          this.SelectedCardId = cardId;
+          this.SelectedCardType = cardType;
         }
       }
       #endregion
@@ -127,12 +130,12 @@ namespace Schnoz
         return;
       }
       this.hoveringTile = tile;
-      if (this.SelectedCardId == Guid.Empty)
+      if (this.SelectedCardType == null)
       {
         return;
       }
       this.HoveringTiles = new List<Tile>();
-      Arrangement arrangement = this.CurrentCardsDict[this.SelectedCardId]?.unitFormation?.Arrangement;
+      Arrangement arrangement = this.OpenCardsDict[(CardType)this.SelectedCardType]?.unitFormation?.Arrangement;
       if (arrangement == null)
       {
         return;
@@ -164,14 +167,14 @@ namespace Schnoz
     {
       NetUtility.C_WELCOME += this.OnWelcome;
       NetUtility.C_START_GAME += this.OnStartGame;
-      NetUtility.C_DRAW_CARD += this.OnDrawCard;
+      NetUtility.C_UPDATE_CARDS += this.OnUpdateCards;
       NetUtility.C_UPDATE_MAP += this.OnUpdateMap;
     }
     private void UnregisterEvents()
     {
       NetUtility.C_WELCOME -= this.OnWelcome;
       NetUtility.C_START_GAME -= this.OnStartGame;
-      NetUtility.C_DRAW_CARD -= this.OnDrawCard;
+      NetUtility.C_UPDATE_CARDS -= this.OnUpdateCards;
       NetUtility.C_UPDATE_MAP -= this.OnUpdateMap;
     }
 
@@ -192,21 +195,36 @@ namespace Schnoz
     private void OnStartGame(NetMessage msg)
     {
       NetStartGame sg = msg as NetStartGame;
-      Debug.Log($"OnStartGame: {sg.netMapString.ToString()}");
-      NetMap netMap = JsonUtility.FromJson<NetMap>(sg.netMapString.ToString());
+      Debug.Log("OnStartGame");
+      Debug.Log($"Map: {sg.netMapString.ToString()}");
+      Debug.Log($"OpenCards: {sg.netOpenCardsString.ToString()}");
+
       this.gameSettings = new GameSettings(9, 9, 3, 0, 6, 30, new List<Player>() { new Player(0), new Player(1) });
       this.Game = new Schnoz(this.gameSettings);
+
+      NetMap netMap = JsonUtility.FromJson<NetMap>(sg.netMapString.ToString());
       this.Game.Map = new Map(netMap);
+
+      NetOpenCards netOpenCards = JsonUtility.FromJson<NetOpenCards>(sg.netOpenCardsString.ToString());
+      this.Game.OpenCards = new List<Card>();
+      foreach (NetCard netCard in netOpenCards.o)
+      {
+        this.Game.OpenCards.Add(new Card((CardType)netCard.t));
+      }
+
       this.CreateViewManager();
       this.viewManager.OnPropertyChanged(this, new PropertyChangedEventArgs("Map"));
+      this.viewManager.OnPropertyChanged(this, new PropertyChangedEventArgs("OpenCards"));
     }
-    private void OnDrawCard(NetMessage msg)
+    private void OnUpdateCards(NetMessage msg)
     {
-      NetDrawCard dc = msg as NetDrawCard;
-      Card drawnCard = new Card((CardType)dc.cardType);
-      Debug.Log($"Card type {drawnCard.Type} received on .");
-      this.Game.CurrentCards.Add(drawnCard);
-      this.viewManager.OnPropertyChanged(this, new PropertyChangedEventArgs("CurrentCards"));
+      NetUpdateCards uc = msg as NetUpdateCards;
+      NetOpenCards netOpenCards = JsonUtility.FromJson<NetOpenCards>(uc.cardsString.ToString());
+      foreach (NetCard netCard in netOpenCards.o)
+      {
+        this.Game.OpenCards.Add(new Card(netCard));
+      }
+      this.viewManager.OnPropertyChanged(this, new PropertyChangedEventArgs("OpenCards"));
     }
 
     /// <summary>

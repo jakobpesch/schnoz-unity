@@ -112,7 +112,7 @@
 //       Map.I.Deck = new Deck();
 //       Map.I.Deck.Shuffle();
 
-//       Map.I.CurrentCards = new List<Card>();
+//       Map.I.OpenCards = new List<Card>();
 
 //       this.turn = 0;
 
@@ -216,8 +216,8 @@
 //     // private GameObject capital;
 //     // private bool snapFormation;
 //     // public int SelectedCardIndex;
-//     // public GameObject[] currentCards;
-//     // private Vector3[] currentCardsPositions;
+//     // public GameObject[] openCards;
+//     // private Vector3[] openCardsPositions;
 
 //     // public List<GameObject> PlacementPreventingTiles;
 //     // public bool startNewGame = true;
@@ -228,9 +228,9 @@
 //     // public void DeselectCard()
 //     // {
 //     //   Destroy(hoveringUnitFormation);
-//     //   for (int i = 0; i < currentCards.Length; i++)
-//     //     if (currentCards[i] != null)
-//     //       currentCards[i].SetActive(true);
+//     //   for (int i = 0; i < openCards.Length; i++)
+//     //     if (openCards[i] != null)
+//     //       openCards[i].SetActive(true);
 //     //   M.I.Spawn_selectedCard = null;
 //     //   Cursor.visible = true;
 
@@ -294,7 +294,7 @@
 //     //     // The Game will stay in this loop until the game is over
 //     //     while (true)
 //     //     {
-//     //       // Array.ForEach(currentCards, card => card.SetActive(true));
+//     //       // Array.ForEach(openCards, card => card.SetActive(true));
 
 //     //       //############## Stays in this coroutine until the current player places a card.
 //     //       yield return StartCoroutine(Turn());
@@ -303,7 +303,7 @@
 //     //       // then the coroutine Turn() starts over
 //     //       if (actionAborted)
 //     //       {
-//     //         // Array.ForEach(currentCards, card => card.SetActive(true));
+//     //         // Array.ForEach(openCards, card => card.SetActive(true));
 //     //         actionAborted = false;
 //     //         continue;
 //     //       }
@@ -330,22 +330,22 @@
 //     //         {
 //     //           case "card":
 //     //             // Get index of chosen card
-//     //             int cardPositionIndex = currentCards.Length - Array.IndexOf(CurrentPlayer.Input.SelectCardButtons, true) - 1;
+//     //             int cardPositionIndex = openCards.Length - Array.IndexOf(CurrentPlayer.Input.SelectCardButtons, true) - 1;
 
 //     //             // Do nothing when a card slot is selected where the card is not there
-//     //             if (currentCards[cardPositionIndex] == null)
+//     //             if (openCards[cardPositionIndex] == null)
 //     //             {
 //     //               CurrentPlayer.Input.ResetInput(); yield return null; continue;
 //     //             }
 
 //     //             // Select card
-//     //             M.I.Spawn_SelectCard(currentCards[cardPositionIndex].GetComponent<CardProperties>());
+//     //             M.I.Spawn_SelectCard(openCards[cardPositionIndex].GetComponent<CardProperties>());
 //     //             hoveringUnitFormation = M.I.Spawn_CreateUnitFormationFrom(M.I.Spawn_selectedCard);
 //     //             unitFormationProperties = hoveringUnitFormation.GetComponent<UnitFormationProperties>();
 //     //             Cursor.visible = false;
-//     //             // Array.ForEach(currentCards, card => card.SetActive(false));
+//     //             // Array.ForEach(openCards, card => card.SetActive(false));
 
-//     //             Array.ForEach(currentCards, c =>
+//     //             Array.ForEach(openCards, c =>
 //     //             {
 //     //               CardProperties cp = c.GetComponent<CardProperties>();
 //     //               if (cp.id != SpawnManager.I.selectedCardProperties.id)
@@ -362,7 +362,7 @@
 //     //             yield return StartCoroutine(PlacingCard());
 
 
-//     //             Array.ForEach(currentCards, c =>
+//     //             Array.ForEach(openCards, c =>
 //     //             {
 //     //               H.SetOpacity(c, 1f);
 //     //               foreach (Transform child in c.transform)
@@ -676,8 +676,8 @@
 //     //   GameObject spawnedUnit = M.I.Spawn_Unit(capital, M.I.Map_CenterTile(), NeutralPlayer);
 //     //   M.I.Map_Scan();
 
-//     //   currentCards = new GameObject[numberOfCardsPerTurn];
-//     //   currentCardsPositions = new Vector3[numberOfCardsPerTurn];
+//     //   openCards = new GameObject[numberOfCardsPerTurn];
+//     //   openCardsPositions = new Vector3[numberOfCardsPerTurn];
 
 //     //   foreach (Transform cardSlot in GameObject.Find("Current Cards").transform)
 //     //     foreach (Transform card in cardSlot)
@@ -687,13 +687,13 @@
 //     //   // Draw and position initial cards
 //     //   for (int i = 0; i < numberOfCardsPerTurn; i++)
 //     //   {
-//     //     // currentCards[i] = M.I.Map_Deck().Draw();
-//     //     // currentCards[i].transform.position += new Vector3(0, 3 * i, 0);
-//     //     // currentCardsPositions[i] = currentCards[i].transform.localPosition;
+//     //     // openCards[i] = M.I.Map_Deck().Draw();
+//     //     // openCards[i].transform.position += new Vector3(0, 3 * i, 0);
+//     //     // openCardsPositions[i] = openCards[i].transform.localPosition;
 //     //   }
 //     //   for (int i = 0; i < numberOfCardsPerTurn; i++)
 //     //   {
-//     //     Map.I.CurrentCards.Add(M.I.Map_Deck().Draw());
+//     //     Map.I.OpenCards.Add(M.I.Map_Deck().Draw());
 //     //   }
 //     //   // // InitializeRules();
 //     //   //// Debug.Assert(true, UIManager.I);
@@ -729,26 +729,26 @@
 //     //   // bool selectCardButtonPressed = Array.Find(CurrentPlayer.Input.SelectCardButtons, b => b == true);
 //     //   // bool isCardNewlySelected = isCardSelected && hoveringUnitFormation == null;
 
-//     //   // int cardPositionIndex = currentCards.Length - Array.IndexOf(CurrentPlayer.Input.SelectCardButtons, true) - 1;
+//     //   // int cardPositionIndex = openCards.Length - Array.IndexOf(CurrentPlayer.Input.SelectCardButtons, true) - 1;
 
 
 //     //   // if (selectCardButtonPressed && !isCardSelected)
 //     //   // {
-//     //   //   if (currentCards[cardPositionIndex] != null)
+//     //   //   if (openCards[cardPositionIndex] != null)
 //     //   //   {
 //     //   //     DeselectCard();
-//     //   //     M.I.Spawn_SelectCard(currentCards[cardPositionIndex].GetComponent<CardProperties>());
+//     //   //     M.I.Spawn_SelectCard(openCards[cardPositionIndex].GetComponent<CardProperties>());
 //     //   //   }
 //     //   //   return;
 //     //   // }
 
 //     //   // if (selectCardButtonPressed && isCardSelected)
 //     //   // {
-//     //   //   if (currentCards[cardPositionIndex] == null)
+//     //   //   if (openCards[cardPositionIndex] == null)
 //     //   //     return;
 
 //     //   //   DeselectCard();
-//     //   //   M.I.Spawn_SelectCard(currentCards[cardPositionIndex].GetComponent<CardProperties>());
+//     //   //   M.I.Spawn_SelectCard(openCards[cardPositionIndex].GetComponent<CardProperties>());
 //     //   //   return;
 //     //   // }
 
@@ -824,9 +824,9 @@
 //     //   M.I.Audio_Play(CurrentPlayer.soundName);
 
 //     //   // Destroy placed card
-//     //   // for (int i = 0; i < currentCards.Length; i++)
-//     //   //   if (currentCards[i] != null && currentCards[i].GetComponent<CardProperties>().id == SelectedCardIndex)
-//     //   //     Destroy(currentCards[i]);
+//     //   // for (int i = 0; i < openCards.Length; i++)
+//     //   //   if (openCards[i] != null && openCards[i].GetComponent<CardProperties>().id == SelectedCardIndex)
+//     //   //     Destroy(openCards[i]);
 
 //     //   yield return StartCoroutine(FinishUpAction("card"));
 //     // }
@@ -851,9 +851,9 @@
 //     //   M.I.Audio_Play(CurrentPlayer.soundName);
 
 //     //   // Destroy placed card
-//     //   // for (int i = 0; i < currentCards.Length; i++)
-//     //   //   if (currentCards[i] != null && currentCards[i].GetComponent<CardProperties>().id == SelectedCardIndex)
-//     //   //     Destroy(currentCards[i]);
+//     //   // for (int i = 0; i < openCards.Length; i++)
+//     //   //   if (openCards[i] != null && openCards[i].GetComponent<CardProperties>().id == SelectedCardIndex)
+//     //   //     Destroy(openCards[i]);
 
 //     //   yield return StartCoroutine(FinishUpAction("single"));
 //     // }
@@ -1100,7 +1100,7 @@
 
 //     // private IEnumerator RedrawCards()
 //     // {
-//     //   foreach (GameObject card in currentCards)
+//     //   foreach (GameObject card in openCards)
 //     //   {
 //     //     StartCoroutine(DiscardAnimation(card));
 //     //     yield return new WaitForSeconds(0.2f);
@@ -1108,7 +1108,7 @@
 //     //   M.I.Map_NewDeck();
 //     //   M.I.Map_Deck().Shuffle();
 
-//     //   for (int iC = 0; iC < currentCards.Length; iC++)
+//     //   for (int iC = 0; iC < openCards.Length; iC++)
 //     //   {
 //     //     StartCoroutine(DrawAnimation(iC));
 //     //     yield return new WaitForSeconds(0.2f);
@@ -1123,10 +1123,10 @@
 //     // }
 //     // private IEnumerator DrawAnimation(int indexCard)
 //     // {
-//     //   // currentCards[indexCard] = M.I.Card_DrawCard();
-//     //   // currentCards[indexCard].transform.localPosition = currentCardsPositions[indexCard] - new Vector3(150f, 0, 0);
-//     //   // currentCards[indexCard].transform.localPosition += Vector3.left * 5;
-//     //   yield return StartCoroutine(H.MoveTo(currentCards[indexCard].transform, currentCards[indexCard].transform.localPosition + new Vector3(150f, 0, 0), 300f));
+//     //   // openCards[indexCard] = M.I.Card_DrawCard();
+//     //   // openCards[indexCard].transform.localPosition = openCardsPositions[indexCard] - new Vector3(150f, 0, 0);
+//     //   // openCards[indexCard].transform.localPosition += Vector3.left * 5;
+//     //   yield return StartCoroutine(H.MoveTo(openCards[indexCard].transform, openCards[indexCard].transform.localPosition + new Vector3(150f, 0, 0), 300f));
 //     // }
 //   }
 // }

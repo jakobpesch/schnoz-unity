@@ -5,6 +5,7 @@ using Unity.Collections;
 public class NetStartGame : NetMessage
 {
   public FixedString4096 netMapString;
+  public FixedString4096 netOpenCardsString;
   public NetStartGame()
   {
     this.Code = OpCode.START_GAME;
@@ -18,10 +19,12 @@ public class NetStartGame : NetMessage
   {
     writer.WriteByte((byte)this.Code);
     writer.WriteFixedString4096(this.netMapString);
+    writer.WriteFixedString4096(this.netOpenCardsString);
   }
   public override void Deserialize(DataStreamReader reader)
   {
     this.netMapString = reader.ReadFixedString4096();
+    this.netOpenCardsString = reader.ReadFixedString4096();
   }
   public override void ReceivedOnClient()
   {

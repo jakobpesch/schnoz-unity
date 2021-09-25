@@ -11,7 +11,7 @@ public class StandardGameViewManager : MonoBehaviour
   public StandardGameClient game;
   private Vector2 resolution;
   private GameObject mapGO;
-  [SerializeField] private GameObject currentCardsGO;
+  [SerializeField] private GameObject openCardsGO;
 
   #region Camera movement properties
   private Camera mainCam;
@@ -35,7 +35,7 @@ public class StandardGameViewManager : MonoBehaviour
     #region On resize
     if (resolution.x != Screen.width || resolution.y != Screen.height)
     {
-      this.RenderCurrentCards();
+      this.RenderOpenCards();
 
       resolution.x = Screen.width;
       resolution.y = Screen.height;
@@ -100,14 +100,14 @@ public class StandardGameViewManager : MonoBehaviour
       this.RenderHighlights();
       // StartCoroutine(this.RenderMapSlowly());
     }
-    if (e.PropertyName == "CurrentCards")
+    if (e.PropertyName == "OpenCards")
     {
-      this.RenderCurrentCards();
+      this.RenderOpenCards();
       // StartCoroutine(this.RenderMapSlowly());
     }
     if (e.PropertyName == "SelectedCard")
     {
-      this.RenderCurrentCards();
+      this.RenderOpenCards();
     }
   }
 
@@ -123,15 +123,22 @@ public class StandardGameViewManager : MonoBehaviour
     this.zoomMaxSize = 1 + boardSize / 2;
     #endregion
 
-    this.currentCardsGO = new GameObject("CurrentCards");
-    RectTransform rect = currentCardsGO.AddComponent<RectTransform>();
+    #region Cards UI
+    // CreateCardsUI();
+    #endregion
+  }
+  private void CreateCardsUI()
+  {
+    Debug.Log("Creating Open Cards GO");
+    this.openCardsGO = new GameObject("OpenCards");
+    this.openCardsGO.transform.SetParent(GameObject.Find("UI").transform);
+    RectTransform rect = openCardsGO.AddComponent<RectTransform>();
     rect.anchorMin = new Vector2(0, 0);
     rect.anchorMax = new Vector2(0, 0);
-    currentCardsGO.transform.localPosition = new Vector3(0, 0, 0);
+    openCardsGO.transform.localPosition = new Vector3(0, 0, 0);
     rect.anchoredPosition = new Vector3(Screen.width * 0.01f, Screen.width * 0.01f, 0);
     rect.sizeDelta = new Vector2(100, 100);
   }
-
   public void StartListening()
   {
     this.game.Game.PropertyChanged -= new PropertyChangedEventHandler(this.OnPropertyChanged);
@@ -229,7 +236,7 @@ public class StandardGameViewManager : MonoBehaviour
   {
     GameObject cardGO = new GameObject($"{card.Type}");
     SpriteRenderer sr = cardGO.AddComponent<SpriteRenderer>();
-    if (this.game.SelectedCardId == card.Id)
+    if (this.game.SelectedCardType == card.Type)
     {
       sr.color = Color.green;
     }
@@ -238,28 +245,25 @@ public class StandardGameViewManager : MonoBehaviour
     sr.sortingOrder = 20;
     return cardGO;
   }
-  private void RenderCurrentCards()
+  private void RenderOpenCards()
   {
-    // Debug.Log("Rendering Current Cards");
-    GameObject currentCardsGO = GameObject.Find("CurrentCards");
-    Destroy(currentCardsGO);
-    currentCardsGO = new GameObject("CurrentCards");
-    currentCardsGO.transform.SetParent(GameObject.Find("UI").transform);
-    RectTransform rect = currentCardsGO.AddComponent<RectTransform>();
-    rect.anchorMin = new Vector2(0, 0);
-    rect.anchorMax = new Vector2(0, 0);
-    currentCardsGO.transform.localPosition = new Vector3(0, 0, 0);
-    rect.anchoredPosition = new Vector3(Screen.width * 0.01f, Screen.width * 0.01f, 0);
-    rect.sizeDelta = new Vector2(100, 100);
+    Debug.Log("Rendering Open Cards");
+    if (this.openCardsGO != null)
+    {
+      Debug.Log("Destroying OpenCardsGo");
+      GameObject.Destroy(this.openCardsGO);
+    }
+    this.CreateCardsUI();
+
     int index = 0;
-    this.game.Game.CurrentCards.ForEach(card =>
+    this.game.Game.OpenCards.ForEach(card =>
     {
       GameObject cardGO = this.RenderCard(card);
-      cardGO.transform.SetParent(currentCardsGO.transform);
+      cardGO.transform.SetParent(this.openCardsGO.transform);
       cardGO.transform.localPosition = new Vector2(0, index++);
       CardView cardView = cardGO.AddComponent<CardView>();
       cardView.game = this.game;
-      cardView.cardId = card.Id;
+      cardView.cardTypeId = (int)card.Type;
     });
   }
 }

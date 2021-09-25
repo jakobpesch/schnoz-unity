@@ -75,7 +75,7 @@ namespace Schnoz
         netUnit.c = unit.Coordinate.col;
         return netUnit;
       }).ToList();
-      return JsonUtility.ToJson(netMap); ;
+      return JsonUtility.ToJson(netMap);
     }
     public List<Tile> GetTiles(List<Guid> ids)
     {

@@ -17,9 +17,9 @@ namespace Schnoz
       get => this.game;
     }
     [SerializeField] private GameSettings gameSettings;
-    public Dictionary<Guid, Card> CurrentCardsDict
+    public Dictionary<Guid, Card> OpenCardsDict
     {
-      get => this.game.CurrentCards.ToDictionary(card => card.Id);
+      get => this.game.OpenCards.ToDictionary(card => card.Id);
     }
     public Dictionary<Guid, Tile> TileDict
     {
@@ -74,8 +74,12 @@ namespace Schnoz
               // Start the game immediately
               Debug.Log("Starts the game as host");
               this.InitGame();
+              Debug.Log(this.Game.Deck.OpenCards.Count);
               NetStartGame sg = new NetStartGame();
               sg.netMapString = this.Game.Map.Serialize();
+              NetOpenCards oc = new NetOpenCards();
+              sg.netOpenCardsString = this.Game.Deck.SerializeOpenCards();
+              Debug.Log(sg.netOpenCardsString);
               Server.Instance.Broadcast(sg);
               break;
             }
@@ -106,6 +110,9 @@ namespace Schnoz
       this.gameSettings = new GameSettings(9, 9, 3, 0, 6, 30, new List<Player>() { new Player(0), new Player(1) });
       this.game = new Schnoz(this.gameSettings);
       this.game.CreateMap();
+      this.game.CreateDeck();
+      this.game.ShuffleDeck();
+      this.game.DrawCards();
     }
     private void StartGame()
     {

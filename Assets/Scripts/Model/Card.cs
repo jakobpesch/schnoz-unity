@@ -20,5 +20,11 @@ namespace Schnoz
       this.type = type;
       this.unitFormation = new UnitFormation(type);
     }
+    public Card(NetCard netCard)
+    {
+      this.id = Guid.NewGuid();
+      this.type = (CardType)netCard.t;
+      this.unitFormation = new UnitFormation(type);
+    }
   }
 }

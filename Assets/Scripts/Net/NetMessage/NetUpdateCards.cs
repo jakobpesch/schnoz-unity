@@ -1,39 +1,38 @@
 using Unity.Networking.Transport;
 using Unity.Collections;
 using Schnoz;
-public class NetDrawCard : NetMessage
+public class NetUpdateCards : NetMessage
 {
-  public byte cardType;
+  public FixedString4096 cardsString;
 
-  public NetDrawCard()
+  public NetUpdateCards()
   {
-    this.Code = OpCode.DRAW_CARD;
+    this.Code = OpCode.UPDATE_CARDS;
   }
-  public NetDrawCard(DataStreamReader reader)
+  public NetUpdateCards(DataStreamReader reader)
   {
-    this.Code = OpCode.DRAW_CARD;
+    this.Code = OpCode.UPDATE_CARDS;
     this.Deserialize(reader);
   }
 
   public override void Serialize(ref DataStreamWriter writer)
   {
     writer.WriteByte((byte)this.Code);
-    writer.WriteByte(cardType);
+    writer.WriteFixedString4096(cardsString);
 
   }
 
   public override void Deserialize(DataStreamReader reader)
   {
-    this.cardType = reader.ReadByte();
-
+    this.cardsString = reader.ReadFixedString4096();
   }
 
   public override void ReceivedOnClient()
   {
-    NetUtility.C_DRAW_CARD?.Invoke(this);
+    NetUtility.C_UPDATE_CARDS?.Invoke(this);
   }
   public override void ReceivedOnServer(NetworkConnection cnn)
   {
-    NetUtility.S_DRAW_CARD?.Invoke(this, cnn);
+    NetUtility.S_UPDATE_CARDS?.Invoke(this, cnn);
   }
 }

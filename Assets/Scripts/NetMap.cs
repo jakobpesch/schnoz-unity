@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+[Serializable]
 public class NetMap
 {
   public int r;
