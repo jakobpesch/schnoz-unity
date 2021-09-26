@@ -62,6 +62,7 @@ namespace Schnoz
               this.InitGame();
               NetStartGame sg = new NetStartGame();
               sg.netMapString = this.GameServer.Map.Serialize();
+              Debug.Log(sg.netMapString);
               Server.Instance.Broadcast(sg);
               break;
             }
@@ -75,6 +76,7 @@ namespace Schnoz
               sg.netMapString = this.GameServer.Map.Serialize();
               NetOpenCards oc = new NetOpenCards();
               sg.netOpenCardsString = this.GameServer.Deck.SerializeOpenCards();
+              Debug.Log(sg.netMapString);
               Debug.Log(sg.netOpenCardsString);
               Server.Instance.Broadcast(sg);
               break;

@@ -18,8 +18,16 @@ namespace Schnoz
     {
       get
       {
-        List<Unit> u = Tiles.Where(tile => tile.Unit != null).Select(tile => tile.Unit).ToList();
+        List<Unit> u = this.Tiles.Where(tile => tile.Unit != null).Select(tile => tile.Unit).ToList();
         return u;
+      }
+    }
+    public List<Terrain> Terrains
+    {
+      get
+      {
+        List<Terrain> t = this.Tiles.Where(tile => tile.Terrain.Type != TerrainType.Grass).Select(tile => tile.Terrain).ToList();
+        return t;
       }
     }
     [SerializeField]
@@ -36,7 +44,7 @@ namespace Schnoz
     public Dictionary<Coordinate, Tile> CoordinateToTileDict { get; }
     public List<List<Tile>> DiagonalsFromBottomLeftToTopRight { get => GetDiagonalsFromBottomLeftToTopRight(); }
     public List<List<Tile>> DiagonalsFromTopLeftToBottomRight { get => GetDiagonalsFromTopLeftToBottomRight(); }
-    public Map(int nRows, int nCols)
+    public Map(int nRows, int nCols, bool randomize = true)
     {
       this.nRows = nRows;
       this.nCols = nCols;
@@ -52,14 +60,83 @@ namespace Schnoz
           CoordinateToTileDict.Add(tile.Coordinate, tile);
         }
       }
+
+      if (randomize)
+      {
+        this.RandomizeTerrain();
+        this.centerTile.SetTerrain(TerrainType.Grass);
+
+        foreach (Tile t in this.GetTilesWithinRadius(centerTile, 2))
+        {
+          t.SetTerrain(TerrainType.Grass);
+        }
+      }
+
+
     }
-    public Map(NetMap netMap) : this(netMap.r, netMap.c)
+    public Map(NetMap netMap) : this(netMap.r, netMap.c, false)
     {
       netMap.u.ForEach(netUnit =>
       {
         Coordinate coordinate = new Coordinate(netUnit.r, netUnit.c);
         this.CoordinateToTileDict[coordinate].SetUnit(new Unit(netUnit));
       });
+      netMap.t.ForEach(netTerrain =>
+      {
+        Coordinate coordinate = new Coordinate(netTerrain.r, netTerrain.c);
+        this.CoordinateToTileDict[coordinate].SetTerrain(new Terrain(netTerrain).Type);
+      });
+    }
+
+
+    private void RandomizeTerrain()
+    {
+      float partsGrass = 11, partsWater = 3, partsBush = 5, partsStone = 1;
+      float total = partsGrass + partsWater + partsBush + partsStone;
+      float chanceGrass = partsGrass / total;
+      float chanceWater = partsWater / total;
+      float chanceBush = partsBush / total;
+      float chanceStone = partsStone / total;
+      List<TerrainType> probabilityArray = new List<TerrainType>();
+      TerrainType terrainGrass = TerrainType.Grass;
+      TerrainType terrainBush = TerrainType.Bush;
+      TerrainType terrainWater = TerrainType.Water;
+      TerrainType terrainStone = TerrainType.Stone;
+      probabilityArray.AddRange(Enumerable.Repeat(terrainGrass, (int)partsGrass).ToList());
+      probabilityArray.AddRange(Enumerable.Repeat(terrainBush, (int)partsBush).ToList());
+      probabilityArray.AddRange(Enumerable.Repeat(terrainWater, (int)partsWater).ToList());
+      probabilityArray.AddRange(Enumerable.Repeat(terrainStone, (int)partsStone).ToList());
+
+      foreach (Tile tile in this.Tiles)
+      {
+
+        // int rerollSucceeded = 0;
+        // int rerollFailed = 0;
+
+        int randomInt = UnityEngine.Random.Range(0, probabilityArray.Count);
+        TerrainType terrainType = probabilityArray[randomInt];
+
+        List<TerrainType> adjacentTerrainTypes = new List<TerrainType>();
+        List<Tile> adjacentTiles = this.GetAdjacentTiles(tile);
+        Debug.Log(adjacentTiles.Count);
+        foreach (Tile at in adjacentTiles.Where(t => t != null && t.Terrain.Type != TerrainType.Grass))
+        {
+          adjacentTerrainTypes.Add(at.Terrain.Type);
+        }
+
+        // Reroll for each adjacent special tile
+        for (int i = 0; i < adjacentTerrainTypes.Count(); i++)
+        {
+          if (adjacentTerrainTypes.Contains(terrainType))
+          {
+            break;
+          }
+          randomInt = UnityEngine.Random.Range(0, probabilityArray.Count);
+          terrainType = probabilityArray[randomInt];
+        }
+
+        tile.SetTerrain(terrainType);
+      }
     }
 
     public string Serialize()
@@ -74,6 +151,14 @@ namespace Schnoz
         netUnit.r = unit.Coordinate.row;
         netUnit.c = unit.Coordinate.col;
         return netUnit;
+      }).ToList();
+      netMap.t = this.Terrains.Select(terrain =>
+      {
+        NetTerrain netTerrain = new NetTerrain();
+        netTerrain.t = (int)terrain.Type;
+        netTerrain.r = terrain.Coordinate.row;
+        netTerrain.c = terrain.Coordinate.col;
+        return netTerrain;
       }).ToList();
       return JsonUtility.ToJson(netMap);
     }
@@ -108,10 +193,8 @@ namespace Schnoz
     public IEnumerable<Unit> GetAdjacentAllies(Tile centerTile, List<Tile> adjacentTiles)
     {
       return GetAdjacentTiles(centerTile).Select(adjacentTile =>
-        this.CoordinateToTileDict
-  .ContainsKey(adjacentTile.Coordinate)
-        ? this.CoordinateToTileDict
-  [adjacentTile.Coordinate].Unit
+        this.CoordinateToTileDict.ContainsKey(adjacentTile.Coordinate)
+        ? this.CoordinateToTileDict[adjacentTile.Coordinate].Unit
         : null
       );
     }
@@ -133,13 +216,12 @@ namespace Schnoz
       List<Tile> adjacentTiles = directions.Select(dir =>
       {
         Coordinate adjacentCoordinate = middleTile.Coordinate + dir;
-        if (!this.CoordinateToTileDict
-  .ContainsKey(adjacentCoordinate))
+        if (!this.CoordinateToTileDict.ContainsKey(adjacentCoordinate))
         {
           return null;
         }
-        return this.CoordinateToTileDict
-  [adjacentCoordinate];
+        Debug.Log(this.CoordinateToTileDict[adjacentCoordinate].Terrain);
+        return this.CoordinateToTileDict[adjacentCoordinate];
       }).ToList();
       return adjacentTiles.ToList();
     }

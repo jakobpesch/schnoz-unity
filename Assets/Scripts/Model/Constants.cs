@@ -8,7 +8,7 @@ namespace Schnoz
   }
   public enum TerrainType
   {
-    Bush, Water, Stone
+    Grass = 0, Water = 1, Bush = 2, Stone = 3
   }
   public enum CardType
   {

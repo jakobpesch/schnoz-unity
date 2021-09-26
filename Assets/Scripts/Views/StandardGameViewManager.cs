@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using System.Collections.Generic;
 using System.Collections;
@@ -155,7 +156,7 @@ public class StandardGameViewManager : MonoBehaviour
     // Debug.Log($"Render Tile {tile.Coordinate}");
     GameObject tileGO = new GameObject($"{tile.Coordinate}");
     SpriteRenderer sr = tileGO.AddComponent<SpriteRenderer>();
-    sr.sprite = Resources.Load<Sprite>("Sprites/tile_grass");
+    sr.sprite = Array.Find(Resources.LoadAll<Sprite>("Sprites/Tiles"), s => s.name == "terrain_grass");
     TileView tileView = tileGO.AddComponent<TileView>();
     tileView.game = this.game;
     tileView.coordinate = tile.Coordinate;
@@ -169,6 +170,44 @@ public class StandardGameViewManager : MonoBehaviour
     sr.sprite = Resources.Load<Sprite>(unit.OwnerId == 0 ? "Sprites/bob" : "Sprites/maurice");
     sr.sortingOrder = 10;
     return unitGO;
+  }
+  private GameObject RenderTerrain(Schnoz.Terrain terrain)
+  {
+    GameObject terrainGO = new GameObject($"{terrain.Type.ToString()}");
+    SpriteRenderer sr = terrainGO.AddComponent<SpriteRenderer>();
+    switch (terrain.Type)
+    {
+      case TerrainType.Water:
+        {
+          sr.sprite = Array.Find(Resources.LoadAll<Sprite>("Sprites/Tiles"), s => s.name == "terrain_water");
+          break;
+        }
+      case TerrainType.Bush:
+        {
+          sr.sprite = Array.Find(Resources.LoadAll<Sprite>("Sprites/Tiles"), s => s.name == "terrain_bush");
+          break;
+        }
+      case TerrainType.Stone:
+        {
+          sr.sprite = Array.Find(Resources.LoadAll<Sprite>("Sprites/Tiles"), s => s.name == "terrain_stone");
+          break;
+        }
+      default:
+        {
+          break;
+        }
+    }
+
+    sr.sortingOrder = 5;
+    return terrainGO;
+  }
+  private GameObject RenderGround()
+  {
+    GameObject terrainGO = new GameObject("Grass");
+    SpriteRenderer sr = terrainGO.AddComponent<SpriteRenderer>();
+    sr.sprite = Array.Find(Resources.LoadAll<Sprite>("Sprites/Tiles"), s => s.name == "terrain_grass");
+    sr.sortingOrder = 4;
+    return terrainGO;
   }
 
   private void RenderHighlights()
@@ -204,6 +243,13 @@ public class StandardGameViewManager : MonoBehaviour
         GameObject unitGO = this.RenderUnit(tile.Unit);
         unitGO.transform.SetParent(tileGO.transform);
         unitGO.transform.localPosition = new Vector2(0, 0);
+      }
+
+      if (tile.Terrain.Type != TerrainType.Grass)
+      {
+        GameObject terrainGO = this.RenderTerrain(tile.Terrain);
+        terrainGO.transform.SetParent(tileGO.transform);
+        terrainGO.transform.localPosition = new Vector2(0, 0);
       }
     });
     // Debug.Log("Rendered Map successfully!");
