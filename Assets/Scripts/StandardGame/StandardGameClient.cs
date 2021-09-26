@@ -15,7 +15,7 @@ namespace Schnoz
       get => this.currentTeam;
     }
     [SerializeField] private StandardGameViewManager viewManager;
-    public Schnoz Game { get; private set; }
+    public Schnoz GameClient { get; private set; }
     [SerializeField] private GameSettings gameSettings;
     [SerializeField] private Tile hoveringTile;
     public Tile HoveringTile
@@ -40,11 +40,11 @@ namespace Schnoz
     }
     public Dictionary<Guid, Card> OpenCardsDict
     {
-      get => this.Game.OpenCards.ToDictionary(card => card.Id);
+      get => this.GameClient.OpenCards.ToDictionary(card => card.Id);
     }
     public Dictionary<Coordinate, Tile> TileDict
     {
-      get => this.Game.Map.Tiles.ToDictionary(tile => tile.Coordinate);
+      get => this.GameClient.Map.Tiles.ToDictionary(tile => tile.Coordinate);
     }
     public void HandlePlayerInput(object sender, InputEventNames evt, object obj = null)
     {
@@ -149,9 +149,9 @@ namespace Schnoz
       foreach (Coordinate offset in arrangement)
       {
         Coordinate c = tile.Coordinate + offset;
-        if (this.Game.Map.CoordinateToTileDict.ContainsKey(c))
+        if (this.GameClient.Map.CoordinateToTileDict.ContainsKey(c))
         {
-          Tile t = this.Game.Map.CoordinateToTileDict[c];
+          Tile t = this.GameClient.Map.CoordinateToTileDict[c];
           this.HoveringTiles.Add(t);
         }
       }
@@ -205,17 +205,17 @@ namespace Schnoz
       Debug.Log($"Map: {sg.netMapString.ToString()}");
       Debug.Log($"OpenCards: {sg.netOpenCardsString.ToString()}");
 
-      this.gameSettings = new GameSettings(9, 9, 3, 0, 6, 30, new List<Player>() { new Player(0), new Player(1) });
-      this.Game = new Schnoz(this.gameSettings);
+      this.gameSettings = new GameSettings(9, 9, 3, 0, 6, 30, new List<int>() { 0, 1 });
+      this.GameClient = new Schnoz(this.gameSettings);
 
       NetMap netMap = JsonUtility.FromJson<NetMap>(sg.netMapString.ToString());
-      this.Game.Map = new Map(netMap);
+      this.GameClient.Map = new Map(netMap);
 
       NetOpenCards netOpenCards = JsonUtility.FromJson<NetOpenCards>(sg.netOpenCardsString.ToString());
-      this.Game.OpenCards = new List<Card>();
+      this.GameClient.OpenCards = new List<Card>();
       foreach (NetCard netCard in netOpenCards.o)
       {
-        this.Game.OpenCards.Add(new Card((CardType)netCard.t));
+        this.GameClient.OpenCards.Add(new Card((CardType)netCard.t));
       }
 
       this.CreateViewManager();
@@ -228,7 +228,7 @@ namespace Schnoz
       NetOpenCards netOpenCards = JsonUtility.FromJson<NetOpenCards>(uc.cardsString.ToString());
       foreach (NetCard netCard in netOpenCards.o)
       {
-        this.Game.OpenCards.Add(new Card(netCard));
+        this.GameClient.OpenCards.Add(new Card(netCard));
       }
       this.viewManager.OnPropertyChanged(this, new PropertyChangedEventArgs("OpenCards"));
     }
@@ -243,7 +243,7 @@ namespace Schnoz
       Debug.Log($"OnUpdateMap: {up.netMapString.ToString()}");
 
       NetMap netMap = JsonUtility.FromJson<NetMap>(up.netMapString.ToString());
-      this.Game.Map = new Map(netMap);
+      this.GameClient.Map = new Map(netMap);
       this.viewManager.OnPropertyChanged(this, new PropertyChangedEventArgs("Map"));
     }
 

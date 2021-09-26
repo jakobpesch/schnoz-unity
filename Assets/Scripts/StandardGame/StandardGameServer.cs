@@ -11,20 +11,15 @@ namespace Schnoz
     // Multiplayer logic
     [SerializeField] private int playerCount = -1;
     [SerializeField] private int currentTeam = -1;
-    [SerializeField] private int playersTurn = 0;
-    [SerializeField] private Schnoz game;
-    public Schnoz Game
-    {
-      get => this.game;
-    }
+    public Schnoz GameServer { get; private set; }
     [SerializeField] private GameSettings gameSettings;
     public Dictionary<Guid, Card> OpenCardsDict
     {
-      get => this.game.OpenCards.ToDictionary(card => card.Id);
+      get => this.GameServer.OpenCards.ToDictionary(card => card.Id);
     }
     public Dictionary<Guid, Tile> TileDict
     {
-      get => this.game.Map.Tiles.ToDictionary(tile => tile.Id);
+      get => this.GameServer.Map.Tiles.ToDictionary(tile => tile.Id);
     }
 
     #region Networking
@@ -66,7 +61,7 @@ namespace Schnoz
               Debug.Log("Starts the game as dedicated server");
               this.InitGame();
               NetStartGame sg = new NetStartGame();
-              sg.netMapString = this.Game.Map.Serialize();
+              sg.netMapString = this.GameServer.Map.Serialize();
               Server.Instance.Broadcast(sg);
               break;
             }
@@ -75,11 +70,11 @@ namespace Schnoz
               // Start the game immediately
               Debug.Log("Starts the game as host");
               this.InitGame();
-              Debug.Log(this.Game.Deck.OpenCards.Count);
+              Debug.Log(this.GameServer.Deck.OpenCards.Count);
               NetStartGame sg = new NetStartGame();
-              sg.netMapString = this.Game.Map.Serialize();
+              sg.netMapString = this.GameServer.Map.Serialize();
               NetOpenCards oc = new NetOpenCards();
-              sg.netOpenCardsString = this.Game.Deck.SerializeOpenCards();
+              sg.netOpenCardsString = this.GameServer.Deck.SerializeOpenCards();
               Debug.Log(sg.netOpenCardsString);
               Server.Instance.Broadcast(sg);
               break;
@@ -95,7 +90,7 @@ namespace Schnoz
     {
       NetMakeMove mm = msg as NetMakeMove;
 
-      if (cnn.InternalId != playersTurn)
+      if (cnn.InternalId != this.GameServer.ActivePlayerId)
       {
         return;
       }
@@ -105,21 +100,21 @@ namespace Schnoz
       unitFormation.mirrorHorizontal = mm.mirrorHorizontal == 1 ? true : false;
       unitFormation.mirrorVertical = mm.mirrorVertical == 1 ? true : false;
       Coordinate coordinate = new Coordinate(mm.row, mm.col);
-      this.Game.PlaceUnitFormation(cnn.InternalId, coordinate, unitFormation);
+      this.GameServer.PlaceUnitFormation(cnn.InternalId, coordinate, unitFormation);
       NetUpdateMap um = new NetUpdateMap();
-      um.netMapString = this.Game.Map.Serialize();
+      um.netMapString = this.GameServer.Map.Serialize();
       Server.Instance.Broadcast(um);
-      this.playersTurn = this.playersTurn == 0 ? 1 : 0;
+      this.GameServer.SetActivePlayer(this.GameServer.ActivePlayerId == 0 ? 1 : 0);
     }
     #endregion
     private void InitGame()
     {
-      this.gameSettings = new GameSettings(9, 9, 3, 0, 6, 30, new List<Player>() { new Player(0), new Player(1) });
-      this.game = new Schnoz(this.gameSettings);
-      this.game.CreateMap();
-      this.game.CreateDeck();
-      this.game.ShuffleDeck();
-      this.game.DrawCards();
+      this.gameSettings = new GameSettings(9, 9, 3, 0, 6, 30, new List<int>() { 0, 1 });
+      this.GameServer = new Schnoz(this.gameSettings);
+      this.GameServer.CreateMap();
+      this.GameServer.CreateDeck();
+      this.GameServer.ShuffleDeck();
+      this.GameServer.DrawCards();
     }
     private void StartGame()
     {

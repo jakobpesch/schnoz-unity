@@ -115,7 +115,7 @@ public class StandardGameViewManager : MonoBehaviour
   {
     #region Camera movement setup
     this.mainCam = Camera.main;
-    float nCols = (float)this.game.Game.gameSettings.NCols;
+    float nCols = (float)this.game.GameClient.gameSettings.NCols;
     float boardSize = (nCols + 1);
     float initialZoomSize = 1.3f * nCols / 2;
     this.mainCam.orthographicSize = initialZoomSize;
@@ -141,13 +141,13 @@ public class StandardGameViewManager : MonoBehaviour
   }
   public void StartListening()
   {
-    this.game.Game.PropertyChanged -= new PropertyChangedEventHandler(this.OnPropertyChanged);
-    this.game.Game.PropertyChanged += new PropertyChangedEventHandler(this.OnPropertyChanged);
+    this.game.GameClient.PropertyChanged -= new PropertyChangedEventHandler(this.OnPropertyChanged);
+    this.game.GameClient.PropertyChanged += new PropertyChangedEventHandler(this.OnPropertyChanged);
   }
 
   private void OnDestroy()
   {
-    this.game.Game.PropertyChanged -= new PropertyChangedEventHandler(this.OnPropertyChanged);
+    this.game.GameClient.PropertyChanged -= new PropertyChangedEventHandler(this.OnPropertyChanged);
   }
 
   private GameObject RenderTile(Tile tile)
@@ -194,7 +194,7 @@ public class StandardGameViewManager : MonoBehaviour
     }
     this.mapGO = new GameObject("Map");
 
-    this.game.Game.Map.Tiles.ForEach((Tile tile) =>
+    this.game.GameClient.Map.Tiles.ForEach((Tile tile) =>
     {
       GameObject tileGO = this.RenderTile(tile);
       tileGO.transform.SetParent(this.mapGO.transform);
@@ -215,7 +215,7 @@ public class StandardGameViewManager : MonoBehaviour
     Destroy(mapGO);
     mapGO = new GameObject("Map");
 
-    foreach (Tile tile in this.game.Game.Map.Tiles)
+    foreach (Tile tile in this.game.GameClient.Map.Tiles)
     {
       yield return new WaitForSeconds(interval);
       GameObject tileGO = this.RenderTile(tile);
@@ -256,7 +256,7 @@ public class StandardGameViewManager : MonoBehaviour
     this.CreateCardsUI();
 
     int index = 0;
-    this.game.Game.OpenCards.ForEach(card =>
+    this.game.GameClient.OpenCards.ForEach(card =>
     {
       GameObject cardGO = this.RenderCard(card);
       cardGO.transform.SetParent(this.openCardsGO.transform);

@@ -47,97 +47,17 @@ namespace Schnoz
     [SerializeField] private List<Player> players;
     [SerializeField] private int turn;
     [SerializeField] private int stage;
-    public List<Player> Players { get => this.gameSettings.Players; }
-    [SerializeField] private Player activePlayer;
-    public Player ActivePlayer { get => this.Players.Find(player => player.Active); }
-    public Player NeutralPlayer;
-    public void Start()
+    public List<int> PlayersIds { get => this.gameSettings.PlayerIds; }
+    public int ActivePlayerId { get; private set; }
+    public Player ActivePlayer
     {
-      // this.eventManager = new EventManager();
-      // Debug.Log("GameManager listens to: OnStartGame");
-      // this.eventManager.OnStartGame += this.StartGame;
-      // this.eventManager.OnClickCard += this.OnClickCardHandler;
-      // this.eventManager.OnAbort += this.OnAbortHandler;
-
-      // this.eventManager.StartGame();
+      get => this.gameSettings.IdToPlayerDict.ContainsKey(this.ActivePlayerId)
+      ? this.gameSettings.IdToPlayerDict[this.ActivePlayerId]
+      : null;
     }
-    private void StartGame()
-    {
-      // Debug.Log("Starting Game");
-      // Debug.Log(this.Map);
-      // this.Map = new Map(this.gameSettings.NRows, this.gameSettings.NCols);
-      // Debug.Log(this.Map);
-      // Debug.Log(this.Map.Tiles);
+    public int NeutralPlayer;
 
-      // if (sender.GetType() != typeof(Menu)) { return; } TODO:SenderCheck
-
-      // Debug.Log("GameManager listens to: OnEndTurn");
-      // this.eventManager.OnEndTurn += this.EndTurn;
-
-      // // Debug.Log("GameManager listens to: OnAllPlayersPresent");
-      // this.eventManager.OnAllPlayersPresent += this.Init;
-
-      // // Debug.Log("GameManager listens to: OnSpaceButton");
-      // this.eventManager.OnSpaceButton += this.SpaceButton;
-
-      // this.eventManager.AllPlayersPresent();
-      // StartCoroutine(WaitForPlayers());
-
-      // IEnumerator WaitForPlayers()
-      // {
-      //   // Debug.Log("Waiting for players");
-      //   int nPresentPlayers = 0;
-      //   List<GameObject> presentPlayers;
-      //   while (nPresentPlayers < 2)
-      //   {
-      //     yield return new WaitForSeconds(0.1f);
-      //     presentPlayers = GameObject.FindGameObjectsWithTag("Player").ToList();
-      //     nPresentPlayers = presentPlayers.Count;
-      //     // Debug.Log("Number of present players: " + nPresentPlayers);
-      //   }
-      //   this.em.OnAllPlayersPresent();
-      // }
-    }
-    private void SpaceButton(object sender, Player player)
-    {
-      if (player == this.activePlayer)
-      {
-        // Debug.Log("test");
-      }
-    }
-    private void OnClickCardHandler(object sender, ClickCardEventArgs e)
-    {
-      // here the GM should check what to do when the player clicks a card
-
-      if (sender.GetType() != typeof(Player))
-      {
-        // Debug.Log("OnClickCardHandler only takes Player objects");
-        return;
-      }
-      Player player = (Player)sender;
-
-      if (player.Active)
-      {
-        if (player.IsHoldingCard())
-        {
-          player.DiscardCard();
-        }
-        player.TakeCard(e.Card);
-      }
-    }
-    private void OnAbortHandler(object sender, Player player)
-    // here the GM should check what to do when the player clicks a card
-    {
-      if (player.Active)
-      {
-        if (player.Placing)
-        {
-          player.DiscardCard();
-        }
-      }
-    }
-
-    private void EvaluateRules(Player player, List<Rule> rules)
+    private void EvaluateRules(ref Player player, List<Rule> rules)
     {
       List<RuleEvaluation> turnEvaluation = new List<RuleEvaluation>();
       foreach (Rule rule in rules)
@@ -150,23 +70,19 @@ namespace Schnoz
     {
       Debug.Log("Map will be Created");
       Map newMap = new Map(this.gameSettings.NRows, this.gameSettings.NCols);
-      bool mapWasNull = this.Map == null;
       this.Map = newMap;
-      this.NotifyPropertyChanged("Map");
     }
 
     public void CreateDeck()
     {
       Debug.Log("Deck will be Created");
       this.Deck = new Deck(this.gameSettings.DeckSize);
-      this.NotifyPropertyChanged("Deck");
     }
 
     public void ShuffleDeck()
     {
       Debug.Log("Deck will be Shuffled");
       this.deck.Shuffle();
-      this.NotifyPropertyChanged("Deck");
     }
 
     public void DrawCards()
@@ -183,14 +99,12 @@ namespace Schnoz
       Tile tile = this.map.Tiles.Find(tile => tile.Coordinate == coord);
       Unit unit = new Unit(ownerId, coord);
       tile.SetUnit(unit);
-      // this.NotifyPropertyChanged("Map");
     }
     public void RemoveUnit(Coordinate coord)
     {
       Debug.Log("Removing Unit");
       Tile tile = this.map.Tiles.Find(tile => tile.Coordinate == coord);
       tile.SetUnit(null);
-      this.NotifyPropertyChanged("Map");
     }
     public void PlaceUnitFormation(int ownerId, Coordinate coord, UnitFormation unitFormation)
     {
@@ -208,13 +122,6 @@ namespace Schnoz
         }
         this.PlaceUnit(ownerId, newCoord);
       }
-
-
-      // Debug.Log("Placing Unit");
-      // Unit unit = new Unit(this.gameSettings.Players[0], "Peter", 2);
-      // Tile tile = this.map.Tiles.Find(tile => tile.Coordinate == pos);
-      // tile.Unit = unit;
-      this.NotifyPropertyChanged("Map");
     }
     public void Init()
     {
@@ -255,17 +162,12 @@ namespace Schnoz
     }
     public void SetActivePlayer(int turn)
     {
-      Player player = gameSettings.TurnOrder[turn];
-      player.SetActive(true);
+      this.ActivePlayerId = gameSettings.TurnOrder[turn];
       // this.eventManager.StartTurn(this, player);
-      Debug.Log($"{player.Id} is the current Player");
+      Debug.Log($"{this.ActivePlayerId} is the current Player");
     }
-    private void EndTurn(object sender, Player player)
+    private void EndTurn()
     {
-      if (sender.GetType() != typeof(Player))
-      {
-        // Debug.Log($"Only senders of type 'Player' can end the turn. Sender was: '{sender.GetType()}'"); return;
-      }
       this.SetActivePlayer(++this.turn);
       this.UpdateRules();
     }
