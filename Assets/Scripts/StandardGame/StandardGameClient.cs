@@ -10,6 +10,10 @@ namespace Schnoz
   {
     // Multiplayer logic
     [SerializeField] private int currentTeam = -1;
+    public int CurrentTeam
+    {
+      get => this.currentTeam;
+    }
     [SerializeField] private StandardGameViewManager viewManager;
     public Schnoz Game { get; private set; }
     [SerializeField] private GameSettings gameSettings;
@@ -24,19 +28,19 @@ namespace Schnoz
       }
     }
     public List<Tile> HoveringTiles;
-    public CardType? selectedCardType;
-    public CardType? SelectedCardType
+    public Guid selectedCardId;
+    public Guid SelectedCardId
     {
-      get => this.selectedCardType;
+      get => this.selectedCardId;
       set
       {
-        this.selectedCardType = value;
+        this.selectedCardId = value;
         this.viewManager.OnPropertyChanged(this, new PropertyChangedEventArgs("SelectedCard"));
       }
     }
-    public Dictionary<CardType, Card> OpenCardsDict
+    public Dictionary<Guid, Card> OpenCardsDict
     {
-      get => this.Game.OpenCards.ToDictionary(card => card.Type);
+      get => this.Game.OpenCards.ToDictionary(card => card.Id);
     }
     public Dictionary<Coordinate, Tile> TileDict
     {
@@ -45,26 +49,26 @@ namespace Schnoz
     public void HandlePlayerInput(object sender, InputEventNames evt, object obj = null)
     {
       #region Change card orientation
-      if (this.SelectedCardType != null)
+      if (this.SelectedCardId != null)
       {
         if (evt == InputEventNames.RotateRightButton)
         {
-          this.OpenCardsDict[(CardType)this.SelectedCardType].unitFormation.RotateRight();
+          this.OpenCardsDict[this.SelectedCardId].unitFormation.RotateRight();
           this.SetHoveringTiles(this.hoveringTile);
         }
         if (evt == InputEventNames.RotateLeftButton)
         {
-          this.OpenCardsDict[(CardType)this.SelectedCardType].unitFormation.RotateLeft();
+          this.OpenCardsDict[this.SelectedCardId].unitFormation.RotateLeft();
           this.SetHoveringTiles(this.hoveringTile);
         }
         if (evt == InputEventNames.MirrorHorizontalButton)
         {
-          this.OpenCardsDict[(CardType)this.SelectedCardType].unitFormation.MirrorHorizontal();
+          this.OpenCardsDict[this.SelectedCardId].unitFormation.MirrorHorizontal();
           this.SetHoveringTiles(this.hoveringTile);
         }
         if (evt == InputEventNames.MirrorVerticalButton)
         {
-          this.OpenCardsDict[(CardType)this.SelectedCardType].unitFormation.MirrorVertical();
+          this.OpenCardsDict[this.SelectedCardId].unitFormation.MirrorVertical();
           this.SetHoveringTiles(this.hoveringTile);
         }
       }
@@ -78,9 +82,11 @@ namespace Schnoz
         // Place tile
         if (evt == InputEventNames.OnMouseUp)
         {
-          if (this.SelectedCardType != null && this.OpenCardsDict.ContainsKey((CardType)this.SelectedCardType) && this.OpenCardsDict[(CardType)this.SelectedCardType] != null)
+          if (this.SelectedCardId != null
+            && this.OpenCardsDict.ContainsKey(this.SelectedCardId)
+            && this.OpenCardsDict[this.SelectedCardId] != null)
           {
-            UnitFormation untiFormation = this.OpenCardsDict[(CardType)this.SelectedCardType].unitFormation;
+            UnitFormation untiFormation = this.OpenCardsDict[this.SelectedCardId].unitFormation;
             NetMakeMove mm = new NetMakeMove();
             mm.row = tile.Row;
             mm.col = tile.Col;
@@ -111,10 +117,10 @@ namespace Schnoz
       #region Card events
       if (typeof(CardView) == sender?.GetType())
       {
-        CardType cardType = (CardType)obj;
+        Guid cardId = (Guid)obj;
         if (evt == InputEventNames.OnMouseUp)
         {
-          this.SelectedCardType = cardType;
+          this.SelectedCardId = cardId;
         }
       }
       #endregion
@@ -130,12 +136,12 @@ namespace Schnoz
         return;
       }
       this.hoveringTile = tile;
-      if (this.SelectedCardType == null)
+      if (this.SelectedCardId == Guid.Empty)
       {
         return;
       }
       this.HoveringTiles = new List<Tile>();
-      Arrangement arrangement = this.OpenCardsDict[(CardType)this.SelectedCardType]?.unitFormation?.Arrangement;
+      Arrangement arrangement = this.OpenCardsDict[this.SelectedCardId].unitFormation.Arrangement;
       if (arrangement == null)
       {
         return;

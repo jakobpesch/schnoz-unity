@@ -11,6 +11,7 @@ namespace Schnoz
     // Multiplayer logic
     [SerializeField] private int playerCount = -1;
     [SerializeField] private int currentTeam = -1;
+    [SerializeField] private int playersTurn = 0;
     [SerializeField] private Schnoz game;
     public Schnoz Game
     {
@@ -93,16 +94,22 @@ namespace Schnoz
     private void OnMakeMove(NetMessage msg, NetworkConnection cnn)
     {
       NetMakeMove mm = msg as NetMakeMove;
-      Debug.Log(JsonUtility.ToJson(mm));
+
+      if (cnn.InternalId != playersTurn)
+      {
+        return;
+      }
+
       UnitFormation unitFormation = new UnitFormation(UnitFormation.unitFormationIdToTypeDict[mm.unitFormationId]);
       unitFormation.rotation = mm.rotation;
       unitFormation.mirrorHorizontal = mm.mirrorHorizontal == 1 ? true : false;
       unitFormation.mirrorVertical = mm.mirrorVertical == 1 ? true : false;
       Coordinate coordinate = new Coordinate(mm.row, mm.col);
-      this.Game.PlaceUnitFormation(coordinate, unitFormation);
+      this.Game.PlaceUnitFormation(cnn.InternalId, coordinate, unitFormation);
       NetUpdateMap um = new NetUpdateMap();
       um.netMapString = this.Game.Map.Serialize();
       Server.Instance.Broadcast(um);
+      this.playersTurn = this.playersTurn == 0 ? 1 : 0;
     }
     #endregion
     private void InitGame()

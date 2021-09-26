@@ -177,11 +177,11 @@ namespace Schnoz
       }
     }
 
-    public void PlaceUnit(Coordinate coord)
+    public void PlaceUnit(int ownerId, Coordinate coord)
     {
-      Debug.Log("Placing Unit");
+      Debug.Log($"Placing Unit for player {ownerId}");
       Tile tile = this.map.Tiles.Find(tile => tile.Coordinate == coord);
-      Unit unit = new Unit(this.gameSettings.Players[0].Id, coord);
+      Unit unit = new Unit(ownerId, coord);
       tile.SetUnit(unit);
       // this.NotifyPropertyChanged("Map");
     }
@@ -192,7 +192,7 @@ namespace Schnoz
       tile.SetUnit(null);
       this.NotifyPropertyChanged("Map");
     }
-    public void PlaceUnitFormation(Coordinate coord, UnitFormation unitFormation)
+    public void PlaceUnitFormation(int ownerId, Coordinate coord, UnitFormation unitFormation)
     {
       foreach (Coordinate offset in unitFormation.Arrangement)
       {
@@ -206,7 +206,7 @@ namespace Schnoz
         {
           break;
         }
-        this.PlaceUnit(newCoord);
+        this.PlaceUnit(ownerId, newCoord);
       }
 
 

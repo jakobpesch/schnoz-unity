@@ -166,7 +166,7 @@ public class StandardGameViewManager : MonoBehaviour
   {
     GameObject unitGO = new GameObject($"Player {unit.OwnerId}'s unit.");
     SpriteRenderer sr = unitGO.AddComponent<SpriteRenderer>();
-    sr.sprite = Resources.Load<Sprite>("Sprites/bob");
+    sr.sprite = Resources.Load<Sprite>(unit.OwnerId == 0 ? "Sprites/bob" : "Sprites/maurice");
     sr.sortingOrder = 10;
     return unitGO;
   }
@@ -236,7 +236,7 @@ public class StandardGameViewManager : MonoBehaviour
   {
     GameObject cardGO = new GameObject($"{card.Type}");
     SpriteRenderer sr = cardGO.AddComponent<SpriteRenderer>();
-    if (this.game.SelectedCardType == card.Type)
+    if (this.game.SelectedCardId == card.Id)
     {
       sr.color = Color.green;
     }
@@ -263,7 +263,7 @@ public class StandardGameViewManager : MonoBehaviour
       cardGO.transform.localPosition = new Vector2(0, index++);
       CardView cardView = cardGO.AddComponent<CardView>();
       cardView.game = this.game;
-      cardView.cardTypeId = (int)card.Type;
+      cardView.cardId = card.Id;
     });
   }
 }

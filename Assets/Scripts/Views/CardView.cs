@@ -6,13 +6,13 @@ using Schnoz;
 public class CardView : MonoBehaviour
 {
   public StandardGameClient game;
-  public int cardTypeId;
+  public Guid cardId;
   private void Start()
   {
     this.gameObject.AddComponent<BoxCollider2D>();
   }
   private void OnMouseUp()
   {
-    this.game.HandlePlayerInput(this, InputEventNames.OnMouseUp, this.cardTypeId);
+    this.game.HandlePlayerInput(this, InputEventNames.OnMouseUp, this.cardId);
   }
 }
