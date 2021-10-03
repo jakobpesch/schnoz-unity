@@ -70,13 +70,10 @@ namespace Schnoz
               // Start the game immediately
               Debug.Log("Starts the game as host");
               this.InitGame();
-              Debug.Log(this.GameServer.Deck.OpenCards.Count);
               NetStartGame sg = new NetStartGame();
               sg.netMapString = this.GameServer.Map.Serialize();
               NetOpenCards oc = new NetOpenCards();
               sg.netOpenCardsString = this.GameServer.Deck.SerializeOpenCards();
-              Debug.Log(sg.netMapString);
-              Debug.Log(sg.netOpenCardsString);
               Server.Instance.Broadcast(sg);
               break;
             }
@@ -108,6 +105,16 @@ namespace Schnoz
       NetUpdateMap um = new NetUpdateMap();
       um.netMapString = this.GameServer.Map.Serialize();
       Server.Instance.Broadcast(um);
+
+      Debug.Log(this.GameServer.Turn);
+      if (this.GameServer.Turn % 2 != 0)
+      {
+        NetUpdateCards uc = new NetUpdateCards();
+        this.GameServer.DrawCards();
+        uc.netOpenCardsString = this.GameServer.Deck.SerializeOpenCards();
+        Server.Instance.Broadcast(uc);
+      }
+
       this.GameServer.EndTurn();
 
     }

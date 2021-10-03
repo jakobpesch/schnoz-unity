@@ -45,7 +45,7 @@ namespace Schnoz
       }
     }
     [SerializeField] private List<Player> players;
-    [SerializeField] private int turn;
+    public int Turn { get; private set; }
     [SerializeField] private int stage;
     public List<int> PlayersIds { get => this.gameSettings.PlayerIds; }
     public int ActivePlayerId { get; private set; }
@@ -88,6 +88,7 @@ namespace Schnoz
 
     public void DrawCards()
     {
+      this.Deck.DiscardOpenCards();
       for (int i = 0; i < gameSettings.NumberOfCardsPerTurn; i++)
       {
         this.Deck.Draw();
@@ -215,7 +216,7 @@ namespace Schnoz
     }
     public void EndTurn()
     {
-      this.SetActivePlayer(++this.turn);
+      this.SetActivePlayer(++this.Turn);
       // this.UpdateRules();
     }
     private void UpdateRules()

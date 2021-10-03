@@ -221,11 +221,10 @@ namespace Schnoz
     private void OnUpdateCards(NetMessage msg)
     {
       NetUpdateCards uc = msg as NetUpdateCards;
-      NetOpenCards netOpenCards = JsonUtility.FromJson<NetOpenCards>(uc.cardsString.ToString());
-      foreach (NetCard netCard in netOpenCards.o)
-      {
-        this.GameClient.OpenCards.Add(new Card(netCard));
-      }
+      Debug.Log($"OnUpdateMap: {uc.netOpenCardsString.ToString()}");
+      NetOpenCards netOpenCards = JsonUtility.FromJson<NetOpenCards>(uc.netOpenCardsString.ToString());
+      this.GameClient.OpenCards = netOpenCards.o.Select(netCard => new Card(netCard)).ToList();
+
       this.viewManager.OnPropertyChanged(this, new PropertyChangedEventArgs("OpenCards"));
     }
 
@@ -241,6 +240,7 @@ namespace Schnoz
       NetMap netMap = JsonUtility.FromJson<NetMap>(up.netMapString.ToString());
       this.GameClient.Map = new Map(netMap);
       this.viewManager.OnPropertyChanged(this, new PropertyChangedEventArgs("Map"));
+      this.SelectedCardId = Guid.Empty;
     }
 
     #endregion

@@ -3,7 +3,7 @@ using Unity.Collections;
 using Schnoz;
 public class NetUpdateCards : NetMessage
 {
-  public FixedString4096 cardsString;
+  public FixedString4096 netOpenCardsString;
 
   public NetUpdateCards()
   {
@@ -18,13 +18,13 @@ public class NetUpdateCards : NetMessage
   public override void Serialize(ref DataStreamWriter writer)
   {
     writer.WriteByte((byte)this.Code);
-    writer.WriteFixedString4096(cardsString);
+    writer.WriteFixedString4096(netOpenCardsString);
 
   }
 
   public override void Deserialize(DataStreamReader reader)
   {
-    this.cardsString = reader.ReadFixedString4096();
+    this.netOpenCardsString = reader.ReadFixedString4096();
   }
 
   public override void ReceivedOnClient()

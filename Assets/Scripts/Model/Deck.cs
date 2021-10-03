@@ -30,6 +30,11 @@ namespace Schnoz
       }
     }
 
+    public void DiscardOpenCards()
+    {
+      this.OpenCards = new List<Card>();
+    }
+
     public void Draw()
     {
       Debug.Log("Drawing Card");
