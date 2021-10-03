@@ -14,10 +14,7 @@ namespace Schnoz
     public bool Visible { get; private set; }
     public int Row { get => this.Coordinate.row; }
     public int Col { get => this.Coordinate.col; }
-    public bool Placeable
-    {
-      get => this.Terrain != null ? this.Terrain.Placeable : false;
-    }
+    public bool Placeable { get => this.Terrain.Placeable && this.Unit == null; }
     public Tile(int row, int col)
     {
       this.Id = Guid.NewGuid();

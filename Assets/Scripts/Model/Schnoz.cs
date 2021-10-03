@@ -109,6 +109,16 @@ namespace Schnoz
     }
     public void PlaceUnitFormation(int ownerId, Coordinate coord, UnitFormation unitFormation)
     {
+      List<Coordinate> underlayingCoords = this.GetUnderlayingCoords(coord, unitFormation);
+      foreach (Coordinate c in underlayingCoords)
+      {
+        this.PlaceUnit(ownerId, c);
+      }
+    }
+
+    private List<Coordinate> GetUnderlayingCoords(Coordinate coord, UnitFormation unitFormation)
+    {
+      List<Coordinate> underlayingCoords = new List<Coordinate>();
       foreach (Coordinate offset in unitFormation.Arrangement)
       {
         int row = coord.row + offset.row;
@@ -121,8 +131,39 @@ namespace Schnoz
         {
           break;
         }
-        this.PlaceUnit(ownerId, newCoord);
+        underlayingCoords.Add(newCoord);
       }
+      return underlayingCoords;
+    }
+    private List<Tile> GetUnderlayingTiles(Coordinate coord, UnitFormation unitFormation)
+    {
+      return this.GetUnderlayingCoords(coord, unitFormation)
+        .Select(c => this.Map.CoordinateToTileDict[c]).ToList();
+    }
+
+    public bool CanPlaceUnitFormation(int ownerId, Coordinate coord, UnitFormation unitFormation)
+    {
+      List<Tile> underlayingTiles = this.GetUnderlayingTiles(coord, unitFormation);
+      return underlayingTiles.All(tile => tile.Placeable);
+    }
+
+    public List<Coordinate> GetAllPossiblePlacements(int ownerId)
+    {
+      // WIP
+      List<Coordinate> possibleCoordinates = new List<Coordinate>();
+      Func<Unit, bool> unitIsAllyOrNeutral = (Unit unit) => unit.OwnerId == ownerId || unit.OwnerId == 2;
+      foreach (Unit unit in this.Map.Units.Where(unitIsAllyOrNeutral))
+      {
+        Func<Tile, bool> tileIsPlaceable = (Tile tile) => tile.Placeable;
+        foreach (Coordinate c in this.Map
+          .GetAdjacentTiles(this.Map.CoordinateToTileDict[unit.Coordinate])
+          .Where(tileIsPlaceable)
+          .Select(tile => tile.Coordinate))
+        {
+          Debug.Log(c);
+        }
+      }
+      return possibleCoordinates;
     }
     public void Init()
     {
@@ -167,7 +208,7 @@ namespace Schnoz
     public void EndTurn()
     {
       this.SetActivePlayer(++this.turn);
-      this.UpdateRules();
+      // this.UpdateRules();
     }
     private void UpdateRules()
     {

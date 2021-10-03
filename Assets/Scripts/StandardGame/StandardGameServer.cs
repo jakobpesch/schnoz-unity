@@ -99,11 +99,17 @@ namespace Schnoz
       unitFormation.mirrorHorizontal = mm.mirrorHorizontal == 1 ? true : false;
       unitFormation.mirrorVertical = mm.mirrorVertical == 1 ? true : false;
       Coordinate coordinate = new Coordinate(mm.row, mm.col);
+      bool canPlaceUnitFormation = this.GameServer.CanPlaceUnitFormation(cnn.InternalId, coordinate, unitFormation);
+      if (!canPlaceUnitFormation)
+      {
+        return;
+      }
       this.GameServer.PlaceUnitFormation(cnn.InternalId, coordinate, unitFormation);
       NetUpdateMap um = new NetUpdateMap();
       um.netMapString = this.GameServer.Map.Serialize();
       Server.Instance.Broadcast(um);
       this.GameServer.EndTurn();
+
     }
     #endregion
     private void InitGame()
