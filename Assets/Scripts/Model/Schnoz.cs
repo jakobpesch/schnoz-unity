@@ -143,8 +143,16 @@ namespace Schnoz
 
     public bool CanPlaceUnitFormation(int ownerId, Coordinate coord, UnitFormation unitFormation)
     {
+      Tile tile = this.Map.CoordinateToTileDict[coord];
+
+      Func<Tile, bool> IsAdjacentToNeutralOrAlly = (Tile tile) => this.Map
+        .GetAdjacentTiles(tile)
+        .Any(t => t != null && t.Unit != null && (t.Unit.OwnerId == ownerId || t.Unit.OwnerId == 2));
+
       List<Tile> underlayingTiles = this.GetUnderlayingTiles(coord, unitFormation);
-      return underlayingTiles.All(tile => tile.Placeable);
+
+      return underlayingTiles.All(tile => tile.Placeable)
+        && underlayingTiles.Any(tile => IsAdjacentToNeutralOrAlly(tile));
     }
 
     public List<Coordinate> GetAllPossiblePlacements(int ownerId)
