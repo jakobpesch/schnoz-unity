@@ -167,7 +167,15 @@ public class StandardGameViewManager : MonoBehaviour
   {
     GameObject unitGO = new GameObject($"Player {unit.OwnerId}'s unit.");
     SpriteRenderer sr = unitGO.AddComponent<SpriteRenderer>();
-    sr.sprite = Resources.Load<Sprite>(unit.OwnerId == 0 ? "Sprites/bob" : "Sprites/maurice");
+    string untiSpritePath;
+    switch (unit.OwnerId)
+    {
+      case 0: { untiSpritePath = "Sprites/bob"; break; }
+      case 1: { untiSpritePath = "Sprites/maurice"; break; }
+      case 2: { untiSpritePath = "Sprites/house"; break; }
+      default: { untiSpritePath = ""; break; }
+    }
+    sr.sprite = Resources.Load<Sprite>(untiSpritePath);
     sr.sortingOrder = 10;
     return unitGO;
   }

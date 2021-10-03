@@ -10,7 +10,6 @@ namespace Schnoz
   {
     // Multiplayer logic
     [SerializeField] private int playerCount = -1;
-    [SerializeField] private int currentTeam = -1;
     public Schnoz GameServer { get; private set; }
     [SerializeField] private GameSettings gameSettings;
     public Dictionary<Guid, Card> OpenCardsDict
@@ -91,12 +90,10 @@ namespace Schnoz
     private void OnMakeMove(NetMessage msg, NetworkConnection cnn)
     {
       NetMakeMove mm = msg as NetMakeMove;
-
       if (cnn.InternalId != this.GameServer.ActivePlayerId)
       {
         return;
       }
-
       UnitFormation unitFormation = new UnitFormation(UnitFormation.unitFormationIdToTypeDict[mm.unitFormationId]);
       unitFormation.rotation = mm.rotation;
       unitFormation.mirrorHorizontal = mm.mirrorHorizontal == 1 ? true : false;
@@ -106,7 +103,7 @@ namespace Schnoz
       NetUpdateMap um = new NetUpdateMap();
       um.netMapString = this.GameServer.Map.Serialize();
       Server.Instance.Broadcast(um);
-      this.GameServer.SetActivePlayer(this.GameServer.ActivePlayerId == 0 ? 1 : 0);
+      this.GameServer.EndTurn();
     }
     #endregion
     private void InitGame()

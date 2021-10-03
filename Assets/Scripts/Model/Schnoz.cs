@@ -55,7 +55,7 @@ namespace Schnoz
       ? this.gameSettings.IdToPlayerDict[this.ActivePlayerId]
       : null;
     }
-    public int NeutralPlayer;
+    public Player NeutralPlayer;
 
     private void EvaluateRules(ref Player player, List<Rule> rules)
     {
@@ -69,8 +69,12 @@ namespace Schnoz
     public void CreateMap()
     {
       Debug.Log("Map will be Created");
-      Map newMap = new Map(this.gameSettings.NRows, this.gameSettings.NCols);
-      this.Map = newMap;
+      this.Map = new Map(this.gameSettings.NRows, this.gameSettings.NCols);
+      this.NeutralPlayer = new Player(3);
+      Debug.Log("Coord of center" + this.Map.CenterTile.Coordinate);
+      this.PlaceUnit(2, this.Map.CenterTile.Coordinate);
+
+
     }
 
     public void CreateDeck()
@@ -136,8 +140,6 @@ namespace Schnoz
       // {
       //   player.SetSinglePieces(gameSettings.NumberOfSinglePieces);
       // }
-
-      // this.NeutralPlayer = new Player(3, Color.white, this.capital.GetComponent<SpriteRenderer>().sprite, 0);
       // SpawnManager.I.SpawnUnit(this.capital, this.map.CenterTile, this.NeutralPlayer);
 
       // this.Map.Scan();
@@ -163,10 +165,9 @@ namespace Schnoz
     public void SetActivePlayer(int turn)
     {
       this.ActivePlayerId = gameSettings.TurnOrder[turn];
-      // this.eventManager.StartTurn(this, player);
       Debug.Log($"{this.ActivePlayerId} is the current Player");
     }
-    private void EndTurn()
+    public void EndTurn()
     {
       this.SetActivePlayer(++this.turn);
       this.UpdateRules();

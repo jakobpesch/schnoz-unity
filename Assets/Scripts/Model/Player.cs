@@ -79,7 +79,6 @@ namespace Schnoz
       this.id = id;
       this.playerName = "Player " + id;
       this.rules = new List<Rule>();
-      // this.Input = new PlayerInput();
     }
     public Player(int id, int singlePieces, string soundName = "")
     {
@@ -87,11 +86,9 @@ namespace Schnoz
       this.singlePieces = singlePieces;
       this.soundName = soundName;
       this.rules = new List<Rule>();
-      // this.Input = new PlayerInput();
     }
     public void TakeCard(Card card)
     {
-      // Debug.Log($"Player {this.id} takes card: {card.id}");
       this.selectedCard = card;
     }
     public void DiscardCard()

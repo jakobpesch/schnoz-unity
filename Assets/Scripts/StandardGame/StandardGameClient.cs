@@ -10,10 +10,6 @@ namespace Schnoz
   {
     // Multiplayer logic
     [SerializeField] private int currentTeam = -1;
-    public int CurrentTeam
-    {
-      get => this.currentTeam;
-    }
     [SerializeField] private StandardGameViewManager viewManager;
     public Schnoz GameClient { get; private set; }
     [SerializeField] private GameSettings gameSettings;

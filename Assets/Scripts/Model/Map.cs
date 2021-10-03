@@ -30,8 +30,7 @@ namespace Schnoz
         return t;
       }
     }
-    [SerializeField]
-    private Tile centerTile
+    public Tile CenterTile
     {
       get
       {
@@ -64,9 +63,9 @@ namespace Schnoz
       if (randomize)
       {
         this.RandomizeTerrain();
-        this.centerTile.SetTerrain(TerrainType.Grass);
+        this.CenterTile.SetTerrain(TerrainType.Grass);
 
-        foreach (Tile t in this.GetTilesWithinRadius(centerTile, 2))
+        foreach (Tile t in this.GetTilesWithinRadius(CenterTile, 2))
         {
           t.SetTerrain(TerrainType.Grass);
         }
