@@ -71,10 +71,7 @@ namespace Schnoz
       Debug.Log("Map will be Created");
       this.Map = new Map(this.gameSettings.NRows, this.gameSettings.NCols);
       this.NeutralPlayer = new Player(3);
-      Debug.Log("Coord of center" + this.Map.CenterTile.Coordinate);
       this.PlaceUnit(2, this.Map.CenterTile.Coordinate);
-
-
     }
 
     public void CreateDeck()
