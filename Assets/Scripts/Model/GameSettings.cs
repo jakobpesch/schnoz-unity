@@ -8,7 +8,7 @@ namespace Schnoz
   [Serializable]
   public class GameSettings
   {
-    public List<Rule> Rules = new List<Rule>() { new Rule(RuleLogicMethods.DiagonalToTopRight) };
+    public List<Rule> Rules { get; private set; }
     [SerializeField] private List<int> turnOrder = new List<int>();
     public List<int> TurnOrder { get => this.turnOrder; }
     [SerializeField] private int numberOfStages = 6;
@@ -42,21 +42,24 @@ namespace Schnoz
     public int NRows { get => nRows; }
     public int NCols { get => nCols; }
 
-    public GameSettings(int nRows, int nCols, int numberOfCardsPerTurn, int numberOfSinglePieces, int numberOfStages, int deckSize, List<int> playerIds)
+    public GameSettings(
+      int nRows,
+      int nCols,
+      int numberOfCardsPerTurn,
+      int numberOfSinglePieces,
+      int numberOfStages,
+      int deckSize,
+      List<RuleLogic> ruleLogics)
     {
       this.nCols = nCols;
       this.nRows = nRows;
       this.numberOfCardsPerTurn = numberOfCardsPerTurn;
       this.numberOfSinglePieces = numberOfSinglePieces;
       this.numberOfStages = numberOfStages;
-      this.SetPlayers(playerIds);
-      this.CreateStages();
-    }
-    private void SetPlayers(List<int> playerIds)
-    {
-      this.playerIds = playerIds;
-      this.Players = playerIds.Select(id => new Player(id)).ToList();
+      this.Players = new List<Player>() { new Player(0), new Player(1) };
       this.IdToPlayerDict = Players.ToDictionary(player => player.Id);
+      this.Rules = ruleLogics.Select(rl => new Rule(rl)).ToList();
+      this.CreateStages();
     }
     private void CreateStages()
     {

@@ -1,5 +1,6 @@
 using System.Linq;
 using System.Collections.Generic;
+using UnityEngine;
 namespace Schnoz
 {
   public static class Constants
@@ -19,28 +20,37 @@ namespace Schnoz
     OnMouseUp, OnMouseEnter, OnMouseExit, RotateRightButton, RotateLeftButton, MirrorHorizontalButton, MirrorVerticalButton
   }
 
+  public enum RuleNames
+  {
+    DiagonalToTopRight, Water
+  }
+
   public static class RuleLogicMethods
   {
     public static RuleLogic DiagonalToTopRight =
     (Player player, Map map) =>
     {
+      Debug.Log($"RuleLogic: DiagonalToTopRight, Player: {player.Id}");
+
       List<List<Tile>> unitDiagonals = new List<List<Tile>>();
+      Debug.Log($"MapDiagonals: {map.DiagonalsFromBottomLeftToTopRight.Count}");
       foreach (List<Tile> diagonal in map.DiagonalsFromBottomLeftToTopRight)
       {
         List<Tile> unitDiagonal = new List<Tile>();
         foreach (Tile tile in diagonal)
         {
-          if (tile.Unit.OwnerId != player.Id)
+          Debug.Log(tile.Coordinate);
+          if (tile.Unit != null && tile.Unit.OwnerId == player.Id)
+          {
+            unitDiagonal.Add(tile);
+          }
+          else
           {
             if (unitDiagonal.Count >= 3)
             {
               unitDiagonals.Add(unitDiagonal);
             }
             unitDiagonal = new List<Tile>();
-          }
-          else
-          {
-            unitDiagonal.Add(tile);
           }
         }
       }
@@ -50,18 +60,23 @@ namespace Schnoz
         validUnitDiagonals.Add(unitDiagonal);
       }
       int points = validUnitDiagonals.Count;
-      return new RuleEvaluation(points, (IList<object>)validUnitDiagonals);
+      return new RuleEvaluation(RuleNames.DiagonalToTopRight, player.Id, points);//, (List<object>)validUnitDiagonals);
     };
 
     public static RuleLogic Water =
     (Player player, Map map) =>
     {
-      return new RuleEvaluation(1, (IList<object>)(new List<Tile>() { }));
+
+      var unitsNearWater = map.Units.Where(unit =>
+      {
+        Tile tile = map.CoordinateToTileDict[unit.Coordinate];
+        List<Tile> at = map.GetAdjacentTiles(tile);
+        return unit.OwnerId == player.Id && at.Any(t => t != null && t.Terrain.Type == TerrainType.Water);
+      });
+      Debug.Log($"RuleLogic: Water, Player: {player.Id}");
+      int points = unitsNearWater.Count();
+      return new RuleEvaluation(RuleNames.Water, player.Id, points);//, (List<object>)(new List<Tile>() { }));
     };
-  }
-  public enum RuleType
-  {
-    DiagonalsToTopRight, Water, Stone, Holes
   }
 
   public class Defaults

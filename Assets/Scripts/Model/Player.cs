@@ -34,6 +34,7 @@ namespace Schnoz
     {
       get => this.evaluationHistory;
     }
+
     [SerializeField] private int singlePieces;
     public int SinglePieces
     {

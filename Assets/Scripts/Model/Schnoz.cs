@@ -35,6 +35,30 @@ namespace Schnoz
     }
 
 
+    public List<List<RuleEvaluation>> CurrentEvaluation
+    {
+      get
+      {
+        var playerEvals = new List<List<RuleEvaluation>>();
+        Debug.Log(this.Players.Count);
+        foreach (Player player in this.Players)
+        {
+          Debug.Log($"PlayerId: {player.Id}");
+          var ruleEvals = new List<RuleEvaluation>();
+          foreach (Rule rule in this.gameSettings.Rules)
+          {
+            RuleEvaluation eval = rule.Evaluate(player, this.Map);
+            Debug.Log($"Adding Rule: {eval.RuleName}");
+            ruleEvals.Add(eval);
+          }
+          playerEvals.Add(ruleEvals);
+        }
+        return playerEvals;
+      }
+    }
+
+
+
     [SerializeField] private List<Card> openCards = new List<Card>();
     public List<Card> OpenCards
     {
@@ -44,7 +68,7 @@ namespace Schnoz
         this.openCards = value;
       }
     }
-    [SerializeField] private List<Player> players;
+    public List<Player> Players { get => this.gameSettings.Players; }
     public int Turn { get; private set; }
     [SerializeField] private int stage;
     public List<int> PlayersIds { get => this.gameSettings.PlayerIds; }

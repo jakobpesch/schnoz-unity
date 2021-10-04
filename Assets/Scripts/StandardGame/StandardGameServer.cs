@@ -121,17 +121,19 @@ namespace Schnoz
     #endregion
     private void InitGame()
     {
-      this.gameSettings = new GameSettings(9, 9, 3, 0, 6, 30, new List<int>() { 0, 1 });
+      List<RuleLogic> ruleLogics = new List<RuleLogic>();
+      ruleLogics.Add(RuleLogicMethods.DiagonalToTopRight);
+      ruleLogics.Add(RuleLogicMethods.Water);
+
+      this.gameSettings = new GameSettings(5, 5, 3, 0, 6, 30, ruleLogics);
       this.GameServer = new Schnoz(this.gameSettings);
+
+
+
       this.GameServer.CreateMap();
       this.GameServer.CreateDeck();
       this.GameServer.ShuffleDeck();
       this.GameServer.DrawCards();
-    }
-    private void StartGame()
-    {
-      // List<RuleLogic> ruleLogics = new List<RuleLogic>();
-      // ruleLogics.Add(RuleLogicMethods.DiagonalToTopRight);
     }
   }
 }

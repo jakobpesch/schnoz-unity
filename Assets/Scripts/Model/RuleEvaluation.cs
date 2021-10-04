@@ -11,25 +11,16 @@ namespace Schnoz
   [Serializable]
   public class RuleEvaluation
   {
-    private int points;
-    public int Points
+    public RuleNames RuleName { get; private set; }
+    public int PlayerId { get; private set; }
+    public int Points { get; private set; }
+    // public IList<object> RelevantTiles { get; private set; }
+    public RuleEvaluation(RuleNames ruleName, int playerId, int Points)//, List<object> relevantTiles)
     {
-      get => this.points;
-    }
-    private IList<object> relevantTiles;
-    public IList<object> RelevantTiles
-    {
-      get => this.relevantTiles;
-      // set
-      // {
-      //   points = (value).Count * (name.Contains("min") ? -1 : 1);
-      //   relevantTiles = value;
-      // }
-    }
-    public RuleEvaluation(int Points, IList<object> RelevantTiles)
-    {
-      this.points = Points;
-      this.relevantTiles = RelevantTiles;
+      this.RuleName = ruleName;
+      this.Points = Points;
+      // this.RelevantTiles = relevantTiles;
+      this.PlayerId = playerId;
     }
   }
 }

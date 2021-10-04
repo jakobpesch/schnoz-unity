@@ -6,6 +6,7 @@ using System.ComponentModel;
 using UnityEngine;
 using Utils;
 using Schnoz;
+using TMPro;
 
 public class StandardGameViewManager : MonoBehaviour
 {
@@ -13,6 +14,9 @@ public class StandardGameViewManager : MonoBehaviour
   private Vector2 resolution;
   private GameObject mapGO;
   [SerializeField] private GameObject openCardsGO;
+  [SerializeField] private GameObject rulesGO;
+
+  [SerializeField] private List<TextMeshProUGUI> scores;
 
   #region Camera movement properties
   private Camera mainCam;
@@ -110,6 +114,10 @@ public class StandardGameViewManager : MonoBehaviour
     {
       this.RenderOpenCards();
     }
+    if (e.PropertyName == "Rules")
+    {
+      this.RenderRuleStanding();
+    }
   }
 
   private void Start()
@@ -127,6 +135,25 @@ public class StandardGameViewManager : MonoBehaviour
     #region Cards UI
     // CreateCardsUI();
     #endregion
+
+    // this.scores = new List<TextMeshProUGUI>();
+    // this.game.GameClient.gameSettings
+    //    .Players.ForEach(player => this.game.GameClient.gameSettings
+    //    .Rules.ForEach(rule =>
+    //        {
+    //          Debug.Log("TESTSTSTTSTSTS");
+    //          var s = GameObject.Instantiate(Resources.Load<GameObject>("Prefab/Score")).GetComponent<TextMeshProUGUI>();
+    //          this.scores.Add(s);
+    //          s.transform.SetParent(GameObject.Find("UI").transform);
+    //          RectTransform rect = s.gameObject.AddComponent<RectTransform>();
+    //          rect.anchorMin = new Vector2(0, 1);
+    //          rect.anchorMax = new Vector2(0, 1);
+    //          s.transform.localPosition = new Vector3(0, 0, 0);
+    //          rect.anchoredPosition = new Vector3(Screen.width * 0.01f, Screen.width * 0.01f, 0);
+    //          rect.sizeDelta = new Vector2(100, 100);
+    //        }
+    //        ));
+
   }
   private void CreateCardsUI()
   {
@@ -319,5 +346,48 @@ public class StandardGameViewManager : MonoBehaviour
       cardView.game = this.game;
       cardView.cardId = card.Id;
     });
+  }
+  private void CreateRulesUI()
+  {
+
+    // Debug.Log("Creating Rules GO");
+    // this.scores.ForEach(scoreText =>
+    // {
+    //   scoreText.SetText("Score");
+    // });
+    // this.rulesGO = new GameObject("Rules");
+    // this.rulesGO.transform.SetParent(GameObject.Find("UI").transform);
+    // RectTransform rect = rulesGO.AddComponent<RectTransform>();
+    // rect.anchorMin = new Vector2(0, 1);
+    // rect.anchorMax = new Vector2(0, 1);
+    // rulesGO.transform.localPosition = new Vector3(0, 0, 0);
+    // rect.anchoredPosition = new Vector3(Screen.width * 0.01f, Screen.width * 0.01f, 0);
+    // rect.sizeDelta = new Vector2(100, 100);
+  }
+
+  private void RenderRuleStanding()
+  {
+    this.game.GameClient.CurrentEvaluation
+      .ForEach(playerEval => playerEval
+      .ForEach(eval =>
+        Debug.Log($"RuleName: {eval.RuleName}, Player: {eval.PlayerId}, Points: {eval.Points}")));
+
+    // Debug.Log("Rendering Open Cards");
+    // if (this.rulesGO != null)
+    // {
+    //   Debug.Log("Destroying OpenCardsGo");
+    //   GameObject.Destroy(this.rulesGO);
+    // }
+    // this.CreateRulesUI();
+
+    //   int index = 0;
+    //   this.scores
+    //     GameObject ruleGO = this.RenderRule(player);
+    //   cardGO.transform.SetParent(this.openCardsGO.transform);
+    //   cardGO.transform.localPosition = new Vector2(0, index++);
+    //   CardView cardView = cardGO.AddComponent<CardView>();
+    //   cardView.game = this.game;
+    //   cardView.cardId = card.Id;
+    // });
   }
 }

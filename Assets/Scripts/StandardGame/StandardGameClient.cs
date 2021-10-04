@@ -201,7 +201,12 @@ namespace Schnoz
       Debug.Log($"Map: {sg.netMapString.ToString()}");
       Debug.Log($"OpenCards: {sg.netOpenCardsString.ToString()}");
 
-      this.gameSettings = new GameSettings(9, 9, 3, 0, 6, 30, new List<int>() { 0, 1 });
+      List<RuleLogic> ruleLogics = new List<RuleLogic>();
+      ruleLogics.Add(RuleLogicMethods.DiagonalToTopRight);
+      ruleLogics.Add(RuleLogicMethods.Water);
+
+      this.gameSettings = new GameSettings(5, 5, 3, 0, 6, 30, ruleLogics);
+
       this.GameClient = new Schnoz(this.gameSettings);
 
       NetMap netMap = JsonUtility.FromJson<NetMap>(sg.netMapString.ToString());
@@ -217,6 +222,8 @@ namespace Schnoz
       this.CreateViewManager();
       this.viewManager.OnPropertyChanged(this, new PropertyChangedEventArgs("Map"));
       this.viewManager.OnPropertyChanged(this, new PropertyChangedEventArgs("OpenCards"));
+      this.viewManager.OnPropertyChanged(this, new PropertyChangedEventArgs("Rules"));
+
     }
     private void OnUpdateCards(NetMessage msg)
     {
@@ -241,6 +248,7 @@ namespace Schnoz
       this.GameClient.Map = new Map(netMap);
       this.viewManager.OnPropertyChanged(this, new PropertyChangedEventArgs("Map"));
       this.SelectedCardId = Guid.Empty;
+      this.viewManager.OnPropertyChanged(this, new PropertyChangedEventArgs("Rules"));
     }
 
     #endregion
