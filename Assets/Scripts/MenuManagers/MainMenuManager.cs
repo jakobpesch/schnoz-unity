@@ -12,7 +12,8 @@ public class MainMenuManager : MonoBehaviour
   public void OnLocalGameButton()
   {
     Debug.Log("Local Game");
-    // SchnozSceneManager.Instance.ChangeScene(SceneIndexes.MAIN_MENU, SceneIndexes.LOCAL_GAME_BUTTON);
+    NetworkManager.Instance.LocalGame();
+    SchnozSceneManager.Instance.ChangeScene(SceneIndexes.MAIN_MENU, SceneIndexes.GAME);
   }
   public void OnQuitButton()
   {

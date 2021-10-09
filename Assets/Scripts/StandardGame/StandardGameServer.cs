@@ -9,6 +9,10 @@ namespace Schnoz
   public class StandardGameServer : MonoBehaviour
   {
     // Multiplayer logic
+    private bool isLocalGame
+    {
+      get => NetworkManager.Instance.NI == NetworkManager.NetworkIdentity.LOCAL;
+    }
     [SerializeField] private int playerCount = -1;
     public Schnoz GameServer { get; private set; }
     [SerializeField] private GameSettings gameSettings;
@@ -49,7 +53,7 @@ namespace Schnoz
 
       Server.Instance.SendToClient(cnn, nw);
 
-      if (this.playerCount == 1)
+      if (isLocalGame || this.playerCount == 1)
       {
         Debug.Log("All players present");
         switch (NetworkManager.Instance.NI)
@@ -65,10 +69,22 @@ namespace Schnoz
               Server.Instance.Broadcast(sg);
               break;
             }
-          default:
+          case NetworkManager.NetworkIdentity.HOST:
             {
               // Start the game immediately
               Debug.Log("Starts the game as host");
+              this.InitGame();
+              NetStartGame sg = new NetStartGame();
+              sg.netMapString = this.GameServer.Map.Serialize();
+              NetOpenCards oc = new NetOpenCards();
+              sg.netOpenCardsString = this.GameServer.Deck.SerializeOpenCards();
+              Server.Instance.Broadcast(sg);
+              break;
+            }
+          default:
+            {
+              // Start the local game immediately
+              Debug.Log("Starts local game");
               this.InitGame();
               NetStartGame sg = new NetStartGame();
               sg.netMapString = this.GameServer.Map.Serialize();
@@ -87,7 +103,8 @@ namespace Schnoz
     private void OnMakeMove(NetMessage msg, NetworkConnection cnn)
     {
       NetMakeMove mm = msg as NetMakeMove;
-      if (cnn.InternalId != this.GameServer.ActivePlayerId)
+      int ownerId = isLocalGame ? this.GameServer.ActivePlayerId : cnn.InternalId;
+      if (ownerId != this.GameServer.ActivePlayerId)
       {
         return;
       }
@@ -96,17 +113,16 @@ namespace Schnoz
       unitFormation.mirrorHorizontal = mm.mirrorHorizontal == 1 ? true : false;
       unitFormation.mirrorVertical = mm.mirrorVertical == 1 ? true : false;
       Coordinate coordinate = new Coordinate(mm.row, mm.col);
-      bool canPlaceUnitFormation = this.GameServer.CanPlaceUnitFormation(cnn.InternalId, coordinate, unitFormation);
+      bool canPlaceUnitFormation = this.GameServer.CanPlaceUnitFormation(ownerId, coordinate, unitFormation);
       if (!canPlaceUnitFormation)
       {
         return;
       }
-      this.GameServer.PlaceUnitFormation(cnn.InternalId, coordinate, unitFormation);
+      this.GameServer.PlaceUnitFormation(ownerId, coordinate, unitFormation);
       NetUpdateMap um = new NetUpdateMap();
       um.netMapString = this.GameServer.Map.Serialize();
       Server.Instance.Broadcast(um);
 
-      Debug.Log(this.GameServer.Turn);
       if (this.GameServer.Turn % 2 != 0)
       {
         NetUpdateCards uc = new NetUpdateCards();

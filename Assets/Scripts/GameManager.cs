@@ -30,6 +30,13 @@ public class GameManager : MonoBehaviour
           gameClient = new GameObject("StandardGameClient").AddComponent<StandardGameClient>();
           break;
         }
+      case NetworkManager.NetworkIdentity.LOCAL:
+        {
+          Debug.Log("Loaded Scene as local game");
+          gameServer = new GameObject("StandardGameServer").AddComponent<StandardGameServer>();
+          gameClient = new GameObject("StandardGameClient").AddComponent<StandardGameClient>();
+          break;
+        }
       default:
         {
           Debug.Log("Loaded Scene as client");

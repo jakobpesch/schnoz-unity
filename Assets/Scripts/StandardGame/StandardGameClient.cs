@@ -259,10 +259,5 @@ namespace Schnoz
       this.viewManager.game = this;
       this.viewManager.StartListening();
     }
-    private void StartGame()
-    {
-      // List<RuleLogic> ruleLogics = new List<RuleLogic>();
-      // ruleLogics.Add(RuleLogicMethods.DiagonalToTopRight);
-    }
   }
 }
