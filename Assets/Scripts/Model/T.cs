@@ -7,8 +7,7 @@ using Schnoz;
 /// <summary>
 /// This is a helper class containing predicates for selecting tiles.
 ///</summary>
-public class T
-{
+public class T {
   // public static Func<GameObject, TileProperties> Properties = tile => tile;
   // public static Func<Tile, List<Tile>> AdjacentTiles = tile => Map.I.GetTiles(tile.AdjacentTilesIds);
   // public static Func<Tile, SpriteRenderer> SpriteRenderer = tile => tile.gameObject.GetComponent<SpriteRenderer>();
@@ -16,28 +15,24 @@ public class T
   public static Func<Tile, bool> Placeable = tile => tile.Placeable;
   public static Func<Tile, bool> Empty = tile => tile.Unit == null;
   public static Func<Tile, bool> Visible = tile => tile.Visible;
-  public static Func<Tile, bool> IsStone = t =>
-       {
-         if (t.Terrain == null)
-           return false;
-         if (t.Terrain.Type == TerrainType.Stone)
-           return true;
-         return false;
-       };
-  public static Func<Tile, bool> UnitIsHostile = tile =>
-  {
+  public static Func<Tile, bool> IsStone = t => {
+    if (t.Terrain == null)
+      return false;
+    if (t.Terrain.Type == TerrainType.Stone)
+      return true;
+    return false;
+  };
+  public static Func<Tile, bool> UnitIsHostile = tile => {
     if (tile.Unit == null) return false;
     // return tp.UnitProperties.Owner != GameManager.I.TemporaryCurrentPlayer && tp.UnitProperties.Owner != GameManager.I.NeutralPlayer;
     return false;
   };
-  public static Func<Tile, bool> UnitIsAllied = tile =>
-  {
+  public static Func<Tile, bool> UnitIsAllied = tile => {
     if (tile.Unit == null) return false;
     // return tp.UnitProperties.Owner == GameManager.I.TemporaryCurrentPlayer || tp.UnitProperties.Owner == GameManager.I.NeutralPlayer;
     return false;
   };
-  public static Func<Tile, bool> UnitIsPlayers = tile =>
-  {
+  public static Func<Tile, bool> UnitIsPlayers = tile => {
 
     if (tile.Unit == null) return false;
     // return tp.UnitProperties.Owner == GameManager.I.TemporaryCurrentPlayer;

@@ -1,27 +1,22 @@
 using System;
 using UnityEngine;
 
-namespace Schnoz
-{
+namespace Schnoz {
   [Serializable]
-  public class Card
-  {
+  public class Card {
     private Guid id;
-    public Guid Id
-    {
+    public Guid Id {
       get => this.id;
     }
     [SerializeField] private CardType type;
     public CardType Type { get => this.type; }
     public UnitFormation unitFormation;
-    public Card(CardType type)
-    {
+    public Card(CardType type) {
       this.id = Guid.NewGuid();
       this.type = type;
       this.unitFormation = new UnitFormation(type);
     }
-    public Card(NetCard netCard)
-    {
+    public Card(NetCard netCard) {
       this.id = Guid.NewGuid();
       this.type = (CardType)netCard.t;
       this.unitFormation = new UnitFormation(type);

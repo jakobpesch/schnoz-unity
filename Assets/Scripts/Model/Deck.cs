@@ -4,42 +4,33 @@ using System.Collections.Generic;
 using Utils;
 using UnityEngine;
 
-namespace Schnoz
-{
+namespace Schnoz {
   [Serializable]
-  public class Deck : Observable
-  {
+  public class Deck : Observable {
     public List<Card> Cards { get; private set; }
     public List<Card> OpenCards { get; private set; }
-    public Deck(int size = Defaults.DeckSize)
-    {
+    public Deck(int size = Defaults.DeckSize) {
       this.Cards = new List<Card>();
       this.OpenCards = new List<Card>();
       int i = 0;
       List<CardType> cardTypes = Enum.GetValues(typeof(CardType)).Cast<CardType>().ToList();
-      while (true)
-      {
-        foreach (CardType cardType in cardTypes)
-        {
+      while (true) {
+        foreach (CardType cardType in cardTypes) {
           this.Cards.Add(new Card(cardType));
-          if (++i == size)
-          {
+          if (++i == size) {
             return;
           }
         }
       }
     }
 
-    public void DiscardOpenCards()
-    {
+    public void DiscardOpenCards() {
       this.OpenCards = new List<Card>();
     }
 
-    public void Draw()
-    {
+    public void Draw() {
       Debug.Log("Drawing Card");
-      if (this.Cards.Count == 0)
-      {
+      if (this.Cards.Count == 0) {
         return;
       }
       Card drawnCard = this.Cards[0];
@@ -47,26 +38,22 @@ namespace Schnoz
       this.OpenCards.Add(drawnCard);
     }
 
-    public void Shuffle()
-    {
+    public void Shuffle() {
       Debug.Log("Shuffling Deck");
       this.Cards = this.Cards.OrderBy(x => UnityEngine.Random.value).ToList();
       this.NotifyPropertyChanged("Deck.Cards");
     }
 
-    public string SerializeOpenCards()
-    {
+    public string SerializeOpenCards() {
       NetOpenCards netOpenCards = new NetOpenCards();
-      netOpenCards.o = this.OpenCards.Select(card =>
-      {
+      netOpenCards.o = this.OpenCards.Select(card => {
         NetCard netCard = new NetCard();
         netCard.t = (int)card.Type;
         Debug.Log($"Drawn Type: {netCard.t}");
         return netCard;
       }).ToList();
 
-      foreach (var c in netOpenCards.o)
-      {
+      foreach (var c in netOpenCards.o) {
         Debug.Log($"WTF: {c.t}");
       }
 

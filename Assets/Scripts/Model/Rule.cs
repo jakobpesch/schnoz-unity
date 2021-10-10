@@ -5,21 +5,19 @@ using System.Linq;
 using Schnoz;
 using UnityEngine;
 
-namespace Schnoz
-{
+namespace Schnoz {
   /// </summary>
   /// A function delegate that contains the rules logic.
   /// </summary>
   public delegate RuleEvaluation RuleLogic(Player player, Map map);
   [Serializable]
-  public class Rule
-  {
+  public class Rule {
+    public RuleNames RuleName { get; private set; }
     /// <summary>
     /// Contains the rule logic. 
     /// </summary>
     [SerializeField] private RuleLogic RuleLogic;
-    public Rule(RuleLogic ruleLogic)
-    {
+    public Rule(RuleLogic ruleLogic) {
       this.RuleLogic = ruleLogic;
     }
 
@@ -28,8 +26,7 @@ namespace Schnoz
     /// </summary>
     /// <param name="player">The player for who the rule will be evaluated for.</param>
     /// <returns>A RuleEvaluation object containing information about the </returns>
-    public RuleEvaluation Evaluate(Player player, Map map)
-    {
+    public RuleEvaluation Evaluate(Player player, Map map) {
       RuleEvaluation eval = RuleLogic(player, map);
       return eval;
     }

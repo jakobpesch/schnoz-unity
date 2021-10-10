@@ -5,10 +5,8 @@ using System.Collections.Generic;
 using TypeAliases;
 using UnityEngine;
 
-namespace Schnoz
-{
-  public class UnitFormation
-  {
+namespace Schnoz {
+  public class UnitFormation {
     public CardType Type;
     public static Dictionary<int, CardType> unitFormationIdToTypeDict = new Dictionary<int, CardType>() {
       { 0, CardType.Single_1 },
@@ -47,34 +45,26 @@ namespace Schnoz
       { CardType.Diagonal_2, new Arrangement() { (0, 0), (1, 1)} },
     };
 
-    public UnitFormation(CardType type)
-    {
+    public UnitFormation(CardType type) {
       this.Type = type;
       this.defaultArrangement = UnitFormation.arrangements[type];
     }
     private Arrangement defaultArrangement;
-    public Arrangement DefaultArrangement
-    {
+    public Arrangement DefaultArrangement {
       get => this.defaultArrangement;
     }
-    public Arrangement Arrangement
-    {
-      get
-      {
+    public Arrangement Arrangement {
+      get {
         Arrangement newArrangement = new Arrangement();
-        foreach (Coordinate coordinate in this.defaultArrangement)
-        {
+        foreach (Coordinate coordinate in this.defaultArrangement) {
           Coordinate tempCoord = new Coordinate(coordinate.row, coordinate.col);
-          for (int i = 0; i < this.rotation; i++)
-          {
+          for (int i = 0; i < this.rotation; i++) {
             tempCoord = this.RotateRight(tempCoord);
           }
-          if (this.mirrorHorizontal)
-          {
+          if (this.mirrorHorizontal) {
             tempCoord = this.MirrorHorizontal(tempCoord);
           }
-          if (this.mirrorVertical)
-          {
+          if (this.mirrorVertical) {
             tempCoord = this.MirrorVertical(tempCoord);
           }
           newArrangement.Add(tempCoord);
@@ -85,41 +75,32 @@ namespace Schnoz
     public int rotation = 0;
     public bool mirrorHorizontal = false;
     public bool mirrorVertical = false;
-    private Coordinate RotateRight(Coordinate coordinate)
-    {
+    private Coordinate RotateRight(Coordinate coordinate) {
       return new Coordinate(coordinate.col, -coordinate.row);
     }
-    public Coordinate MirrorHorizontal(Coordinate coordinate)
-    {
+    public Coordinate MirrorHorizontal(Coordinate coordinate) {
       return new Coordinate(coordinate.row, -coordinate.col);
     }
-    public Coordinate MirrorVertical(Coordinate coordinate)
-    {
+    public Coordinate MirrorVertical(Coordinate coordinate) {
       return new Coordinate(-coordinate.row, coordinate.col);
     }
-    public void RotateRight()
-    {
+    public void RotateRight() {
       this.rotation++;
-      if (this.rotation > 3)
-      {
+      if (this.rotation > 3) {
         this.rotation = 0;
       }
     }
-    public void RotateLeft()
-    {
+    public void RotateLeft() {
       this.rotation--;
-      if (this.rotation < 0)
-      {
+      if (this.rotation < 0) {
         this.rotation = 3;
       }
     }
-    public void MirrorHorizontal()
-    {
+    public void MirrorHorizontal() {
       this.mirrorHorizontal = !this.mirrorHorizontal;
       Debug.Log($"MirrorHorizontal={this.mirrorHorizontal}");
     }
-    public void MirrorVertical()
-    {
+    public void MirrorVertical() {
       this.mirrorVertical = !this.mirrorVertical;
       Debug.Log($"MirrorVertical={this.mirrorVertical}");
     }

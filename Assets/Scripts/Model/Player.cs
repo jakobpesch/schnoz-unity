@@ -4,114 +4,90 @@ using System.Linq;
 using Schnoz;
 using UnityEngine;
 
-namespace Schnoz
-{
+namespace Schnoz {
   // public class PlayerState {
   //   public bool active;
   //   public bool placing;
   //   public bool inMenu;
   // }
   [Serializable]
-  public class Player
-  {
+  public class Player {
     [SerializeField] private string playerName;
-    public string PlayerName
-    {
+    public string PlayerName {
       get => this.playerName;
     }
     [SerializeField] private int id;
-    public int Id
-    {
+    public int Id {
       get => this.id;
     }
     [SerializeField] private int score = 0;
-    public int Score
-    {
+    public int Score {
       get => this.score;
     }
-    [SerializeField] private List<List<RuleEvaluation>> evaluationHistory = new List<List<RuleEvaluation>>();
-    public List<List<RuleEvaluation>> EvaluationHistory
-    {
-      get => this.evaluationHistory;
-    }
+    public List<List<RuleEvaluation>> EvaluationHistory { get; private set; }
 
     [SerializeField] private int singlePieces;
-    public int SinglePieces
-    {
+    public int SinglePieces {
       get => this.singlePieces;
     }
     [SerializeField] private int stones;
-    public int Stones
-    {
+    public int Stones {
       get => this.stones;
     }
     [SerializeField] private string soundName;
-    public string SoundName
-    {
+    public string SoundName {
       get => this.soundName;
     }
     [SerializeField] private Card selectedCard;
-    public Card SelectedCard
-    {
+    public Card SelectedCard {
       get => this.selectedCard;
     }
 
     // public PlayerInput Input;
 
     [SerializeField] private bool active;
-    public bool Active
-    {
+    public bool Active {
       get => this.active;
     }
-    public bool Placing
-    {
+    public bool Placing {
       get => this.selectedCard != null;
     }
     // [SerializeField] private PlayerState state;
 
     [SerializeField] private List<Rule> rules = new List<Rule>();
-    public List<Rule> Rules
-    {
+    public List<Rule> Rules {
       get => this.rules;
     }
 
-    public Player(int id)
-    {
+    public Player(int id) {
       this.id = id;
       this.playerName = "Player " + id;
       this.rules = new List<Rule>();
     }
-    public Player(int id, int singlePieces, string soundName = "")
-    {
+    public Player(int id, int singlePieces, string soundName = "") {
       this.id = id;
       this.singlePieces = singlePieces;
       this.soundName = soundName;
       this.rules = new List<Rule>();
     }
-    public void TakeCard(Card card)
-    {
+    public void TakeCard(Card card) {
       this.selectedCard = card;
     }
-    public void DiscardCard()
-    {
-      if (this.selectedCard == null)
-      {
+    public void DiscardCard() {
+      if (this.selectedCard == null) {
         // Debug.Log("Nothing to discard.");
         return;
       }
       // Debug.Log($"Player {this.id} discards card: {this.selectedCard.id}");
       this.selectedCard = null;
     }
-    public void AddTurnEvaluation(List<RuleEvaluation> turnEvaluation)
-    {
-      evaluationHistory.Add(turnEvaluation);
-      foreach (RuleEvaluation eval in turnEvaluation)
-      {
+    public void AddTurnEvaluation(List<RuleEvaluation> turnEvaluation) {
+      EvaluationHistory.Add(turnEvaluation);
+      foreach (RuleEvaluation eval in turnEvaluation) {
         score += eval.Points;
       }
     }
-    public bool IsHoldingCard()
-    {
+    public bool IsHoldingCard() {
       return this.selectedCard != null;
     }
     // public void ClickCard(Card card)
@@ -123,12 +99,10 @@ namespace Schnoz
     //   EventManager.I.ClickTile(this, new ClickTileEventArgs(tile));
     // }
 
-    public void SetActive(bool value)
-    {
+    public void SetActive(bool value) {
       this.active = value;
     }
-    public void SetSinglePieces(int singlePieces)
-    {
+    public void SetSinglePieces(int singlePieces) {
       this.singlePieces = singlePieces;
     }
 

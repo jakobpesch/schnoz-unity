@@ -2,8 +2,7 @@ using UnityEngine;
 using Unity.Collections;
 using Unity.Networking.Transport;
 
-public class NetMakeMove : NetMessage
-{
+public class NetMakeMove : NetMessage {
   public int row;
   public int col;
   public int unitFormationId;
@@ -12,17 +11,14 @@ public class NetMakeMove : NetMessage
   public int mirrorVertical;
   public int teamId;
 
-  public NetMakeMove()
-  {
+  public NetMakeMove() {
     this.Code = OpCode.MAKE_MOVE;
   }
-  public NetMakeMove(DataStreamReader reader)
-  {
+  public NetMakeMove(DataStreamReader reader) {
     this.Code = OpCode.MAKE_MOVE;
     this.Deserialize(reader);
   }
-  public override void Serialize(ref DataStreamWriter writer)
-  {
+  public override void Serialize(ref DataStreamWriter writer) {
     writer.WriteByte((byte)this.Code);
     writer.WriteInt(this.row);
     writer.WriteInt(this.col);
@@ -32,8 +28,7 @@ public class NetMakeMove : NetMessage
     writer.WriteInt(this.mirrorVertical);
     writer.WriteInt(this.teamId);
   }
-  public override void Deserialize(DataStreamReader reader)
-  {
+  public override void Deserialize(DataStreamReader reader) {
     this.row = reader.ReadInt();
     this.col = reader.ReadInt();
     this.unitFormationId = reader.ReadInt();
@@ -42,12 +37,10 @@ public class NetMakeMove : NetMessage
     this.mirrorVertical = reader.ReadInt();
     this.teamId = reader.ReadInt();
   }
-  public override void ReceivedOnClient()
-  {
+  public override void ReceivedOnClient() {
     NetUtility.C_MAKE_MOVE?.Invoke(this);
   }
-  public override void ReceivedOnServer(NetworkConnection cnn)
-  {
+  public override void ReceivedOnServer(NetworkConnection cnn) {
     NetUtility.S_MAKE_MOVE?.Invoke(this, cnn);
   }
 }

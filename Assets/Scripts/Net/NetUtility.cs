@@ -2,8 +2,7 @@ using UnityEngine;
 using Unity.Networking.Transport;
 using System;
 
-public enum OpCode
-{
+public enum OpCode {
   KEEP_ALIVE = 1,
   WELCOME = 2,
   START_GAME = 3,
@@ -13,14 +12,11 @@ public enum OpCode
 }
 
 
-public static class NetUtility
-{
-  public static void OnData(DataStreamReader stream, NetworkConnection cnn, Server server = null)
-  {
+public static class NetUtility {
+  public static void OnData(DataStreamReader stream, NetworkConnection cnn, Server server = null) {
     NetMessage msg = null;
     var opCode = (OpCode)stream.ReadByte();
-    switch (opCode)
-    {
+    switch (opCode) {
       case OpCode.KEEP_ALIVE: msg = new NetKeepAlive(stream); break;
       case OpCode.WELCOME: msg = new NetWelcome(stream); break;
       case OpCode.START_GAME: msg = new NetStartGame(stream); break;
@@ -32,12 +28,9 @@ public static class NetUtility
         break;
     }
 
-    if (server != null)
-    {
+    if (server != null) {
       msg.ReceivedOnServer(cnn);
-    }
-    else
-    {
+    } else {
       msg.ReceivedOnClient();
     }
   }

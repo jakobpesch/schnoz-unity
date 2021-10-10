@@ -4,13 +4,10 @@ using UnityEngine;
 using UnityEngine.Tilemaps;
 using UnityEngine.UIElements;
 
-namespace Utils
-{
-  public class InputManager : MonoBehaviour
-  {
+namespace Utils {
+  public class InputManager : MonoBehaviour {
 
-    private void Start()
-    {
+    private void Start() {
 
     }
     //   public Camera mainCam;

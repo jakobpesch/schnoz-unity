@@ -5,16 +5,13 @@ using Schnoz;
 using UnityEngine;
 using TypeAliases;
 
-namespace Schnoz
-{
+namespace Schnoz {
   [Serializable]
-  public class Unit
-  {
+  public class Unit {
     public int OwnerId { get; private set; }
     [SerializeField] private int ownerId;
     public Coordinate Coordinate { get; private set; }
-    public Unit(int ownerId, Coordinate coordinate)
-    {
+    public Unit(int ownerId, Coordinate coordinate) {
       this.OwnerId = ownerId;
       this.ownerId = ownerId;
       this.Coordinate = coordinate;

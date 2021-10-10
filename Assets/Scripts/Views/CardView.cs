@@ -3,16 +3,13 @@ using System.Collections.Generic;
 using UnityEngine;
 using Schnoz;
 
-public class CardView : MonoBehaviour
-{
+public class CardView : MonoBehaviour {
   public StandardGameClient game;
   public Guid cardId;
-  private void Start()
-  {
+  private void Start() {
     this.gameObject.AddComponent<BoxCollider2D>();
   }
-  private void OnMouseUp()
-  {
+  private void OnMouseUp() {
     this.game.HandlePlayerInput(this, InputEventNames.OnMouseUp, this.cardId);
   }
 }

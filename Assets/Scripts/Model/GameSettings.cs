@@ -3,37 +3,31 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-namespace Schnoz
-{
+namespace Schnoz {
   [Serializable]
-  public class GameSettings
-  {
+  public class GameSettings {
     public List<Rule> Rules { get; private set; }
+    public Dictionary<RuleNames, Rule> RuleNameToRuleDict { get; }
     [SerializeField] private List<int> turnOrder = new List<int>();
     public List<int> TurnOrder { get => this.turnOrder; }
     [SerializeField] private int numberOfStages = 6;
-    public int NumberOfStages
-    {
+    public int NumberOfStages {
       get => this.numberOfStages;
     }
     [SerializeField] private int numberOfSinglePieces = 1;
-    public int NumberOfSinglePieces
-    {
+    public int NumberOfSinglePieces {
       get => this.numberOfSinglePieces;
     }
     [SerializeField] private int numberOfCardsPerTurn = 4;
-    public int NumberOfCardsPerTurn
-    {
+    public int NumberOfCardsPerTurn {
       get => this.numberOfCardsPerTurn;
     }
     [SerializeField] private int deckSize = 30;
-    public int DeckSize
-    {
+    public int DeckSize {
       get => this.deckSize;
     }
     [SerializeField] private List<int> playerIds;
-    public List<int> PlayerIds
-    {
+    public List<int> PlayerIds {
       get => playerIds;
     }
     public List<Player> Players { get; private set; }
@@ -49,8 +43,7 @@ namespace Schnoz
       int numberOfSinglePieces,
       int numberOfStages,
       int deckSize,
-      List<RuleLogic> ruleLogics)
-    {
+      List<RuleLogic> ruleLogics) {
       this.nCols = nCols;
       this.nRows = nRows;
       this.numberOfCardsPerTurn = numberOfCardsPerTurn;
@@ -59,22 +52,18 @@ namespace Schnoz
       this.Players = new List<Player>() { new Player(0), new Player(1) };
       this.IdToPlayerDict = Players.ToDictionary(player => player.Id);
       this.Rules = ruleLogics.Select(rl => new Rule(rl)).ToList();
+      this.RuleNameToRuleDict = this.Rules.ToDictionary(rule => rule.RuleName);
       this.CreateStages();
     }
-    private void CreateStages()
-    {
+    private void CreateStages() {
       // if (this.players.Count == 2) ... TODO: Player count dependant stage
       List<int> stage = new List<int>() { 0, 1, 1, 0, 0, 1 };
       List<int> reverseStage = new List<int>(stage);
       reverseStage.Reverse();
-      for (int i = 0; i < this.numberOfStages; i++)
-      {
-        if (i % 2 == 0)
-        {
+      for (int i = 0; i < this.numberOfStages; i++) {
+        if (i % 2 == 0) {
           this.turnOrder = this.turnOrder.Concat(stage).ToList();
-        }
-        else
-        {
+        } else {
           this.turnOrder = this.turnOrder.Concat(reverseStage).ToList();
         }
       }

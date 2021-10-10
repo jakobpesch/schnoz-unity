@@ -1,16 +1,14 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-namespace Schnoz
-{
+namespace Schnoz {
   /// <summary>
   /// Contains information about an evaluation of a rule.
   /// Points are the points scored/lost in this evaluation of the rule.
   /// RelevantTiles hold either List or a nested List of Tiles.
   /// </summary>
   [Serializable]
-  public class RuleEvaluation
-  {
+  public class RuleEvaluation {
     public RuleNames RuleName { get; private set; }
     public int PlayerId { get; private set; }
     public int Points { get; private set; }

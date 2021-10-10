@@ -6,34 +6,26 @@ using Utils;
 using TypeAliases;
 using UnityEngine;
 
-namespace Schnoz
-{
+namespace Schnoz {
   [Serializable]
-  public class Map : Observable
-  {
+  public class Map : Observable {
     [SerializeField] private int nRows;
     [SerializeField] private int nCols;
     [SerializeField] private List<Unit> units;
-    public List<Unit> Units
-    {
-      get
-      {
+    public List<Unit> Units {
+      get {
         List<Unit> u = this.Tiles.Where(tile => tile.Unit != null).Select(tile => tile.Unit).ToList();
         return u;
       }
     }
-    public List<Terrain> Terrains
-    {
-      get
-      {
+    public List<Terrain> Terrains {
+      get {
         List<Terrain> t = this.Tiles.Where(tile => tile.Terrain.Type != TerrainType.Grass).Select(tile => tile.Terrain).ToList();
         return t;
       }
     }
-    public Tile CenterTile
-    {
-      get
-      {
+    public Tile CenterTile {
+      get {
         int middleRow = (int)Math.Ceiling((float)(nRows / 2));
         int middleCol = (int)Math.Ceiling((float)(nCols / 2));
         return CoordinateToTileDict[new Coordinate(middleRow, middleCol)];
@@ -43,16 +35,13 @@ namespace Schnoz
     public Dictionary<Coordinate, Tile> CoordinateToTileDict { get; }
     public List<List<Tile>> DiagonalsFromBottomLeftToTopRight { get => GetDiagonalsFromBottomLeftToTopRight(); }
     public List<List<Tile>> DiagonalsFromTopLeftToBottomRight { get => GetDiagonalsFromTopLeftToBottomRight(); }
-    public Map(int nRows, int nCols, bool randomize = true)
-    {
+    public Map(int nRows, int nCols, bool randomize = true) {
       this.nRows = nRows;
       this.nCols = nCols;
       this.Tiles = new List<Tile>();
       this.CoordinateToTileDict = new Dictionary<Coordinate, Tile>();
-      for (int row = 0; row < nRows; row++)
-      {
-        for (int col = 0; col < nCols; col++)
-        {
+      for (int row = 0; row < nRows; row++) {
+        for (int col = 0; col < nCols; col++) {
           Tile tile = new Tile(row, col);
           this.Tiles.Add(tile);
 
@@ -60,37 +49,31 @@ namespace Schnoz
         }
       }
 
-      if (randomize)
-      {
+      if (randomize) {
         this.RandomizeTerrain();
         this.CenterTile.SetTerrain(TerrainType.Grass);
 
-        foreach (Tile t in this.GetTilesWithinRadius(CenterTile, 2))
-        {
+        foreach (Tile t in this.GetTilesWithinRadius(CenterTile, 2)) {
           t.SetTerrain(TerrainType.Grass);
         }
       }
 
 
     }
-    public Map(NetMap netMap) : this(netMap.r, netMap.c, false)
-    {
-      netMap.u.ForEach(netUnit =>
-      {
+    public Map(NetMap netMap) : this(netMap.r, netMap.c, false) {
+      netMap.u.ForEach(netUnit => {
         Coordinate coordinate = new Coordinate(netUnit.r, netUnit.c);
         this.CoordinateToTileDict[coordinate].SetUnit(new Unit(netUnit));
       });
-      netMap.t.ForEach(netTerrain =>
-      {
+      netMap.t.ForEach(netTerrain => {
         Coordinate coordinate = new Coordinate(netTerrain.r, netTerrain.c);
         this.CoordinateToTileDict[coordinate].SetTerrain(new Terrain(netTerrain).Type);
       });
     }
 
 
-    private void RandomizeTerrain()
-    {
-      float partsGrass = 11, partsWater = 3, partsBush = 5, partsStone = 1;
+    private void RandomizeTerrain() {
+      float partsGrass = 20, partsWater = 3, partsBush = 5, partsStone = 1;
       float total = partsGrass + partsWater + partsBush + partsStone;
       float chanceGrass = partsGrass / total;
       float chanceWater = partsWater / total;
@@ -106,8 +89,7 @@ namespace Schnoz
       probabilityArray.AddRange(Enumerable.Repeat(terrainWater, (int)partsWater).ToList());
       probabilityArray.AddRange(Enumerable.Repeat(terrainStone, (int)partsStone).ToList());
 
-      foreach (Tile tile in this.Tiles)
-      {
+      foreach (Tile tile in this.Tiles) {
 
         // int rerollSucceeded = 0;
         // int rerollFailed = 0;
@@ -118,16 +100,13 @@ namespace Schnoz
         List<TerrainType> adjacentTerrainTypes = new List<TerrainType>();
         List<Tile> adjacentTiles = this.GetAdjacentTiles(tile);
         Debug.Log(adjacentTiles.Count);
-        foreach (Tile at in adjacentTiles.Where(t => t != null && t.Terrain.Type != TerrainType.Grass))
-        {
+        foreach (Tile at in adjacentTiles.Where(t => t != null && t.Terrain.Type != TerrainType.Grass)) {
           adjacentTerrainTypes.Add(at.Terrain.Type);
         }
 
         // Reroll for each adjacent special tile
-        for (int i = 0; i < adjacentTerrainTypes.Count(); i++)
-        {
-          if (adjacentTerrainTypes.Contains(terrainType))
-          {
+        for (int i = 0; i < adjacentTerrainTypes.Count(); i++) {
+          if (adjacentTerrainTypes.Contains(terrainType)) {
             break;
           }
           randomInt = UnityEngine.Random.Range(0, probabilityArray.Count);
@@ -138,21 +117,18 @@ namespace Schnoz
       }
     }
 
-    public string Serialize()
-    {
+    public string Serialize() {
       NetMap netMap = new NetMap();
       netMap.r = this.nRows;
       netMap.c = this.nCols;
-      netMap.u = this.Units.Select(unit =>
-      {
+      netMap.u = this.Units.Select(unit => {
         NetUnit netUnit = new NetUnit();
         netUnit.i = unit.OwnerId;
         netUnit.r = unit.Coordinate.row;
         netUnit.c = unit.Coordinate.col;
         return netUnit;
       }).ToList();
-      netMap.t = this.Terrains.Select(terrain =>
-      {
+      netMap.t = this.Terrains.Select(terrain => {
         NetTerrain netTerrain = new NetTerrain();
         netTerrain.t = (int)terrain.Type;
         netTerrain.r = terrain.Coordinate.row;
@@ -161,50 +137,40 @@ namespace Schnoz
       }).ToList();
       return JsonUtility.ToJson(netMap);
     }
-    public List<Tile> GetTiles(List<Guid> ids)
-    {
+    public List<Tile> GetTiles(List<Guid> ids) {
       return this.Tiles.FindAll(t => ids.Any(id => t.Id == id)).ToList();
     }
-    public void UpdateFog(Tile baseTile)
-    {
-      foreach (Tile tile in this.GetTilesWithinRadius(baseTile))
-      {
-        if (!tile.Visible)
-        {
+    public void UpdateFog(Tile baseTile) {
+      foreach (Tile tile in this.GetTilesWithinRadius(baseTile)) {
+        if (!tile.Visible) {
           tile.SetVisibility(true);
         }
       }
     }
-    public List<Tile> GetTilesWithinRadius(Tile baseTile, float radius = 3f)
-    {
-      return this.Tiles.Where(tile =>
-      {
+    public List<Tile> GetTilesWithinRadius(Tile baseTile, float radius = 3f) {
+      return this.Tiles.Where(tile => {
         float distance = Math.Abs(System.Numerics.Vector2.Distance(new System.Numerics.Vector2(baseTile.Row, baseTile.Col), new System.Numerics.Vector2(tile.Row, tile.Col)));
         return distance <= radius + 0.2f;
       }).ToList();
     }
-    public IEnumerable<Unit> GetAdjacentEnemies(Tile centerTile, List<Tile> adjacentTiles)
-    {
+    public IEnumerable<Unit> GetAdjacentEnemies(Tile centerTile, List<Tile> adjacentTiles) {
       return adjacentTiles.FindAll(
           at => at.Unit.OwnerId
           != centerTile.Unit.OwnerId).Select(atWithEnemies => atWithEnemies.Unit);
     }
-    public IEnumerable<Unit> GetAdjacentAllies(Tile centerTile, List<Tile> adjacentTiles)
-    {
+    public IEnumerable<Unit> GetAdjacentAllies(Tile centerTile, List<Tile> adjacentTiles) {
       return GetAdjacentTiles(centerTile).Select(adjacentTile =>
         this.CoordinateToTileDict.ContainsKey(adjacentTile.Coordinate)
         ? this.CoordinateToTileDict[adjacentTile.Coordinate].Unit
         : null
       );
     }
-    public IEnumerable<Tile> GetTilesWithUnitsFrom(List<Tile> tiles)
-    {
+    public IEnumerable<Tile> GetTilesWithUnitsFrom(List<Tile> tiles) {
       return tiles.FindAll(tile =>
           tile != null &&
           tile.Unit != null);
     }
-    public List<Tile> GetAdjacentTiles(Tile middleTile)
-    {
+    public List<Tile> GetAdjacentTiles(Tile middleTile) {
       List<Coordinate> directions = new List<Coordinate>()
       {
         new Coordinate(0, 1),
@@ -212,11 +178,9 @@ namespace Schnoz
         new Coordinate(1, 0),
         new Coordinate(-1, 0)
       };
-      List<Tile> adjacentTiles = directions.Select(dir =>
-      {
+      List<Tile> adjacentTiles = directions.Select(dir => {
         Coordinate adjacentCoordinate = middleTile.Coordinate + dir;
-        if (!this.CoordinateToTileDict.ContainsKey(adjacentCoordinate))
-        {
+        if (!this.CoordinateToTileDict.ContainsKey(adjacentCoordinate)) {
           return null;
         }
         Debug.Log(this.CoordinateToTileDict[adjacentCoordinate].Terrain);
@@ -224,24 +188,20 @@ namespace Schnoz
       }).ToList();
       return adjacentTiles.ToList();
     }
-    private List<List<Tile>> GetDiagonalsFromBottomLeftToTopRight()
-    {
+    private List<List<Tile>> GetDiagonalsFromBottomLeftToTopRight() {
       IEnumerable<Tile> bottomAndLeftBorderTiles = this.Tiles.Where(tile =>
         tile.Row == 0 || tile.Col == 0);
 
       List<List<Tile>> diagonals = new List<List<Tile>>();
 
-      foreach (Tile borderTile in bottomAndLeftBorderTiles)
-      {
+      foreach (Tile borderTile in bottomAndLeftBorderTiles) {
         List<Tile> diagonal = new List<Tile>() { borderTile };
         int i = 1;
-        while (true)
-        {
+        while (true) {
           // Checks the next tile to the top right
           Coordinate nextCoordInDiagonal = borderTile.Coordinate + new Coordinate(i, i);
           Tile nextTileInDiagonal = this.Tiles.Find(tile => tile.Coordinate == nextCoordInDiagonal);
-          if (nextTileInDiagonal == null)
-          {
+          if (nextTileInDiagonal == null) {
             break;
           }
           diagonal.Add(nextTileInDiagonal);
@@ -251,24 +211,20 @@ namespace Schnoz
       }
       return diagonals;
     }
-    private List<List<Tile>> GetDiagonalsFromTopLeftToBottomRight()
-    {
+    private List<List<Tile>> GetDiagonalsFromTopLeftToBottomRight() {
       IEnumerable<Tile> topAndLeftBorderTiles = this.Tiles.Where(tile =>
         tile.Row == this.nRows || tile.Col == 0);
 
       List<List<Tile>> diagonals = new List<List<Tile>>();
 
-      foreach (Tile borderTile in topAndLeftBorderTiles)
-      {
+      foreach (Tile borderTile in topAndLeftBorderTiles) {
         List<Tile> diagonal = new List<Tile>() { borderTile };
         int i = 1;
-        while (true)
-        {
+        while (true) {
           // Checks the next tile to the top right
           Coordinate nextCoordInDiagonal = borderTile.Coordinate + new Coordinate(-i, i);
           Tile nextTileInDiagonal = this.Tiles.Find(tile => tile.Coordinate == nextCoordInDiagonal);
-          if (nextTileInDiagonal == null)
-          {
+          if (nextTileInDiagonal == null) {
             break;
           }
           diagonal.Add(nextTileInDiagonal);

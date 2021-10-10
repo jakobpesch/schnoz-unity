@@ -1,25 +1,27 @@
 using Unity.Networking.Transport;
 using Unity.Collections;
 using Schnoz;
-public class NetUpdateCards : NetMessage {
-  public FixedString4096 netOpenCardsString;
+public class NetUpdateScore : NetMessage {
+  public int ScorePlayer1 { get; set; }
+  public int ScorePlayer2 { get; set; }
 
-  public NetUpdateCards() {
+  public NetUpdateScore() {
     this.Code = OpCode.UPDATE_CARDS;
   }
-  public NetUpdateCards(DataStreamReader reader) {
+  public NetUpdateScore(DataStreamReader reader) {
     this.Code = OpCode.UPDATE_CARDS;
     this.Deserialize(reader);
   }
 
   public override void Serialize(ref DataStreamWriter writer) {
     writer.WriteByte((byte)this.Code);
-    writer.WriteFixedString4096(netOpenCardsString);
-
+    writer.WriteInt(ScorePlayer1);
+    writer.WriteInt(ScorePlayer2);
   }
 
   public override void Deserialize(DataStreamReader reader) {
-    this.netOpenCardsString = reader.ReadFixedString4096();
+    ScorePlayer1 = reader.ReadInt();
+    ScorePlayer2 = reader.ReadInt();
   }
 
   public override void ReceivedOnClient() {

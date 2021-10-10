@@ -8,8 +8,7 @@ using Utils;
 using Schnoz;
 using TMPro;
 
-public class StandardGameViewManager : MonoBehaviour
-{
+public class StandardGameViewManager : MonoBehaviour {
   public StandardGameClient game;
   private Vector2 resolution;
   private GameObject mapGO;
@@ -24,13 +23,11 @@ public class StandardGameViewManager : MonoBehaviour
   [SerializeField] private Vector3 panStart, mousePositionWorldPoint;
   #endregion
 
-  private void Awake()
-  {
+  private void Awake() {
     this.resolution = new Vector2(Screen.width, Screen.height);
 
   }
-  private void Update()
-  {
+  private void Update() {
     #region Camera movement update
     this.mousePositionWorldPoint = this.mainCam.ScreenToWorldPoint(Input.mousePosition);
     this.Pan();
@@ -38,8 +35,7 @@ public class StandardGameViewManager : MonoBehaviour
     #endregion
 
     #region On resize
-    if (resolution.x != Screen.width || resolution.y != Screen.height)
-    {
+    if (resolution.x != Screen.width || resolution.y != Screen.height) {
       this.RenderOpenCards();
 
       resolution.x = Screen.width;
@@ -48,29 +44,23 @@ public class StandardGameViewManager : MonoBehaviour
     #endregion
 
     #region Player input
-    if (Input.GetKeyDown(KeyCode.E))
-    {
+    if (Input.GetKeyDown(KeyCode.E)) {
       this.game.HandlePlayerInput(this, InputEventNames.RotateRightButton);
     }
-    if (Input.GetKeyDown(KeyCode.Q))
-    {
+    if (Input.GetKeyDown(KeyCode.Q)) {
       this.game.HandlePlayerInput(this, InputEventNames.RotateLeftButton);
     }
-    if (Input.GetKeyDown(KeyCode.W))
-    {
+    if (Input.GetKeyDown(KeyCode.W)) {
       this.game.HandlePlayerInput(this, InputEventNames.MirrorHorizontalButton);
     }
-    if (Input.GetKeyDown(KeyCode.S))
-    {
+    if (Input.GetKeyDown(KeyCode.S)) {
       this.game.HandlePlayerInput(this, InputEventNames.MirrorVerticalButton);
     }
     #endregion
   }
-  public void Zoom()
-  {
+  public void Zoom() {
     var scroll = Input.GetAxis("Mouse ScrollWheel");
-    if (scroll == 0)
-    {
+    if (scroll == 0) {
       return;
     }
     // var zoomDirection = scroll > 0 ? -1 : -1;
@@ -79,49 +69,39 @@ public class StandardGameViewManager : MonoBehaviour
       orthographicSizeAfterZoom > this.zoomMaxSize ? this.zoomMaxSize :
       orthographicSizeAfterZoom < this.zoomMinSize ? this.zoomMinSize : orthographicSizeAfterZoom;
   }
-  public void Pan()
-  {
-    if (Input.GetMouseButton(0))
-    {
-      if (Input.GetMouseButtonDown(0))
-      {
+  public void Pan() {
+    if (Input.GetMouseButton(0)) {
+      if (Input.GetMouseButtonDown(0)) {
         this.panStart = this.mousePositionWorldPoint;
       }
       Vector3 delta = this.panStart - this.mousePositionWorldPoint;
       this.mainCam.transform.position += delta;
     }
   }
-  public void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
-  {
+  public void OnPropertyChanged(object sender, PropertyChangedEventArgs e) {
     // Debug.Log($"{this} was notified about change in {e.PropertyName}.");
 
-    if (e.PropertyName == "Map")
-    {
+    if (e.PropertyName == "Map") {
       this.RenderMap();
       // StartCoroutine(this.RenderMapSlowly());
     }
-    if (e.PropertyName == "Highlight")
-    {
+    if (e.PropertyName == "Highlight") {
       this.RenderHighlights();
       // StartCoroutine(this.RenderMapSlowly());
     }
-    if (e.PropertyName == "OpenCards")
-    {
+    if (e.PropertyName == "OpenCards") {
       this.RenderOpenCards();
       // StartCoroutine(this.RenderMapSlowly());
     }
-    if (e.PropertyName == "SelectedCard")
-    {
+    if (e.PropertyName == "SelectedCard") {
       this.RenderOpenCards();
     }
-    if (e.PropertyName == "Rules")
-    {
+    if (e.PropertyName == "Rules") {
       this.RenderRuleStanding();
     }
   }
 
-  private void Start()
-  {
+  private void Start() {
     #region Camera movement setup
     this.mainCam = Camera.main;
     float nCols = (float)this.game.GameClient.gameSettings.NCols;
@@ -155,8 +135,7 @@ public class StandardGameViewManager : MonoBehaviour
     //        ));
 
   }
-  private void CreateCardsUI()
-  {
+  private void CreateCardsUI() {
     Debug.Log("Creating Open Cards GO");
     this.openCardsGO = new GameObject("OpenCards");
     this.openCardsGO.transform.SetParent(GameObject.Find("UI").transform);
@@ -167,19 +146,16 @@ public class StandardGameViewManager : MonoBehaviour
     rect.anchoredPosition = new Vector3(Screen.width * 0.01f, Screen.width * 0.01f, 0);
     rect.sizeDelta = new Vector2(100, 100);
   }
-  public void StartListening()
-  {
+  public void StartListening() {
     this.game.GameClient.PropertyChanged -= new PropertyChangedEventHandler(this.OnPropertyChanged);
     this.game.GameClient.PropertyChanged += new PropertyChangedEventHandler(this.OnPropertyChanged);
   }
 
-  private void OnDestroy()
-  {
+  private void OnDestroy() {
     this.game.GameClient.PropertyChanged -= new PropertyChangedEventHandler(this.OnPropertyChanged);
   }
 
-  private GameObject RenderTile(Tile tile)
-  {
+  private GameObject RenderTile(Tile tile) {
     // Debug.Log($"Render Tile {tile.Coordinate}");
     GameObject tileGO = new GameObject($"{tile.Coordinate}");
     SpriteRenderer sr = tileGO.AddComponent<SpriteRenderer>();
@@ -190,15 +166,13 @@ public class StandardGameViewManager : MonoBehaviour
     return tileGO;
   }
 
-  private GameObject RenderUnit(Unit unit)
-  {
+  private GameObject RenderUnit(Unit unit) {
     GameObject unitGO = new GameObject($"Player {unit.OwnerId}'s unit.");
     SpriteRenderer sr = unitGO.AddComponent<SpriteRenderer>();
     string untiSpritePath;
-    switch (unit.OwnerId)
-    {
+    switch (unit.OwnerId) {
       case 0: { untiSpritePath = "Sprites/bob"; break; }
-      case 1: { untiSpritePath = "Sprites/maurice"; break; }
+      case 1: { untiSpritePath = "Sprites/sigene"; break; }
       case 2: { untiSpritePath = "Sprites/house"; break; }
       default: { untiSpritePath = ""; break; }
     }
@@ -206,29 +180,23 @@ public class StandardGameViewManager : MonoBehaviour
     sr.sortingOrder = 10;
     return unitGO;
   }
-  private GameObject RenderTerrain(Schnoz.Terrain terrain)
-  {
+  private GameObject RenderTerrain(Schnoz.Terrain terrain) {
     GameObject terrainGO = new GameObject($"{terrain.Type.ToString()}");
     SpriteRenderer sr = terrainGO.AddComponent<SpriteRenderer>();
-    switch (terrain.Type)
-    {
-      case TerrainType.Water:
-        {
+    switch (terrain.Type) {
+      case TerrainType.Water: {
           sr.sprite = Array.Find(Resources.LoadAll<Sprite>("Sprites/Tiles"), s => s.name == "terrain_water");
           break;
         }
-      case TerrainType.Bush:
-        {
+      case TerrainType.Bush: {
           sr.sprite = Array.Find(Resources.LoadAll<Sprite>("Sprites/Tiles"), s => s.name == "terrain_bush");
           break;
         }
-      case TerrainType.Stone:
-        {
+      case TerrainType.Stone: {
           sr.sprite = Array.Find(Resources.LoadAll<Sprite>("Sprites/Tiles"), s => s.name == "terrain_stone");
           break;
         }
-      default:
-        {
+      default: {
           break;
         }
     }
@@ -236,8 +204,7 @@ public class StandardGameViewManager : MonoBehaviour
     sr.sortingOrder = 5;
     return terrainGO;
   }
-  private GameObject RenderGround()
-  {
+  private GameObject RenderGround() {
     GameObject terrainGO = new GameObject("Grass");
     SpriteRenderer sr = terrainGO.AddComponent<SpriteRenderer>();
     sr.sprite = Array.Find(Resources.LoadAll<Sprite>("Sprites/Tiles"), s => s.name == "terrain_grass");
@@ -245,13 +212,10 @@ public class StandardGameViewManager : MonoBehaviour
     return terrainGO;
   }
 
-  private void RenderHighlights()
-  {
-    foreach (Transform child in this.mapGO.transform)
-    {
+  private void RenderHighlights() {
+    foreach (Transform child in this.mapGO.transform) {
       TileView tileView = child.GetComponent<TileView>();
-      if (this.game.TileDict.ContainsKey(tileView.coordinate))
-      {
+      if (this.game.TileDict.ContainsKey(tileView.coordinate)) {
         Tile tile = this.game.TileDict[tileView.coordinate];
         SpriteRenderer sr = tileView.GetComponent<SpriteRenderer>();
         sr.color = this.game.HoveringTiles.Any(t => t.Coordinate == tile.Coordinate) ? new Color(0.9f, 0.9f, 0.9f) : Color.white;
@@ -259,29 +223,24 @@ public class StandardGameViewManager : MonoBehaviour
     }
   }
 
-  private void RenderMap()
-  {
+  private void RenderMap() {
     // Debug.Log("Rendering Map");
-    if (this.mapGO != null)
-    {
+    if (this.mapGO != null) {
       Destroy(mapGO);
     }
     this.mapGO = new GameObject("Map");
 
-    this.game.GameClient.Map.Tiles.ForEach((Tile tile) =>
-    {
+    this.game.GameClient.Map.Tiles.ForEach((Tile tile) => {
       GameObject tileGO = this.RenderTile(tile);
       tileGO.transform.SetParent(this.mapGO.transform);
       tileGO.transform.localPosition = new Vector2(tile.Coordinate.col, tile.Coordinate.row);
-      if (tile.Unit != null)
-      {
+      if (tile.Unit != null) {
         GameObject unitGO = this.RenderUnit(tile.Unit);
         unitGO.transform.SetParent(tileGO.transform);
         unitGO.transform.localPosition = new Vector2(0, 0);
       }
 
-      if (tile.Terrain.Type != TerrainType.Grass)
-      {
+      if (tile.Terrain.Type != TerrainType.Grass) {
         GameObject terrainGO = this.RenderTerrain(tile.Terrain);
         terrainGO.transform.SetParent(tileGO.transform);
         terrainGO.transform.localPosition = new Vector2(0, 0);
@@ -289,21 +248,18 @@ public class StandardGameViewManager : MonoBehaviour
     });
     // Debug.Log("Rendered Map successfully!");
   }
-  private IEnumerator RenderMapSlowly(float interval = 0.1f)
-  {
+  private IEnumerator RenderMapSlowly(float interval = 0.1f) {
     // Debug.Log("Rendering Map");
     GameObject mapGO = GameObject.Find("Map");
     Destroy(mapGO);
     mapGO = new GameObject("Map");
 
-    foreach (Tile tile in this.game.GameClient.Map.Tiles)
-    {
+    foreach (Tile tile in this.game.GameClient.Map.Tiles) {
       yield return new WaitForSeconds(interval);
       GameObject tileGO = this.RenderTile(tile);
       tileGO.transform.SetParent(mapGO.transform);
       tileGO.transform.localPosition = new Vector2(tile.Coordinate.col, tile.Coordinate.row);
-      if (tile.Unit != null)
-      {
+      if (tile.Unit != null) {
         GameObject unitGO = this.RenderUnit(tile.Unit);
         unitGO.transform.SetParent(tileGO.transform);
         unitGO.transform.localPosition = new Vector2(0, 0);
@@ -313,12 +269,10 @@ public class StandardGameViewManager : MonoBehaviour
     // Debug.Log("Rendered Map successfully!");
   }
 
-  private GameObject RenderCard(Card card)
-  {
+  private GameObject RenderCard(Card card) {
     GameObject cardGO = new GameObject($"{card.Type}");
     SpriteRenderer sr = cardGO.AddComponent<SpriteRenderer>();
-    if (this.game.SelectedCardId == card.Id)
-    {
+    if (this.game.SelectedCardId == card.Id) {
       sr.color = Color.green;
     }
     string fileName = card.Type.ToString();
@@ -326,19 +280,16 @@ public class StandardGameViewManager : MonoBehaviour
     sr.sortingOrder = 20;
     return cardGO;
   }
-  private void RenderOpenCards()
-  {
+  private void RenderOpenCards() {
     Debug.Log("Rendering Open Cards");
-    if (this.openCardsGO != null)
-    {
+    if (this.openCardsGO != null) {
       Debug.Log("Destroying OpenCardsGo");
       GameObject.Destroy(this.openCardsGO);
     }
     this.CreateCardsUI();
 
     int index = 0;
-    this.game.GameClient.OpenCards.ForEach(card =>
-    {
+    this.game.GameClient.OpenCards.ForEach(card => {
       GameObject cardGO = this.RenderCard(card);
       cardGO.transform.SetParent(this.openCardsGO.transform);
       cardGO.transform.localPosition = new Vector2(0, index++);
@@ -347,8 +298,7 @@ public class StandardGameViewManager : MonoBehaviour
       cardView.cardId = card.Id;
     });
   }
-  private void CreateRulesUI()
-  {
+  private void CreateRulesUI() {
 
     // Debug.Log("Creating Rules GO");
     // this.scores.ForEach(scoreText =>
@@ -365,12 +315,23 @@ public class StandardGameViewManager : MonoBehaviour
     // rect.sizeDelta = new Vector2(100, 100);
   }
 
-  private void RenderRuleStanding()
-  {
-    this.game.GameClient.CurrentEvaluation
-      .ForEach(playerEval => playerEval
-      .ForEach(eval =>
-        Debug.Log($"RuleName: {eval.RuleName}, Player: {eval.PlayerId}, Points: {eval.Points}")));
+
+
+  private void RenderRuleStanding() {
+    var gc = this.game.GameClient;
+
+    gc.PlayersIds.ForEach(playerId => {
+      int score = gc.PlayerIdToCurrentStandingDict[playerId].Score;
+      string pathScore = $"UI/Points/Score Details/Player{playerId + 1}/Value";
+      GameObject.Find(pathScore).GetComponent<TextMeshProUGUI>().text = score.ToString();
+      gc.gameSettings.Rules.ForEach(rule => {
+        RuleEvaluation eval = gc.PlayerIdToCurrentStandingDict[playerId].RuleNameToRuleEvaluationDict[rule.RuleName];
+        Debug.Log($"RuleName: {eval.RuleName}, Player: {eval.PlayerId}, Points: {eval.Points}");
+        string pathRule = $"UI/Points/Rule Details/VStack/{eval.RuleName}/Player{eval.PlayerId + 1}/Value";
+        GameObject.Find(pathRule).GetComponent<TextMeshProUGUI>().text = eval.Points.ToString();
+      }
+     );
+    });
 
     // Debug.Log("Rendering Open Cards");
     // if (this.rulesGO != null)

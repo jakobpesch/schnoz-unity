@@ -1,6 +1,5 @@
 using System;
 [Serializable]
-public class NetCard
-{
+public class NetCard {
   public int t;
 }
