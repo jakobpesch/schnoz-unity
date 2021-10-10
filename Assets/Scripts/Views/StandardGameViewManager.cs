@@ -21,6 +21,7 @@ public class StandardGameViewManager : MonoBehaviour {
   private Camera mainCam;
   [SerializeField] private float zoomMaxSize, zoomMinSize = 2f;
   [SerializeField] private Vector3 panStart, mousePositionWorldPoint;
+  public bool IsPanning { get; private set; }
   #endregion
 
   private void Awake() {
@@ -37,7 +38,6 @@ public class StandardGameViewManager : MonoBehaviour {
     #region On resize
     if (resolution.x != Screen.width || resolution.y != Screen.height) {
       this.RenderOpenCards();
-
       resolution.x = Screen.width;
       resolution.y = Screen.height;
     }
@@ -70,15 +70,23 @@ public class StandardGameViewManager : MonoBehaviour {
       orthographicSizeAfterZoom < this.zoomMinSize ? this.zoomMinSize : orthographicSizeAfterZoom;
   }
   public void Pan() {
+    if (Input.GetMouseButtonDown(0)) {
+      this.panStart = this.mousePositionWorldPoint;
+    }
     if (Input.GetMouseButton(0)) {
-      if (Input.GetMouseButtonDown(0)) {
-        this.panStart = this.mousePositionWorldPoint;
-      }
       Vector3 delta = this.panStart - this.mousePositionWorldPoint;
-      this.mainCam.transform.position += delta;
+      if (delta != Vector3.zero) {
+        if (!this.IsPanning) {
+          this.IsPanning = true;
+        }
+        this.mainCam.transform.position += delta;
+      }
+    }
+    if (Input.GetMouseButtonUp(0)) {
+      this.IsPanning = false;
     }
   }
-  public void OnPropertyChanged(object sender, PropertyChangedEventArgs e) {
+  public void Render(object sender, PropertyChangedEventArgs e) {
     // Debug.Log($"{this} was notified about change in {e.PropertyName}.");
 
     if (e.PropertyName == "Map") {
@@ -99,12 +107,26 @@ public class StandardGameViewManager : MonoBehaviour {
     if (e.PropertyName == "Rules") {
       this.RenderRuleStanding();
     }
+    if (e.PropertyName == "Score") {
+      this.RenderScore();
+    }
+    if (e.PropertyName == "CurrentPlayer") {
+      this.CurrentPlayer();
+    }
+  }
+
+  private void CurrentPlayer() {
+    this.game.GameClient.Players.ForEach(player => {
+      string charPath = $"UI/Points/Score Details/Player {player.Id + 1}/Character";
+      var scale = this.game.GameClient.ActivePlayerId == player.Id ? 110 : 90;
+      GameObject.Find(charPath).transform.localScale = new Vector3(scale, scale, scale);
+    });
   }
 
   private void Start() {
     #region Camera movement setup
     this.mainCam = Camera.main;
-    float nCols = (float)this.game.GameClient.gameSettings.NCols;
+    float nCols = (float)this.game.GameClient.GameSettings.NCols;
     float boardSize = (nCols + 1);
     float initialZoomSize = 1.3f * nCols / 2;
     this.mainCam.orthographicSize = initialZoomSize;
@@ -147,12 +169,12 @@ public class StandardGameViewManager : MonoBehaviour {
     rect.sizeDelta = new Vector2(100, 100);
   }
   public void StartListening() {
-    this.game.GameClient.PropertyChanged -= new PropertyChangedEventHandler(this.OnPropertyChanged);
-    this.game.GameClient.PropertyChanged += new PropertyChangedEventHandler(this.OnPropertyChanged);
+    this.game.GameClient.PropertyChanged -= new PropertyChangedEventHandler(this.Render);
+    this.game.GameClient.PropertyChanged += new PropertyChangedEventHandler(this.Render);
   }
 
   private void OnDestroy() {
-    this.game.GameClient.PropertyChanged -= new PropertyChangedEventHandler(this.OnPropertyChanged);
+    this.game.GameClient.PropertyChanged -= new PropertyChangedEventHandler(this.Render);
   }
 
   private GameObject RenderTile(Tile tile) {
@@ -162,6 +184,7 @@ public class StandardGameViewManager : MonoBehaviour {
     sr.sprite = Array.Find(Resources.LoadAll<Sprite>("Sprites/Tiles"), s => s.name == "terrain_grass");
     TileView tileView = tileGO.AddComponent<TileView>();
     tileView.game = this.game;
+    tileView.viewManager = this;
     tileView.coordinate = tile.Coordinate;
     return tileGO;
   }
@@ -315,40 +338,26 @@ public class StandardGameViewManager : MonoBehaviour {
     // rect.sizeDelta = new Vector2(100, 100);
   }
 
-
-
   private void RenderRuleStanding() {
     var gc = this.game.GameClient;
 
-    gc.PlayersIds.ForEach(playerId => {
-      int score = gc.PlayerIdToCurrentStandingDict[playerId].Score;
-      string pathScore = $"UI/Points/Score Details/Player{playerId + 1}/Value";
-      GameObject.Find(pathScore).GetComponent<TextMeshProUGUI>().text = score.ToString();
-      gc.gameSettings.Rules.ForEach(rule => {
-        RuleEvaluation eval = gc.PlayerIdToCurrentStandingDict[playerId].RuleNameToRuleEvaluationDict[rule.RuleName];
-        Debug.Log($"RuleName: {eval.RuleName}, Player: {eval.PlayerId}, Points: {eval.Points}");
+    gc.Players.ForEach(player => {
+      gc.GameSettings.Rules.ForEach(rule => {
+        RuleEvaluation eval = rule.Evaluate(player, gc.Map);
         string pathRule = $"UI/Points/Rule Details/VStack/{eval.RuleName}/Player{eval.PlayerId + 1}/Value";
         GameObject.Find(pathRule).GetComponent<TextMeshProUGUI>().text = eval.Points.ToString();
       }
      );
     });
+  }
 
-    // Debug.Log("Rendering Open Cards");
-    // if (this.rulesGO != null)
-    // {
-    //   Debug.Log("Destroying OpenCardsGo");
-    //   GameObject.Destroy(this.rulesGO);
-    // }
-    // this.CreateRulesUI();
+  private void RenderScore() {
+    var gc = this.game.GameClient;
 
-    //   int index = 0;
-    //   this.scores
-    //     GameObject ruleGO = this.RenderRule(player);
-    //   cardGO.transform.SetParent(this.openCardsGO.transform);
-    //   cardGO.transform.localPosition = new Vector2(0, index++);
-    //   CardView cardView = cardGO.AddComponent<CardView>();
-    //   cardView.game = this.game;
-    //   cardView.cardId = card.Id;
-    // });
+    gc.Players.ForEach(player => {
+      int score = player.Score;
+      string pathScore = $"UI/Points/Score Details/Player {player.Id + 1}/Value";
+      GameObject.Find(pathScore).GetComponent<TextMeshProUGUI>().text = score.ToString();
+    });
   }
 }

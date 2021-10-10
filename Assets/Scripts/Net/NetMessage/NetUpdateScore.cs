@@ -6,10 +6,10 @@ public class NetUpdateScore : NetMessage {
   public int ScorePlayer2 { get; set; }
 
   public NetUpdateScore() {
-    this.Code = OpCode.UPDATE_CARDS;
+    this.Code = OpCode.UPDATE_SCORE;
   }
   public NetUpdateScore(DataStreamReader reader) {
-    this.Code = OpCode.UPDATE_CARDS;
+    this.Code = OpCode.UPDATE_SCORE;
     this.Deserialize(reader);
   }
 
@@ -25,9 +25,9 @@ public class NetUpdateScore : NetMessage {
   }
 
   public override void ReceivedOnClient() {
-    NetUtility.C_UPDATE_CARDS?.Invoke(this);
+    NetUtility.C_UPDATE_SCORE?.Invoke(this);
   }
   public override void ReceivedOnServer(NetworkConnection cnn) {
-    NetUtility.S_UPDATE_CARDS?.Invoke(this, cnn);
+    NetUtility.S_UPDATE_SCORE?.Invoke(this, cnn);
   }
 }

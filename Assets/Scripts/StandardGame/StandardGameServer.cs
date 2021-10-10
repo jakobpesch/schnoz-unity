@@ -62,7 +62,6 @@ namespace Schnoz {
               this.InitGame();
               NetStartGame sg = new NetStartGame();
               sg.netMapString = this.GameServer.Map.Serialize();
-              NetOpenCards oc = new NetOpenCards();
               sg.netOpenCardsString = this.GameServer.Deck.SerializeOpenCards();
               Server.Instance.Broadcast(sg);
               break;
@@ -73,7 +72,6 @@ namespace Schnoz {
               this.InitGame();
               NetStartGame sg = new NetStartGame();
               sg.netMapString = this.GameServer.Map.Serialize();
-              NetOpenCards oc = new NetOpenCards();
               sg.netOpenCardsString = this.GameServer.Deck.SerializeOpenCards();
               Server.Instance.Broadcast(sg);
               break;
@@ -84,12 +82,12 @@ namespace Schnoz {
       }
     }
     private void OnMakeMove(NetMessage msg, NetworkConnection cnn) {
-      NetMakeMove mm = msg as NetMakeMove;
       int ownerId = isLocalGame ? this.GameServer.ActivePlayerId : cnn.InternalId;
       if (ownerId != this.GameServer.ActivePlayerId) {
         Debug.Log("Cannot place unit because it is not your turn.");
         return;
       }
+      NetMakeMove mm = msg as NetMakeMove;
       UnitFormation unitFormation = new UnitFormation(UnitFormation.unitFormationIdToTypeDict[mm.unitFormationId]);
       unitFormation.rotation = mm.rotation;
       unitFormation.mirrorHorizontal = mm.mirrorHorizontal == 1 ? true : false;
@@ -101,41 +99,43 @@ namespace Schnoz {
         return;
       }
       this.GameServer.PlaceUnitFormation(ownerId, coordinate, unitFormation);
+
       NetUpdateMap um = new NetUpdateMap();
       um.netMapString = this.GameServer.Map.Serialize();
       Server.Instance.Broadcast(um);
 
-      if (this.GameServer.Turn % 2 != 0) {
-        NetUpdateCards uc = new NetUpdateCards();
-        this.GameServer.DrawCards();
-        uc.netOpenCardsString = this.GameServer.Deck.SerializeOpenCards();
-        Server.Instance.Broadcast(uc);
+      bool endOfStage = this.GameServer.Turn % GameServer.GameSettings.NumberOfTurnsPerStage == 0;
+      Debug.Log($"TURN: {this.GameServer.Turn}, endOfStage: {endOfStage}");
+      if (endOfStage) {
+        this.GameServer.GameSettings.Rules.ForEach(rule => {
+          Player ruleWinner = this.GameServer.DetermineRuleWinner(rule.RuleName);
+          if (ruleWinner != null) {
+            ruleWinner.SetScore(ruleWinner.Score + 1);
+          }
+        });
+        NetUpdateScore us = new NetUpdateScore();
+        us.ScorePlayer1 = this.GameServer.GameSettings.IdToPlayerDict[0].Score;
+        us.ScorePlayer2 = this.GameServer.GameSettings.IdToPlayerDict[1].Score;
+        Server.Instance.Broadcast(us);
       }
 
-
-      if (true) {
-        NetUpdateScore us = new NetUpdateScore();
-        var player1Evals = this.GameServer.gameSettings.Rules.Select(rule => rule.Evaluate(this.GameServer.Players[0], this.GameServer.Map)).ToList();
-        var player2Evals = this.GameServer.gameSettings.Rules.Select(rule => rule.Evaluate(this.GameServer.Players[1], this.GameServer.Map)).ToList();
-
-        for (int i = 0; i < this.gameSettings.Rules.Count; i++) {
-          var player1Eval = player1Evals[0];
-          var player2Eval = player1Evals[1];
-        }
-
-        us.ScorePlayer1 = this.GameServer.Deck.SerializeOpenCards();
-        Server.Instance.Broadcast(us);
+      bool oddTurn = this.GameServer.Turn % 2 != 0;
+      if (oddTurn) {
+        this.GameServer.DrawCards();
+        NetUpdateCards uc = new NetUpdateCards();
+        uc.netOpenCardsString = this.GameServer.Deck.SerializeOpenCards();
+        Server.Instance.Broadcast(uc);
       }
 
       this.GameServer.EndTurn();
     }
     #endregion
     private void InitGame() {
-      List<RuleLogic> ruleLogics = new List<RuleLogic>();
-      ruleLogics.Add(RuleLogicMethods.DiagonalToTopRight);
-      ruleLogics.Add(RuleLogicMethods.Water);
+      List<RuleNames> ruleNames = new List<RuleNames>();
+      ruleNames.Add(RuleNames.DiagonalToTopRight);
+      ruleNames.Add(RuleNames.Water);
 
-      this.gameSettings = new GameSettings(9, 9, 3, 0, 6, 30, ruleLogics);
+      this.gameSettings = new GameSettings(9, 9, 3, 0, 6, 60, ruleNames);
       this.GameServer = new Schnoz(this.gameSettings);
 
 

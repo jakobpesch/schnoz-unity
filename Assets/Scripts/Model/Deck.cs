@@ -49,17 +49,9 @@ namespace Schnoz {
       netOpenCards.o = this.OpenCards.Select(card => {
         NetCard netCard = new NetCard();
         netCard.t = (int)card.Type;
-        Debug.Log($"Drawn Type: {netCard.t}");
         return netCard;
       }).ToList();
-
-      foreach (var c in netOpenCards.o) {
-        Debug.Log($"WTF: {c.t}");
-      }
-
-      var t = JsonUtility.ToJson(netOpenCards);
-      Debug.Log(t);
-      return t;
+      return JsonUtility.ToJson(netOpenCards); ;
 
     }
   }

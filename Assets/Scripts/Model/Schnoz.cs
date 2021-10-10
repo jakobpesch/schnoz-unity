@@ -9,9 +9,10 @@ namespace Schnoz {
   [Serializable]
   public class Schnoz : Observable {
     public Schnoz(GameSettings gameSettings) {
-      this.gameSettings = gameSettings;
+      this.GameSettings = gameSettings;
+      this.Turn = 0;
     }
-    public GameSettings gameSettings;
+    public GameSettings GameSettings { get; private set; }
     private Map map;
     public Map Map {
       get => this.map;
@@ -30,7 +31,7 @@ namespace Schnoz {
     public Dictionary<int, Standing> PlayerIdToCurrentStandingDict {
       get {
         return this.Players
-          .Select(player => new Standing(player, this.gameSettings.Rules, this.map))
+          .Select(player => new Standing(player, this.GameSettings.Rules, this.map))
           .ToDictionary(standing => standing.Player.Id);
       }
     }
@@ -42,35 +43,28 @@ namespace Schnoz {
         this.openCards = value;
       }
     }
-    public List<Player> Players { get => this.gameSettings.Players; }
+    public List<Player> Players { get => this.GameSettings.Players; }
     public int Turn { get; private set; }
     [SerializeField] private int stage;
-    public List<int> PlayersIds { get => this.gameSettings.PlayerIds; }
+    public List<int> PlayersIds { get => this.GameSettings.PlayerIds; }
     public int ActivePlayerId { get; private set; }
     public Player ActivePlayer {
-      get => this.gameSettings.IdToPlayerDict.ContainsKey(this.ActivePlayerId)
-      ? this.gameSettings.IdToPlayerDict[this.ActivePlayerId]
+      get => this.GameSettings.IdToPlayerDict.ContainsKey(this.ActivePlayerId)
+      ? this.GameSettings.IdToPlayerDict[this.ActivePlayerId]
       : null;
     }
     public Player NeutralPlayer;
 
-    private void EvaluateRules(ref Player player, List<Rule> rules) {
-      List<RuleEvaluation> turnEvaluation = new List<RuleEvaluation>();
-      foreach (Rule rule in rules) {
-        turnEvaluation.Add(rule.Evaluate(player, this.Map));
-      }
-      player.AddTurnEvaluation(turnEvaluation);
-    }
     public void CreateMap() {
       Debug.Log("Map will be Created");
-      this.Map = new Map(this.gameSettings.NRows, this.gameSettings.NCols);
+      this.Map = new Map(this.GameSettings.NRows, this.GameSettings.NCols);
       this.NeutralPlayer = new Player(3);
       this.PlaceUnit(2, this.Map.CenterTile.Coordinate);
     }
 
     public void CreateDeck() {
       Debug.Log("Deck will be Created");
-      this.Deck = new Deck(this.gameSettings.DeckSize);
+      this.Deck = new Deck(this.GameSettings.DeckSize);
     }
 
     public void ShuffleDeck() {
@@ -80,7 +74,7 @@ namespace Schnoz {
 
     public void DrawCards() {
       this.Deck.DiscardOpenCards();
-      for (int i = 0; i < gameSettings.NumberOfCardsPerTurn; i++) {
+      for (int i = 0; i < GameSettings.NumberOfCardsPerTurn; i++) {
         this.Deck.Draw();
       }
     }
@@ -107,7 +101,7 @@ namespace Schnoz {
       var standingsPlayer1 = this.PlayerIdToCurrentStandingDict[0];
       var standingsPlayer2 = this.PlayerIdToCurrentStandingDict[1];
 
-      this.gameSettings.RuleNameToRuleDict.Keys.ToList()
+      this.GameSettings.RuleNameToRuleDict.Keys.ToList()
       .ForEach(ruleName => {
         var pointsPlayer1 = standingsPlayer1.RuleNameToRuleEvaluationDict[ruleName].Points;
         var pointsPlayer2 = standingsPlayer2.RuleNameToRuleEvaluationDict[ruleName].Points;
@@ -128,8 +122,8 @@ namespace Schnoz {
         Coordinate newCoord = coord + offset;
         if (newCoord.row < 0 ||
             newCoord.col < 0 ||
-            newCoord.row > this.gameSettings.NRows - 1 ||
-            newCoord.col > this.gameSettings.NCols - 1) {
+            newCoord.row > this.GameSettings.NRows - 1 ||
+            newCoord.col > this.GameSettings.NCols - 1) {
           break;
         }
         underlayingCoords.Add(newCoord);
@@ -204,24 +198,27 @@ namespace Schnoz {
       // this.map.GameStarted = true;
     }
     public void SetActivePlayer(int turn) {
-      this.ActivePlayerId = gameSettings.TurnOrder[turn];
+      this.ActivePlayerId = GameSettings.TurnOrder[turn];
       Debug.Log($"{this.ActivePlayerId} is the current Player");
     }
     public void EndTurn() {
       this.SetActivePlayer(++this.Turn);
       // this.UpdateRules();
     }
-    private void UpdateRules() {
-      foreach (Player player in gameSettings.Players) {
-        this.ApplyRules(player);
-      }
-    }
     private void ApplyRules(Player player) {
       List<RuleEvaluation> roundEvaluation = new List<RuleEvaluation>();
-      foreach (Rule rule in gameSettings.Rules) {
+      foreach (Rule rule in GameSettings.Rules) {
         roundEvaluation.Add(rule.Evaluate(player, this.Map));
       }
       player.AddTurnEvaluation(roundEvaluation);
+    }
+    public Player DetermineRuleWinner(RuleNames ruleName) {
+      return this.Players.Aggregate((player1, player2) => {
+        Rule rule = this.GameSettings.RuleNameToRuleDict[ruleName];
+        int pointsPlayer1 = rule.Evaluate(player1, this.Map).Points;
+        int pointsPlayer2 = rule.Evaluate(player2, this.Map).Points;
+        return pointsPlayer1 == pointsPlayer2 ? null : pointsPlayer1 > pointsPlayer2 ? player1 : player2;
+      });
     }
   }
 

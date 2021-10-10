@@ -25,7 +25,7 @@ namespace Schnoz {
       get => this.selectedCardId;
       set {
         this.selectedCardId = value;
-        this.viewManager.OnPropertyChanged(this, new PropertyChangedEventArgs("SelectedCard"));
+        this.viewManager.Render(this, new PropertyChangedEventArgs("SelectedCard"));
       }
     }
     public Dictionary<Guid, Card> OpenCardsDict {
@@ -105,7 +105,7 @@ namespace Schnoz {
     private void SetHoveringTiles(Tile tile) {
       if (tile == null) {
         this.HoveringTiles = new List<Tile>();
-        this.viewManager.OnPropertyChanged(this, new PropertyChangedEventArgs("Highlight"));
+        this.viewManager.Render(this, new PropertyChangedEventArgs("Highlight"));
         return;
       }
       this.hoveringTile = tile;
@@ -124,7 +124,7 @@ namespace Schnoz {
           this.HoveringTiles.Add(t);
         }
       }
-      this.viewManager.OnPropertyChanged(this, new PropertyChangedEventArgs("Highlight"));
+      this.viewManager.Render(this, new PropertyChangedEventArgs("Highlight"));
     }
     #endregion
 
@@ -141,12 +141,14 @@ namespace Schnoz {
       NetUtility.C_START_GAME += this.OnStartGame;
       NetUtility.C_UPDATE_CARDS += this.OnUpdateCards;
       NetUtility.C_UPDATE_MAP += this.OnUpdateMap;
+      NetUtility.C_UPDATE_SCORE += this.OnUpdateScore;
     }
     private void UnregisterEvents() {
       NetUtility.C_WELCOME -= this.OnWelcome;
       NetUtility.C_START_GAME -= this.OnStartGame;
       NetUtility.C_UPDATE_CARDS -= this.OnUpdateCards;
       NetUtility.C_UPDATE_MAP -= this.OnUpdateMap;
+      NetUtility.C_UPDATE_SCORE -= this.OnUpdateScore;
     }
 
     /// <summary>
@@ -168,11 +170,11 @@ namespace Schnoz {
       Debug.Log($"Map: {sg.netMapString.ToString()}");
       Debug.Log($"OpenCards: {sg.netOpenCardsString.ToString()}");
 
-      List<RuleLogic> ruleLogics = new List<RuleLogic>();
-      ruleLogics.Add(RuleLogicMethods.DiagonalToTopRight);
-      ruleLogics.Add(RuleLogicMethods.Water);
+      List<RuleNames> ruleNames = new List<RuleNames>();
+      ruleNames.Add(RuleNames.DiagonalToTopRight);
+      ruleNames.Add(RuleNames.Water);
 
-      this.gameSettings = new GameSettings(9, 9, 3, 0, 6, 30, ruleLogics);
+      this.gameSettings = new GameSettings(9, 9, 3, 0, 6, 60, ruleNames);
 
       this.GameClient = new Schnoz(this.gameSettings);
 
@@ -180,24 +182,21 @@ namespace Schnoz {
       this.GameClient.Map = new Map(netMap);
 
       NetOpenCards netOpenCards = JsonUtility.FromJson<NetOpenCards>(sg.netOpenCardsString.ToString());
-      this.GameClient.OpenCards = new List<Card>();
-      foreach (NetCard netCard in netOpenCards.o) {
-        this.GameClient.OpenCards.Add(new Card((CardType)netCard.t));
-      }
+      this.GameClient.OpenCards = netOpenCards.o.Select(netCard => new Card(netCard)).ToList();
 
       this.CreateViewManager();
-      this.viewManager.OnPropertyChanged(this, new PropertyChangedEventArgs("Map"));
-      this.viewManager.OnPropertyChanged(this, new PropertyChangedEventArgs("OpenCards"));
-      this.viewManager.OnPropertyChanged(this, new PropertyChangedEventArgs("Rules"));
+      this.viewManager.Render(this, new PropertyChangedEventArgs("Map"));
+      this.viewManager.Render(this, new PropertyChangedEventArgs("OpenCards"));
+      this.viewManager.Render(this, new PropertyChangedEventArgs("CurrentPlayer"));
+      this.viewManager.Render(this, new PropertyChangedEventArgs("Rules"));
 
     }
     private void OnUpdateCards(NetMessage msg) {
       NetUpdateCards uc = msg as NetUpdateCards;
-      Debug.Log($"OnUpdateMap: {uc.netOpenCardsString.ToString()}");
       NetOpenCards netOpenCards = JsonUtility.FromJson<NetOpenCards>(uc.netOpenCardsString.ToString());
       this.GameClient.OpenCards = netOpenCards.o.Select(netCard => new Card(netCard)).ToList();
 
-      this.viewManager.OnPropertyChanged(this, new PropertyChangedEventArgs("OpenCards"));
+      this.viewManager.Render(this, new PropertyChangedEventArgs("OpenCards"));
     }
 
     /// <summary>
@@ -206,13 +205,23 @@ namespace Schnoz {
     /// <param name="msg"></param>
     private void OnUpdateMap(NetMessage msg) {
       NetUpdateMap up = msg as NetUpdateMap;
-      Debug.Log($"OnUpdateMap: {up.netMapString.ToString()}");
+      Debug.Log($"Received OnUpdateMap: {up.netMapString.ToString()}");
 
       NetMap netMap = JsonUtility.FromJson<NetMap>(up.netMapString.ToString());
       this.GameClient.Map = new Map(netMap);
-      this.viewManager.OnPropertyChanged(this, new PropertyChangedEventArgs("Map"));
+      this.viewManager.Render(this, new PropertyChangedEventArgs("Map"));
       this.SelectedCardId = Guid.Empty;
-      this.viewManager.OnPropertyChanged(this, new PropertyChangedEventArgs("Rules"));
+      this.viewManager.Render(this, new PropertyChangedEventArgs("Rules"));
+      this.viewManager.Render(this, new PropertyChangedEventArgs("CurrentPlayer"));
+
+    }
+
+    private void OnUpdateScore(NetMessage msg) {
+      NetUpdateScore us = msg as NetUpdateScore;
+      Debug.Log($"Received OnUpdateScore: {us.ScorePlayer1.ToString()}, {us.ScorePlayer2.ToString()}");
+      this.GameClient.GameSettings.IdToPlayerDict[0].SetScore(us.ScorePlayer1);
+      this.GameClient.GameSettings.IdToPlayerDict[1].SetScore(us.ScorePlayer2);
+      this.viewManager.Render(this, new PropertyChangedEventArgs("Score"));
     }
 
     #endregion

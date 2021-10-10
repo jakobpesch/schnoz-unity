@@ -4,6 +4,10 @@ using UnityEngine;
 namespace Schnoz {
   public static class Constants {
     public const ushort port = 8007;
+    public static Dictionary<RuleNames, RuleLogic> RuleNameToRuleLogicDict = new Dictionary<RuleNames, RuleLogic>() {
+      {RuleNames.Water, RuleLogicMethods.Water},
+      {RuleNames.DiagonalToTopRight, RuleLogicMethods.DiagonalToTopRight},
+    };
   }
   public enum TerrainType {
     Grass = 0, Water = 1, Bush = 2, Stone = 3

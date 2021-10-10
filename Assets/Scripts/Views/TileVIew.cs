@@ -6,12 +6,16 @@ using TypeAliases;
 
 public class TileView : MonoBehaviour {
   public StandardGameClient game;
+  public StandardGameViewManager viewManager;
   public Coordinate coordinate;
   private void Start() {
     this.gameObject.AddComponent<BoxCollider2D>();
   }
   private void OnMouseUp() {
-    this.game.HandlePlayerInput(this, InputEventNames.OnMouseUp, this.coordinate);
+    Debug.Log("Pan: Place Card");
+    if (!this.viewManager.IsPanning) {
+      this.game.HandlePlayerInput(this, InputEventNames.OnMouseUp, this.coordinate);
+    }
   }
 
   private void OnMouseEnter() {

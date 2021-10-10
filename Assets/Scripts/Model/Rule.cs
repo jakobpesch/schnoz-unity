@@ -17,8 +17,9 @@ namespace Schnoz {
     /// Contains the rule logic. 
     /// </summary>
     [SerializeField] private RuleLogic RuleLogic;
-    public Rule(RuleLogic ruleLogic) {
+    public Rule(RuleNames ruleName, RuleLogic ruleLogic) {
       this.RuleLogic = ruleLogic;
+      this.RuleName = ruleName;
     }
 
     /// <summary>
