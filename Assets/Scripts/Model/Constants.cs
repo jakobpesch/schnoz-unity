@@ -8,7 +8,7 @@ namespace Schnoz {
       {RuleNames.Water, RuleLogicMethods.Water},
       {RuleNames.DiagonalToTopRight, RuleLogicMethods.DiagonalToTopRight},
     };
-    public const int mapSize = 21, ratioGrass = 50, ratioStone = 1, ratioWater = 3, ratioBush = 3, SaveArea = 3;
+    public const int mapSize = 31, ratioGrass = 50, ratioStone = 1, ratioWater = 3, ratioBush = 3, SaveArea = 3;
   }
   public enum TerrainType {
     Grass, Water, Bush, Stone
@@ -30,8 +30,6 @@ namespace Schnoz {
   public static class RuleLogicMethods {
     public static RuleLogic DiagonalToTopRight =
     (Player player, Map map) => {
-      Debug.Log($"RuleLogic: DiagonalToTopRight, Player: {player.Id}");
-
       List<List<Tile>> unitDiagonals = new List<List<Tile>>();
       foreach (List<Tile> diagonal in map.DiagonalsFromBottomLeftToTopRight) {
         List<Tile> unitDiagonal = new List<Tile>();
@@ -56,14 +54,16 @@ namespace Schnoz {
 
     public static RuleLogic Water =
     (Player player, Map map) => {
-
-      var unitsNearWater = map.Units.Where(unit => {
-        Tile tile = map.CoordinateToTileDict[unit.Coordinate];
-        List<Tile> at = map.GetAdjacentTiles(tile);
-        return unit.OwnerId == player.Id && at.Any(t => t != null && t.Terrain.Type == TerrainType.Water);
-      });
-      Debug.Log($"RuleLogic: Water, Player: {player.Id}");
-      int points = unitsNearWater.Count();
+      List<Tile> waterTiles = map.Tiles.Where(tile => tile.Terrain.Type == TerrainType.Water).ToList();
+      List<Tile> relevantTiles = new List<Tile>();
+      foreach (Tile waterTile in waterTiles) {
+        foreach (Tile tile in map.GetAdjacentTiles(waterTile)) {
+          if (tile != null && tile.Unit != null && tile.Unit.OwnerId == player.Id) {
+            relevantTiles.Add(tile);
+          }
+        }
+      }
+      int points = relevantTiles.Count();
       return new RuleEvaluation(RuleNames.Water, player.Id, points);//, (List<object>)(new List<Tile>() { }));
     };
   }

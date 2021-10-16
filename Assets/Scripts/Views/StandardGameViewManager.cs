@@ -120,11 +120,11 @@ public class StandardGameViewManager : MonoBehaviour {
       this.RenderScore();
     }
     if (e.PropertyName == "CurrentPlayer") {
-      this.CurrentPlayer();
+      this.RenderCurrentPlayer();
     }
   }
 
-  private void CurrentPlayer() {
+  private void RenderCurrentPlayer() {
     this.game.GameClient.Players.ForEach(player => {
       string charPath = $"UI/Points/Score Details/Player {player.Id + 1}/Character";
       var scale = this.game.GameClient.ActivePlayerId == player.Id ? 110 : 90;
@@ -201,6 +201,21 @@ public class StandardGameViewManager : MonoBehaviour {
     sr.sortingOrder = 10;
     return unitGO;
   }
+  private GameObject RenderUnitHover(Unit unit) {
+    GameObject unitGO = new GameObject("HoverUnit");
+    unitGO.tag = "HoverUnit";
+    SpriteRenderer sr = unitGO.AddComponent<SpriteRenderer>();
+    string untiSpritePath;
+    switch (unit.OwnerId) {
+      case 0: { untiSpritePath = "Sprites/bob"; break; }
+      case 1: { untiSpritePath = "Sprites/sigene"; break; }
+      case 2: { untiSpritePath = "Sprites/house"; break; }
+      default: { untiSpritePath = ""; break; }
+    }
+    sr.sprite = Resources.Load<Sprite>(untiSpritePath);
+    sr.sortingOrder = 5;
+    return unitGO;
+  }
   private GameObject RenderTerrain(Schnoz.Terrain terrain) {
     GameObject terrainGO = new GameObject($"{terrain.Type.ToString()}");
     SpriteRenderer sr = terrainGO.AddComponent<SpriteRenderer>();
@@ -234,13 +249,15 @@ public class StandardGameViewManager : MonoBehaviour {
   }
 
   private void RenderHighlights() {
-    foreach (Transform child in this.mapGO.transform) {
-      TileView tileView = child.GetComponent<TileView>();
-      if (this.game.TileDict.ContainsKey(tileView.coordinate)) {
-        Tile tile = this.game.TileDict[tileView.coordinate];
-        SpriteRenderer sr = tileView.GetComponent<SpriteRenderer>();
-        sr.color = this.game.HoveringTiles.Any(t => t.Coordinate == tile.Coordinate) ? new Color(0.9f, 0.9f, 0.9f) : Color.white;
-      }
+    foreach (GameObject hoverUnit in GameObject.FindGameObjectsWithTag("HoverUnit")) {
+      Destroy(hoverUnit);
+    }
+    foreach (Tile hoveringTile in this.game.HoveringTiles) {
+      // sr.color = new Color(0.9f, 0.9f, 0.9f);
+      GameObject hoveringUnitGO = this.RenderUnitHover(new Unit(this.game.GameClient.ActivePlayerId, hoveringTile.Coordinate));
+      hoveringUnitGO.transform.SetParent(GameObject.Find($"Map/{hoveringTile.Coordinate}").transform);
+      hoveringUnitGO.transform.localPosition = new Vector2(0, 0);
+      hoveringUnitGO.GetComponent<SpriteRenderer>().color = new Color(1, 1, 1, 0.3f);
     }
   }
 

@@ -147,7 +147,7 @@ namespace Schnoz {
 
       r.renderTypes.Add(RenderTypes.Map);
 
-      bool endOfStage = gs.Turn != 0 && gs.Turn % gs.GameSettings.NumberOfTurnsPerStage + 1 == 0;
+      bool endOfStage = gs.Turn != 0 && (gs.Turn + 1) % gs.GameSettings.NumberOfTurnsPerStage == 0;
       Debug.Log($"TURN: {gs.Turn}, endOfStage: {endOfStage}");
       if (endOfStage) {
         gs.GameSettings.Rules.ForEach(rule => {
@@ -179,6 +179,7 @@ namespace Schnoz {
       gs.EndTurn();
       Server.Instance.Broadcast(new NetEndTurn());
 
+      r.renderTypes.Add(RenderTypes.Rules);
       Server.Instance.Broadcast(r);
     }
     #endregion

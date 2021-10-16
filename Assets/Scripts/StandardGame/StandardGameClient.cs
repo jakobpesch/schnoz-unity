@@ -25,6 +25,7 @@ namespace Schnoz {
       get => this.selectedCardId;
       set {
         this.selectedCardId = value;
+        this.viewManager.Render(this, new PropertyChangedEventArgs("SelectedCard"));
       }
     }
     public Dictionary<Guid, Card> OpenCardsDict {
@@ -35,7 +36,7 @@ namespace Schnoz {
     }
     public void HandlePlayerInput(object sender, InputEventNames evt, object obj = null) {
       #region Change card orientation
-      if (this.SelectedCardId != null) {
+      if (this.SelectedCardId != Guid.Empty) {
         if (evt == InputEventNames.RotateRightButton) {
           this.OpenCardsDict[this.SelectedCardId].unitFormation.RotateRight();
           this.SetHoveringTiles(this.hoveringTile);
@@ -75,6 +76,7 @@ namespace Schnoz {
             mm.teamId = this.currentTeam;
             Debug.Log(JsonUtility.ToJson(mm));
             Client.Instance.SendToServer(mm);
+            this.SelectedCardId = Guid.Empty;
           }
         }
 
@@ -95,13 +97,11 @@ namespace Schnoz {
         Guid cardId = (Guid)obj;
         if (evt == InputEventNames.OnMouseUp) {
           this.SelectedCardId = cardId;
-          this.viewManager.Render(this, new PropertyChangedEventArgs("SelectedCard"));
         }
       }
       if (evt == InputEventNames.SelectCard) {
         int selectedCardIdx = obj as int? ?? default(int);
         this.SelectedCardId = this.GameClient.OpenCards[selectedCardIdx].Id;
-        this.viewManager.Render(this, new PropertyChangedEventArgs("SelectedCard"));
         this.SetHoveringTiles(this.HoveringTile);
       }
       #endregion
@@ -202,9 +202,7 @@ namespace Schnoz {
 
       NetInitialiseMap im = msg as NetInitialiseMap;
 
-      List<RuleNames> ruleNames = im.ruleNames;
-
-      this.gameSettings = new GameSettings(im.nRows, im.nCols, 3, 0, 6, 60, ruleNames);
+      this.gameSettings = new GameSettings(im.nRows, im.nCols, 3, 0, 6, 60, im.ruleNames);
       this.GameClient = new Schnoz(gameSettings);
       this.CreateViewManager();
 
