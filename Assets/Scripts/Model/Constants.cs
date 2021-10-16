@@ -8,6 +8,7 @@ namespace Schnoz {
       {RuleNames.Water, RuleLogicMethods.Water},
       {RuleNames.DiagonalToTopRight, RuleLogicMethods.DiagonalToTopRight},
     };
+    public const int mapSize = 25;
   }
   public enum TerrainType {
     Grass = 0, Water = 1, Bush = 2, Stone = 3
@@ -29,11 +30,9 @@ namespace Schnoz {
       Debug.Log($"RuleLogic: DiagonalToTopRight, Player: {player.Id}");
 
       List<List<Tile>> unitDiagonals = new List<List<Tile>>();
-      Debug.Log($"MapDiagonals: {map.DiagonalsFromBottomLeftToTopRight.Count}");
       foreach (List<Tile> diagonal in map.DiagonalsFromBottomLeftToTopRight) {
         List<Tile> unitDiagonal = new List<Tile>();
         foreach (Tile tile in diagonal) {
-          Debug.Log(tile.Coordinate);
           if (tile.Unit != null && tile.Unit.OwnerId == player.Id) {
             unitDiagonal.Add(tile);
           } else {

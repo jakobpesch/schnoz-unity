@@ -47,7 +47,7 @@ namespace Schnoz {
     public int Turn { get; private set; }
     [SerializeField] private int stage;
     public List<int> PlayersIds { get => this.GameSettings.PlayerIds; }
-    public int ActivePlayerId { get; private set; }
+    public int ActivePlayerId { get => this.GameSettings.TurnOrder[this.Turn]; }
     public Player ActivePlayer {
       get => this.GameSettings.IdToPlayerDict.ContainsKey(this.ActivePlayerId)
       ? this.GameSettings.IdToPlayerDict[this.ActivePlayerId]
@@ -197,13 +197,12 @@ namespace Schnoz {
       // M.I.Map_Scan();
       // this.map.GameStarted = true;
     }
-    public void SetActivePlayer(int turn) {
-      this.ActivePlayerId = GameSettings.TurnOrder[turn];
-      Debug.Log($"{this.ActivePlayerId} is the current Player");
-    }
+    // public void SetActivePlayer(int turn) {
+    //   this.ActivePlayerId = GameSettings.TurnOrder[turn];
+    //   Debug.Log($"{this.ActivePlayerId} is the current Player");
+    // }
     public void EndTurn() {
-      this.SetActivePlayer(++this.Turn);
-      // this.UpdateRules();
+      this.Turn++;
     }
     private void ApplyRules(Player player) {
       List<RuleEvaluation> roundEvaluation = new List<RuleEvaluation>();

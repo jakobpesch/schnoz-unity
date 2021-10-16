@@ -47,6 +47,7 @@ namespace Schnoz {
 
     public UnitFormation(CardType type) {
       this.Type = type;
+      Debug.Log($"CardType Type: {type.GetType()}, Value: {type}");
       this.defaultArrangement = UnitFormation.arrangements[type];
     }
     private Arrangement defaultArrangement;

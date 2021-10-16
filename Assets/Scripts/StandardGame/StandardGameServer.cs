@@ -51,8 +51,12 @@ namespace Schnoz {
               Debug.Log("Starts the game as dedicated server");
               this.InitGame();
               NetStartGame sg = new NetStartGame();
-              sg.netMapString = this.GameServer.Map.Serialize();
-              Debug.Log(sg.netMapString);
+              sg.nRows = this.GameServer.GameSettings.NRows;
+              sg.nCols = this.GameServer.GameSettings.NCols;
+              sg.units = this.GameServer.Map.Units;
+              sg.terrains = this.GameServer.Map.Terrains;
+              sg.cards = this.GameServer.Deck.OpenCards;
+
               Server.Instance.Broadcast(sg);
               break;
             }
@@ -61,8 +65,12 @@ namespace Schnoz {
               Debug.Log("Starts the game as host");
               this.InitGame();
               NetStartGame sg = new NetStartGame();
-              sg.netMapString = this.GameServer.Map.Serialize();
-              sg.netOpenCardsString = this.GameServer.Deck.SerializeOpenCards();
+              sg.nRows = this.GameServer.GameSettings.NRows;
+              sg.nCols = this.GameServer.GameSettings.NCols;
+              sg.units = this.GameServer.Map.Units;
+              sg.terrains = this.GameServer.Map.Terrains;
+              sg.cards = this.GameServer.Deck.OpenCards;
+
               Server.Instance.Broadcast(sg);
               break;
             }
@@ -71,8 +79,12 @@ namespace Schnoz {
               Debug.Log("Starts local game");
               this.InitGame();
               NetStartGame sg = new NetStartGame();
-              sg.netMapString = this.GameServer.Map.Serialize();
-              sg.netOpenCardsString = this.GameServer.Deck.SerializeOpenCards();
+              sg.nRows = this.GameServer.GameSettings.NRows;
+              sg.nCols = this.GameServer.GameSettings.NCols;
+              sg.units = this.GameServer.Map.Units;
+              sg.terrains = this.GameServer.Map.Terrains;
+              sg.cards = this.GameServer.Deck.OpenCards;
+
               Server.Instance.Broadcast(sg);
               break;
             }
@@ -88,6 +100,7 @@ namespace Schnoz {
         return;
       }
       NetMakeMove mm = msg as NetMakeMove;
+
       UnitFormation unitFormation = new UnitFormation(UnitFormation.unitFormationIdToTypeDict[mm.unitFormationId]);
       unitFormation.rotation = mm.rotation;
       unitFormation.mirrorHorizontal = mm.mirrorHorizontal == 1 ? true : false;
@@ -101,7 +114,10 @@ namespace Schnoz {
       this.GameServer.PlaceUnitFormation(ownerId, coordinate, unitFormation);
 
       NetUpdateMap um = new NetUpdateMap();
-      um.netMapString = this.GameServer.Map.Serialize();
+      um.units = this.GameServer.Map.Units;
+      um.terrains = this.GameServer.Map.Terrains;
+      Debug.Log($"Units count SERVER {um.units.Count}");
+      Debug.Log($"Terrains count SERVER {um.terrains.Count}");
       Server.Instance.Broadcast(um);
 
       bool endOfStage = this.GameServer.Turn % GameServer.GameSettings.NumberOfTurnsPerStage == 0;
@@ -135,7 +151,7 @@ namespace Schnoz {
       ruleNames.Add(RuleNames.DiagonalToTopRight);
       ruleNames.Add(RuleNames.Water);
 
-      this.gameSettings = new GameSettings(9, 9, 3, 0, 6, 60, ruleNames);
+      this.gameSettings = new GameSettings(Constants.mapSize, Constants.mapSize, 3, 0, 6, 60, ruleNames);
       this.GameServer = new Schnoz(this.gameSettings);
 
 

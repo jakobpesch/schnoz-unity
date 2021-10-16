@@ -36,6 +36,7 @@ namespace Schnoz {
     public List<List<Tile>> DiagonalsFromBottomLeftToTopRight { get => GetDiagonalsFromBottomLeftToTopRight(); }
     public List<List<Tile>> DiagonalsFromTopLeftToBottomRight { get => GetDiagonalsFromTopLeftToBottomRight(); }
     public Map(int nRows, int nCols, bool randomize = true) {
+      Debug.Log($"Initialize map with {nRows} and {nCols}");
       this.nRows = nRows;
       this.nCols = nCols;
       this.Tiles = new List<Tile>();
@@ -44,8 +45,7 @@ namespace Schnoz {
         for (int col = 0; col < nCols; col++) {
           Tile tile = new Tile(row, col);
           this.Tiles.Add(tile);
-
-          CoordinateToTileDict.Add(tile.Coordinate, tile);
+          this.CoordinateToTileDict.Add(tile.Coordinate, tile);
         }
       }
 
@@ -60,17 +60,19 @@ namespace Schnoz {
 
 
     }
-    public Map(NetMap netMap) : this(netMap.r, netMap.c, false) {
-      netMap.u.ForEach(netUnit => {
-        Coordinate coordinate = new Coordinate(netUnit.r, netUnit.c);
-        this.CoordinateToTileDict[coordinate].SetUnit(new Unit(netUnit));
+    public Map(int row, int col, List<Unit> units, List<Terrain> terrains) : this(row, col, false) {
+      units.ForEach(unit => {
+        Coordinate coordinate = unit.Coordinate;
+        Debug.Log(coordinate);
+        Debug.Log(CoordinateToTileDict.ToString());
+        this.CoordinateToTileDict[coordinate].SetUnit(unit);
       });
-      netMap.t.ForEach(netTerrain => {
-        Coordinate coordinate = new Coordinate(netTerrain.r, netTerrain.c);
-        this.CoordinateToTileDict[coordinate].SetTerrain(new Terrain(netTerrain).Type);
+
+      terrains.ForEach(terrain => {
+        Coordinate coordinate = terrain.Coordinate;
+        this.CoordinateToTileDict[coordinate].SetTerrain(terrain.Type);
       });
     }
-
 
     private void RandomizeTerrain() {
       float partsGrass = 20, partsWater = 3, partsBush = 5, partsStone = 1;
@@ -99,7 +101,6 @@ namespace Schnoz {
 
         List<TerrainType> adjacentTerrainTypes = new List<TerrainType>();
         List<Tile> adjacentTiles = this.GetAdjacentTiles(tile);
-        Debug.Log(adjacentTiles.Count);
         foreach (Tile at in adjacentTiles.Where(t => t != null && t.Terrain.Type != TerrainType.Grass)) {
           adjacentTerrainTypes.Add(at.Terrain.Type);
         }
@@ -183,7 +184,6 @@ namespace Schnoz {
         if (!this.CoordinateToTileDict.ContainsKey(adjacentCoordinate)) {
           return null;
         }
-        Debug.Log(this.CoordinateToTileDict[adjacentCoordinate].Terrain);
         return this.CoordinateToTileDict[adjacentCoordinate];
       }).ToList();
       return adjacentTiles.ToList();

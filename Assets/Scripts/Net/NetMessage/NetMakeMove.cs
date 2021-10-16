@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using Unity.Collections;
 using Unity.Networking.Transport;
@@ -20,22 +21,22 @@ public class NetMakeMove : NetMessage {
   }
   public override void Serialize(ref DataStreamWriter writer) {
     writer.WriteByte((byte)this.Code);
-    writer.WriteInt(this.row);
-    writer.WriteInt(this.col);
-    writer.WriteInt(this.unitFormationId);
-    writer.WriteInt(this.rotation);
-    writer.WriteInt(this.mirrorHorizontal);
-    writer.WriteInt(this.mirrorVertical);
-    writer.WriteInt(this.teamId);
+    writer.WriteByte((byte)this.row);
+    writer.WriteByte((byte)this.col);
+    writer.WriteByte((byte)this.unitFormationId);
+    writer.WriteByte((byte)this.rotation);
+    writer.WriteByte((byte)this.mirrorHorizontal);
+    writer.WriteByte((byte)this.mirrorVertical);
+    writer.WriteByte((byte)this.teamId);
   }
   public override void Deserialize(DataStreamReader reader) {
-    this.row = reader.ReadInt();
-    this.col = reader.ReadInt();
-    this.unitFormationId = reader.ReadInt();
-    this.rotation = reader.ReadInt();
-    this.mirrorHorizontal = reader.ReadInt();
-    this.mirrorVertical = reader.ReadInt();
-    this.teamId = reader.ReadInt();
+    this.row = (int)reader.ReadByte();
+    this.col = (int)reader.ReadByte();
+    this.unitFormationId = (int)reader.ReadByte();
+    this.rotation = (int)reader.ReadByte();
+    this.mirrorHorizontal = (int)reader.ReadByte();
+    this.mirrorVertical = (int)reader.ReadByte();
+    this.teamId = (int)reader.ReadByte();
   }
   public override void ReceivedOnClient() {
     NetUtility.C_MAKE_MOVE?.Invoke(this);

@@ -167,22 +167,17 @@ namespace Schnoz {
     private void OnStartGame(NetMessage msg) {
       NetStartGame sg = msg as NetStartGame;
       Debug.Log("OnStartGame");
-      Debug.Log($"Map: {sg.netMapString.ToString()}");
-      Debug.Log($"OpenCards: {sg.netOpenCardsString.ToString()}");
+
 
       List<RuleNames> ruleNames = new List<RuleNames>();
       ruleNames.Add(RuleNames.DiagonalToTopRight);
       ruleNames.Add(RuleNames.Water);
 
-      this.gameSettings = new GameSettings(9, 9, 3, 0, 6, 60, ruleNames);
+      this.gameSettings = new GameSettings(Constants.mapSize, Constants.mapSize, 3, 0, 6, 60, ruleNames);
 
       this.GameClient = new Schnoz(this.gameSettings);
-
-      NetMap netMap = JsonUtility.FromJson<NetMap>(sg.netMapString.ToString());
-      this.GameClient.Map = new Map(netMap);
-
-      NetOpenCards netOpenCards = JsonUtility.FromJson<NetOpenCards>(sg.netOpenCardsString.ToString());
-      this.GameClient.OpenCards = netOpenCards.o.Select(netCard => new Card(netCard)).ToList();
+      this.GameClient.Map = new Map(sg.nRows, sg.nCols, sg.units, sg.terrains);
+      this.GameClient.OpenCards = sg.cards;
 
       this.CreateViewManager();
       this.viewManager.Render(this, new PropertyChangedEventArgs("Map"));
@@ -204,11 +199,12 @@ namespace Schnoz {
     /// </summary>
     /// <param name="msg"></param>
     private void OnUpdateMap(NetMessage msg) {
-      NetUpdateMap up = msg as NetUpdateMap;
-      Debug.Log($"Received OnUpdateMap: {up.netMapString.ToString()}");
+      NetUpdateMap um = msg as NetUpdateMap;
 
-      NetMap netMap = JsonUtility.FromJson<NetMap>(up.netMapString.ToString());
-      this.GameClient.Map = new Map(netMap);
+      Debug.Log($"Units count CLIENT {um.units.Count}");
+      Debug.Log($"Terrains count CLIENT {um.terrains.Count}");
+      this.GameClient.Map = new Map(this.GameClient.GameSettings.NRows, this.GameClient.GameSettings.NCols, um.units, um.terrains);
+      this.GameClient.EndTurn();
       this.viewManager.Render(this, new PropertyChangedEventArgs("Map"));
       this.SelectedCardId = Guid.Empty;
       this.viewManager.Render(this, new PropertyChangedEventArgs("Rules"));
