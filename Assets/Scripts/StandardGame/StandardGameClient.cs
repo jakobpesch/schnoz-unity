@@ -202,9 +202,7 @@ namespace Schnoz {
 
       NetInitialiseMap im = msg as NetInitialiseMap;
 
-      List<RuleNames> ruleNames = new List<RuleNames>();
-      ruleNames.Add(RuleNames.DiagonalToTopRight);
-      ruleNames.Add(RuleNames.Water);
+      List<RuleNames> ruleNames = im.ruleNames;
 
       this.gameSettings = new GameSettings(im.nRows, im.nCols, 3, 0, 6, 60, ruleNames);
       this.GameClient = new Schnoz(gameSettings);

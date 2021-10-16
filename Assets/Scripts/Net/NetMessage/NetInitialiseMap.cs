@@ -7,6 +7,7 @@ public class NetInitialiseMap : NetMessage {
 
   public int nRows;
   public int nCols;
+  public List<RuleNames> ruleNames = new List<RuleNames>();
 
   public NetInitialiseMap() {
     this.Code = OpCode.INITIALISE_MAP;
@@ -21,11 +22,24 @@ public class NetInitialiseMap : NetMessage {
     // Map size
     writer.WriteByte((byte)this.nRows);
     writer.WriteByte((byte)this.nCols);
+
+    // Rules
+    writer.WriteInt(this.ruleNames.Count);
+    for (int i = 0; i < this.ruleNames.Count; i++) {
+      writer.WriteByte((byte)this.ruleNames[i]);
+    }
   }
   public override void Deserialize(DataStreamReader reader) {
     // Map size
     this.nRows = reader.ReadByte();
     this.nCols = reader.ReadByte();
+
+    // Rules
+    int ruleNamesCount = reader.ReadInt();
+    this.ruleNames = new List<RuleNames>();
+    for (int i = 0; i < ruleNamesCount; i++) {
+      this.ruleNames.Add((RuleNames)reader.ReadByte());
+    }
   }
   public override void ReceivedOnClient() {
     NetUtility.C_INITIALISE_MAP?.Invoke(this);

@@ -93,6 +93,7 @@ namespace Schnoz {
       Tile tile = this.Map.CoordinateToTileDict[coord];
       Unit unit = new Unit(ownerId, coord);
       tile.SetUnit(unit);
+      this.Map.UpdateFog(tile);
     }
     public void RemoveUnit(Coordinate coord) {
       Debug.Log("Removing Unit");

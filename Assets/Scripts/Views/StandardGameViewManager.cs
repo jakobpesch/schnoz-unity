@@ -225,12 +225,12 @@ public class StandardGameViewManager : MonoBehaviour {
     sr.sortingOrder = 5;
     return terrainGO;
   }
-  private GameObject RenderGround() {
-    GameObject terrainGO = new GameObject("Grass");
-    SpriteRenderer sr = terrainGO.AddComponent<SpriteRenderer>();
-    sr.sprite = Array.Find(Resources.LoadAll<Sprite>("Sprites/Tiles"), s => s.name == "terrain_grass");
-    sr.sortingOrder = 4;
-    return terrainGO;
+  private GameObject RenderFog() {
+    GameObject fogGO = new GameObject("Fog");
+    SpriteRenderer sr = fogGO.AddComponent<SpriteRenderer>();
+    sr.sprite = Array.Find(Resources.LoadAll<Sprite>("Sprites/Tiles"), s => s.name == "fog");
+    sr.sortingOrder = 20;
+    return fogGO;
   }
 
   private void RenderHighlights() {
@@ -265,6 +265,12 @@ public class StandardGameViewManager : MonoBehaviour {
         GameObject terrainGO = this.RenderTerrain(tile.Terrain);
         terrainGO.transform.SetParent(tileGO.transform);
         terrainGO.transform.localPosition = new Vector2(0, 0);
+      }
+
+      if (!tile.Visible) {
+        GameObject fogGO = this.RenderFog();
+        fogGO.transform.SetParent(tileGO.transform);
+        fogGO.transform.localPosition = new Vector2(0, 0);
       }
     });
     // Debug.Log("Rendered Map successfully!");

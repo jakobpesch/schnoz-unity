@@ -37,6 +37,7 @@ namespace Schnoz {
       NetUtility.S_MAKE_MOVE -= this.OnMakeMove;
     }
     private void InitGame() {
+
       List<RuleNames> ruleNames = new List<RuleNames>();
       ruleNames.Add(RuleNames.DiagonalToTopRight);
       ruleNames.Add(RuleNames.Water);
@@ -48,6 +49,33 @@ namespace Schnoz {
       this.GameServer.CreateDeck();
       this.GameServer.ShuffleDeck();
       this.GameServer.DrawCards();
+
+      NetInitialiseMap im = new NetInitialiseMap();
+      im.nRows = this.GameServer.GameSettings.NRows;
+      im.nCols = this.GameServer.GameSettings.NCols;
+      im.ruleNames = this.GameServer.GameSettings.Rules.Select(rule => rule.RuleName).ToList();
+
+      NetUpdateTerrains ut = new NetUpdateTerrains();
+      ut.terrains = this.GameServer.Map.Terrains;
+
+      NetUpdateUnits uu = new NetUpdateUnits();
+      uu.addedUnits = this.GameServer.Map.Units;
+
+      NetUpdateCards uc = new NetUpdateCards();
+      uc.cards = this.GameServer.Deck.OpenCards;
+
+      NetRender r = new NetRender();
+      r.renderTypes = new List<RenderTypes>() {
+                RenderTypes.Map, RenderTypes.OpenCards, RenderTypes.CurrentPlayer, RenderTypes.Rules
+              };
+
+      Server.Instance.Broadcast(im);
+      Server.Instance.Broadcast(ut);
+      Server.Instance.Broadcast(uu);
+      Server.Instance.Broadcast(uc);
+
+      Debug.Log($"Render count before send: {r.renderTypes.Count}");
+      Server.Instance.Broadcast(r);
     }
     private void OnWelcome(NetMessage msg, NetworkConnection cnn) {
       Debug.Log("Message to Server: OnWelcome");
@@ -64,96 +92,18 @@ namespace Schnoz {
               // Start the game immediately
               Debug.Log("Starts the game as dedicated server");
               this.InitGame();
-
-              NetInitialiseMap im = new NetInitialiseMap();
-              im.nRows = this.GameServer.GameSettings.NRows;
-              im.nCols = this.GameServer.GameSettings.NCols;
-
-              NetUpdateTerrains ut = new NetUpdateTerrains();
-              ut.terrains = this.GameServer.Map.Terrains;
-
-              NetUpdateUnits uu = new NetUpdateUnits();
-              uu.addedUnits = this.GameServer.Map.Units;
-
-              NetUpdateCards uc = new NetUpdateCards();
-              uc.cards = this.GameServer.Deck.OpenCards;
-
-              NetRender r = new NetRender();
-              r.renderTypes = new List<RenderTypes>() {
-                RenderTypes.Map, RenderTypes.OpenCards, RenderTypes.CurrentPlayer, RenderTypes.Rules
-              };
-
-              Server.Instance.Broadcast(im);
-              Server.Instance.Broadcast(ut);
-              Server.Instance.Broadcast(uu);
-              Server.Instance.Broadcast(uc);
-
-              Debug.Log($"Render count before send: {r.renderTypes.Count}");
-              Server.Instance.Broadcast(r);
               break;
             }
           case NetworkManager.NetworkIdentity.HOST: {
               // Start the game immediately
               Debug.Log("Starts the game as host");
               this.InitGame();
-              NetInitialiseMap im = new NetInitialiseMap();
-              im.nRows = this.GameServer.GameSettings.NRows;
-              im.nCols = this.GameServer.GameSettings.NCols;
-
-              NetUpdateTerrains ut = new NetUpdateTerrains();
-              ut.terrains = this.GameServer.Map.Terrains;
-
-              NetUpdateUnits uu = new NetUpdateUnits();
-              uu.addedUnits = this.GameServer.Map.Units;
-
-              NetUpdateCards uc = new NetUpdateCards();
-              uc.cards = this.GameServer.Deck.OpenCards;
-
-              NetRender r = new NetRender();
-              r.renderTypes = new List<RenderTypes>() {
-                RenderTypes.Map, RenderTypes.OpenCards, RenderTypes.CurrentPlayer, RenderTypes.Rules
-              };
-
-              Server.Instance.Broadcast(im);
-              Server.Instance.Broadcast(ut);
-              Server.Instance.Broadcast(uu);
-              Server.Instance.Broadcast(uc);
-
-              Debug.Log($"Render count before send: {r.renderTypes.Count}");
-              Server.Instance.Broadcast(r);
-
               break;
             }
           default: {
               // Start the local game immediately
               Debug.Log("Starts local game");
               this.InitGame();
-
-              NetInitialiseMap im = new NetInitialiseMap();
-              im.nRows = this.GameServer.GameSettings.NRows;
-              im.nCols = this.GameServer.GameSettings.NCols;
-
-              NetUpdateTerrains ut = new NetUpdateTerrains();
-              ut.terrains = this.GameServer.Map.Terrains;
-
-              NetUpdateUnits uu = new NetUpdateUnits();
-              uu.addedUnits = this.GameServer.Map.Units;
-
-              NetUpdateCards uc = new NetUpdateCards();
-              uc.cards = this.GameServer.Deck.OpenCards;
-
-              NetRender r = new NetRender();
-              r.renderTypes = new List<RenderTypes>() {
-                RenderTypes.Map, RenderTypes.OpenCards, RenderTypes.CurrentPlayer, RenderTypes.Rules
-              };
-
-              Server.Instance.Broadcast(im);
-              Server.Instance.Broadcast(ut);
-              Server.Instance.Broadcast(uu);
-              Server.Instance.Broadcast(uc);
-
-              Debug.Log($"Render count before send: {r.renderTypes.Count}");
-              Server.Instance.Broadcast(r);
               break;
             }
         }

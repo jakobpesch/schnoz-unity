@@ -76,10 +76,10 @@ TextureImporter:
     second: terrain_water
   - first:
       213: -8537759210625982212
-    second: RPG Nature Tileset_24
+    second: plus
   - first:
       213: 861385548220566407
-    second: RPG Nature Tileset_25
+    second: minus
   - first:
       213: -597964597613064270
     second: RPG Nature Tileset_26
@@ -463,7 +463,7 @@ TextureImporter:
     second: RPG Nature Tileset_152
   - first:
       213: -1420887281884762362
-    second: RPG Nature Tileset_153
+    second: fog
   externalObjects: {}
   serializedVersion: 11
   mipmaps:
@@ -1057,10 +1057,10 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: RPG Nature Tileset_24
+      name: plus
       rect:
         serializedVersion: 2
-        x: 160
+        x: 159
         y: 192
         width: 32
         height: 32
@@ -1078,7 +1078,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: RPG Nature Tileset_25
+      name: minus
       rect:
         serializedVersion: 2
         x: 192
@@ -3766,13 +3766,13 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: RPG Nature Tileset_153
+      name: fog
       rect:
         serializedVersion: 2
-        x: 0
-        y: 0
-        width: 641
-        height: 288
+        x: 288
+        y: 192
+        width: 32
+        height: 32
       alignment: 6
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
