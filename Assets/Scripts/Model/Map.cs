@@ -53,7 +53,7 @@ namespace Schnoz {
         this.RandomizeTerrain();
         this.CenterTile.SetTerrain(TerrainType.Grass);
 
-        foreach (Tile t in this.GetTilesWithinRadius(CenterTile, 2)) {
+        foreach (Tile t in this.GetTilesWithinRadius(CenterTile, Constants.SaveArea)) {
           t.SetTerrain(TerrainType.Grass);
         }
       }

@@ -8,7 +8,7 @@ namespace Schnoz {
       {RuleNames.Water, RuleLogicMethods.Water},
       {RuleNames.DiagonalToTopRight, RuleLogicMethods.DiagonalToTopRight},
     };
-    public const int mapSize = 21, ratioGrass = 50, ratioStone = 1, ratioWater = 3, ratioBush = 3;
+    public const int mapSize = 21, ratioGrass = 50, ratioStone = 1, ratioWater = 3, ratioBush = 3, SaveArea = 3;
   }
   public enum TerrainType {
     Grass, Water, Bush, Stone
