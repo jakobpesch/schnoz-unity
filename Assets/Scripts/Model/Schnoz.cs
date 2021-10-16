@@ -13,13 +13,10 @@ namespace Schnoz {
       this.Turn = 0;
     }
     public GameSettings GameSettings { get; private set; }
-    private Map map;
     public Map Map {
-      get => this.map;
-      set {
-        this.map = value;
-      }
+      get; private set;
     }
+
     [SerializeField] private Deck deck;
     public Deck Deck {
       get => this.deck;
@@ -31,7 +28,7 @@ namespace Schnoz {
     public Dictionary<int, Standing> PlayerIdToCurrentStandingDict {
       get {
         return this.Players
-          .Select(player => new Standing(player, this.GameSettings.Rules, this.map))
+          .Select(player => new Standing(player, this.GameSettings.Rules, this.Map))
           .ToDictionary(standing => standing.Player.Id);
       }
     }
@@ -55,7 +52,7 @@ namespace Schnoz {
     }
     public Player NeutralPlayer;
 
-    public void CreateMap() {
+    public void InitialiseMap() {
       Debug.Log("Map will be Created");
       this.Map = new Map(this.GameSettings.NRows, this.GameSettings.NCols);
       this.NeutralPlayer = new Player(3);
@@ -78,16 +75,28 @@ namespace Schnoz {
         this.Deck.Draw();
       }
     }
+    public void PlaceTerrain(TerrainType type, Coordinate coord) {
+      Debug.Log($"Placing Terrain of type {type}");
+      Tile tile = this.Map.CoordinateToTileDict[coord];
+      tile.SetTerrain(type);
+    }
+
+    // Not needed, since TerrainType.Grass does the trick
+    // public void RemoveTerrain(Coordinate coord) {
+    //   Debug.Log("Removing Terrain");
+    //   Tile tile = this.Map.CoordinateToTileDict[coord];
+    //   tile.SetTerrain(TerrainType.Grass);
+    // }
 
     public void PlaceUnit(int ownerId, Coordinate coord) {
       Debug.Log($"Placing Unit for player {ownerId}");
-      Tile tile = this.map.Tiles.Find(tile => tile.Coordinate == coord);
+      Tile tile = this.Map.CoordinateToTileDict[coord];
       Unit unit = new Unit(ownerId, coord);
       tile.SetUnit(unit);
     }
     public void RemoveUnit(Coordinate coord) {
       Debug.Log("Removing Unit");
-      Tile tile = this.map.Tiles.Find(tile => tile.Coordinate == coord);
+      Tile tile = this.Map.CoordinateToTileDict[coord];
       tile.SetUnit(null);
     }
     public void PlaceUnitFormation(int ownerId, Coordinate coord, UnitFormation unitFormation) {
@@ -163,40 +172,9 @@ namespace Schnoz {
       }
       return possibleCoordinates;
     }
-    public void Init() {
-      // // Debug.Log("GameManager unlistens to: OnAllPlayersPresent");
-      // this.eventManager.OnAllPlayersPresent -= this.Init;
-
-      // this.turn = 0;
-
-      // this.Map.ClearTiles();
-
-      // foreach (Player player in gameSettings.Players)
-      // {
-      //   player.SetSinglePieces(gameSettings.NumberOfSinglePieces);
-      // }
-      // SpawnManager.I.SpawnUnit(this.capital, this.map.CenterTile, this.NeutralPlayer);
-
-      // this.Map.Scan();
 
 
 
-      // this.SetActivePlayer(0);
-
-      // this.Map.GameStarted = true;
-      // UIManager.I.Init();
-
-      // M.I.UI_UpdateScore();
-
-      // M.I.UI_PopulateProgressBar();
-
-      // M.I.UI_UpdateSinglePieces();
-      // M.I.UI_UpdateStones();
-
-      // TakeStone();
-      // M.I.Map_Scan();
-      // this.map.GameStarted = true;
-    }
     // public void SetActivePlayer(int turn) {
     //   this.ActivePlayerId = GameSettings.TurnOrder[turn];
     //   Debug.Log($"{this.ActivePlayerId} is the current Player");
@@ -212,12 +190,12 @@ namespace Schnoz {
       player.AddTurnEvaluation(roundEvaluation);
     }
     public Player DetermineRuleWinner(RuleNames ruleName) {
-      return this.Players.Aggregate((player1, player2) => {
+      return this.Players.Aggregate((Func<Player, Player, Player>)((player1, player2) => {
         Rule rule = this.GameSettings.RuleNameToRuleDict[ruleName];
-        int pointsPlayer1 = rule.Evaluate(player1, this.Map).Points;
-        int pointsPlayer2 = rule.Evaluate(player2, this.Map).Points;
+        int pointsPlayer1 = rule.Evaluate(player1, (Map)this.Map).Points;
+        int pointsPlayer2 = rule.Evaluate(player2, (Map)this.Map).Points;
         return pointsPlayer1 == pointsPlayer2 ? null : pointsPlayer1 > pointsPlayer2 ? player1 : player2;
-      });
+      }));
     }
   }
 

@@ -25,7 +25,6 @@ namespace Schnoz {
       get => this.selectedCardId;
       set {
         this.selectedCardId = value;
-        this.viewManager.Render(this, new PropertyChangedEventArgs("SelectedCard"));
       }
     }
     public Dictionary<Guid, Card> OpenCardsDict {
@@ -138,86 +137,108 @@ namespace Schnoz {
     }
     private void RegisterEvents() {
       NetUtility.C_WELCOME += this.OnWelcome;
-      NetUtility.C_START_GAME += this.OnStartGame;
+      NetUtility.C_INITIALISE_MAP += this.OnInitialiseMap;
+      NetUtility.C_UPDATE_TERRAINS += this.OnUpdateTerrains;
+      NetUtility.C_UPDATE_UNITS += this.OnUpdateUnits;
       NetUtility.C_UPDATE_CARDS += this.OnUpdateCards;
-      NetUtility.C_UPDATE_MAP += this.OnUpdateMap;
+      NetUtility.C_RENDER += this.OnRender;
+      NetUtility.C_END_TURN += this.OnEndTurn;
       NetUtility.C_UPDATE_SCORE += this.OnUpdateScore;
     }
     private void UnregisterEvents() {
       NetUtility.C_WELCOME -= this.OnWelcome;
-      NetUtility.C_START_GAME -= this.OnStartGame;
+      NetUtility.C_INITIALISE_MAP -= this.OnInitialiseMap;
+      NetUtility.C_UPDATE_TERRAINS -= this.OnUpdateTerrains;
+      NetUtility.C_UPDATE_UNITS -= this.OnUpdateUnits;
       NetUtility.C_UPDATE_CARDS -= this.OnUpdateCards;
-      NetUtility.C_UPDATE_MAP -= this.OnUpdateMap;
+      NetUtility.C_RENDER -= this.OnRender;
+      NetUtility.C_END_TURN -= this.OnEndTurn;
       NetUtility.C_UPDATE_SCORE -= this.OnUpdateScore;
     }
+
+
 
     /// <summary>
     /// The server accepted the connection and assigned a team to the client
     /// </summary>
     /// <param name="msg"></param>
     private void OnWelcome(NetMessage msg) {
+      Debug.Log("Message to Client: OnWelcome");
       NetWelcome nw = msg as NetWelcome;
       this.currentTeam = nw.AssinedTeam;
     }
 
-    /// <summary>
-    /// The server started the game and sends the map
-    /// </summary>
-    /// <param name="msg"></param>
-    private void OnStartGame(NetMessage msg) {
-      NetStartGame sg = msg as NetStartGame;
-      Debug.Log("OnStartGame");
+    private void OnRender(NetMessage msg) {
+      Debug.Log("Message to Client: OnRender");
+      NetRender r = msg as NetRender;
+      Debug.Log(r.renderTypes.Count);
+      r.renderTypes.ForEach(r => Debug.Log(r));
+      r.renderTypes.ForEach(renderType => {
+        this.viewManager.Render(this, new PropertyChangedEventArgs(renderType.ToString()));
+      });
+      // this.viewManager.Render(this, new PropertyChangedEventArgs("Map"));
+      // this.viewManager.Render(this, new PropertyChangedEventArgs("OpenCards"));
 
+      // this.viewManager.Render(this, new PropertyChangedEventArgs("Rules"));
+
+    }
+    private void OnUpdateCards(NetMessage msg) {
+      Debug.Log("Message to Client: OnUpdateCards");
+
+      NetUpdateCards uc = msg as NetUpdateCards;
+      this.GameClient.OpenCards = uc.cards;
+      this.selectedCardId = Guid.Empty;
+    }
+
+    private void OnInitialiseMap(NetMessage msg) {
+      Debug.Log("Message to Client: OnInitialiseMap");
+
+      NetInitialiseMap im = msg as NetInitialiseMap;
 
       List<RuleNames> ruleNames = new List<RuleNames>();
       ruleNames.Add(RuleNames.DiagonalToTopRight);
       ruleNames.Add(RuleNames.Water);
 
-      this.gameSettings = new GameSettings(Constants.mapSize, Constants.mapSize, 3, 0, 6, 60, ruleNames);
-
-      this.GameClient = new Schnoz(this.gameSettings);
-      this.GameClient.Map = new Map(sg.nRows, sg.nCols, sg.units, sg.terrains);
-      this.GameClient.OpenCards = sg.cards;
-
+      this.gameSettings = new GameSettings(im.nRows, im.nCols, 3, 0, 6, 60, ruleNames);
+      this.GameClient = new Schnoz(gameSettings);
       this.CreateViewManager();
-      this.viewManager.Render(this, new PropertyChangedEventArgs("Map"));
-      this.viewManager.Render(this, new PropertyChangedEventArgs("OpenCards"));
-      this.viewManager.Render(this, new PropertyChangedEventArgs("CurrentPlayer"));
-      this.viewManager.Render(this, new PropertyChangedEventArgs("Rules"));
 
-    }
-    private void OnUpdateCards(NetMessage msg) {
-      NetUpdateCards uc = msg as NetUpdateCards;
-      NetOpenCards netOpenCards = JsonUtility.FromJson<NetOpenCards>(uc.netOpenCardsString.ToString());
-      this.GameClient.OpenCards = netOpenCards.o.Select(netCard => new Card(netCard)).ToList();
-
-      this.viewManager.Render(this, new PropertyChangedEventArgs("OpenCards"));
+      this.GameClient.InitialiseMap();
     }
 
-    /// <summary>
-    /// The server sends the updated the map
-    /// </summary>
-    /// <param name="msg"></param>
-    private void OnUpdateMap(NetMessage msg) {
-      NetUpdateMap um = msg as NetUpdateMap;
+    private void OnUpdateUnits(NetMessage msg) {
+      Debug.Log("Message to Client: OnUpdateUnits");
+      NetUpdateUnits uu = msg as NetUpdateUnits;
 
-      Debug.Log($"Units count CLIENT {um.units.Count}");
-      Debug.Log($"Terrains count CLIENT {um.terrains.Count}");
-      this.GameClient.Map = new Map(this.GameClient.GameSettings.NRows, this.GameClient.GameSettings.NCols, um.units, um.terrains);
-      this.GameClient.EndTurn();
-      this.viewManager.Render(this, new PropertyChangedEventArgs("Map"));
-      this.SelectedCardId = Guid.Empty;
-      this.viewManager.Render(this, new PropertyChangedEventArgs("Rules"));
-      this.viewManager.Render(this, new PropertyChangedEventArgs("CurrentPlayer"));
+      foreach (Unit unit in uu.addedUnits) {
+        this.GameClient.PlaceUnit(unit.OwnerId, unit.Coordinate);
+      }
 
+      foreach (Coordinate coordinate in uu.removedUnitsCoordinates) {
+        this.GameClient.RemoveUnit(coordinate);
+      }
+    }
+
+    private void OnUpdateTerrains(NetMessage msg) {
+      Debug.Log("Message to Client: OnUpdateTerrains");
+      NetUpdateTerrains ut = msg as NetUpdateTerrains;
+      foreach (Terrain terrain in ut.terrains) {
+        this.GameClient.PlaceTerrain(terrain.Type, terrain.Coordinate);
+      }
     }
 
     private void OnUpdateScore(NetMessage msg) {
+      Debug.Log("Message to Client: OnUpdateScore");
       NetUpdateScore us = msg as NetUpdateScore;
-      Debug.Log($"Received OnUpdateScore: {us.ScorePlayer1.ToString()}, {us.ScorePlayer2.ToString()}");
+      Debug.Log($"CLIENT: Score P1:{us.ScorePlayer1.ToString()}, Score P2: {us.ScorePlayer2.ToString()}");
       this.GameClient.GameSettings.IdToPlayerDict[0].SetScore(us.ScorePlayer1);
       this.GameClient.GameSettings.IdToPlayerDict[1].SetScore(us.ScorePlayer2);
-      this.viewManager.Render(this, new PropertyChangedEventArgs("Score"));
+    }
+
+    private void OnEndTurn(NetMessage msg) {
+      Debug.Log("Message to Client: OnEndTurn");
+      NetEndTurn et = msg as NetEndTurn;
+      this.GameClient.EndTurn();
     }
 
     #endregion

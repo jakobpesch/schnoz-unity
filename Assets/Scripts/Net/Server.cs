@@ -110,7 +110,7 @@ public class Server : MonoBehaviour {
   public void Broadcast(NetMessage msg) {
     for (int i = 0; i < this.connections.Length; i++) {
       if (this.connections[i].IsCreated) {
-        Debug.Log($"Sending {msg.Code} to: {connections[i].InternalId}");
+        // Debug.Log($"Sending {msg.Code} to: {connections[i].InternalId}");
         SendToClient(connections[i], msg);
       }
     }

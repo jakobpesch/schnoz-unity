@@ -88,7 +88,7 @@ public class StandardGameViewManager : MonoBehaviour {
   }
   public void Render(object sender, PropertyChangedEventArgs e) {
     // Debug.Log($"{this} was notified about change in {e.PropertyName}.");
-
+    // Debug.Log($"Render {e}");
     if (e.PropertyName == "Map") {
       this.RenderMap();
       // StartCoroutine(this.RenderMapSlowly());

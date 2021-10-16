@@ -1,12 +1,12 @@
 using Unity.Networking.Transport;
-using Unity.Collections;
 using Schnoz;
+using System.Collections.Generic;
 public class NetUpdateCards : NetMessage {
-  public FixedString4096 netOpenCardsString;
-
+  public List<Card> cards;
   public NetUpdateCards() {
     this.Code = OpCode.UPDATE_CARDS;
   }
+
   public NetUpdateCards(DataStreamReader reader) {
     this.Code = OpCode.UPDATE_CARDS;
     this.Deserialize(reader);
@@ -14,12 +14,23 @@ public class NetUpdateCards : NetMessage {
 
   public override void Serialize(ref DataStreamWriter writer) {
     writer.WriteByte((byte)this.Code);
-    writer.WriteFixedString4096(netOpenCardsString);
 
+    // Open cards
+    writer.WriteByte((byte)this.cards.Count);
+    for (int i = 0; i < this.cards.Count; i++) {
+      writer.WriteByte((byte)this.cards[i].Type);
+    }
   }
 
   public override void Deserialize(DataStreamReader reader) {
-    this.netOpenCardsString = reader.ReadFixedString4096();
+    // Open cards
+    int cardCount = reader.ReadByte();
+    this.cards = new List<Card>();
+    for (int i = 0; i < cardCount; i++) {
+      CardType cardType = (CardType)(int)reader.ReadByte();
+      Card card = new Card(cardType);
+      this.cards.Add(card);
+    }
   }
 
   public override void ReceivedOnClient() {

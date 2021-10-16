@@ -3,27 +3,19 @@ using Schnoz;
 using Unity.Networking.Transport;
 using TypeAliases;
 
-public class NetUpdateMap : NetMessage {
+public class NetUpdateTerrains : NetMessage {
   public List<Unit> units;
   public List<Terrain> terrains;
 
-  public NetUpdateMap() {
-    this.Code = OpCode.UPDATE_MAP;
+  public NetUpdateTerrains() {
+    this.Code = OpCode.UPDATE_TERRAINS;
   }
-  public NetUpdateMap(DataStreamReader reader) {
-    this.Code = OpCode.UPDATE_MAP;
+  public NetUpdateTerrains(DataStreamReader reader) {
+    this.Code = OpCode.UPDATE_TERRAINS;
     this.Deserialize(reader);
   }
   public override void Serialize(ref DataStreamWriter writer) {
     writer.WriteByte((byte)this.Code);
-    // Units
-    writer.WriteInt(this.units.Count);
-    for (int i = 0; i < this.units.Count; i++) {
-      writer.WriteByte((byte)this.units[i].OwnerId);
-      writer.WriteByte((byte)this.units[i].Coordinate.row);
-      writer.WriteByte((byte)this.units[i].Coordinate.col);
-    }
-
     // Terrains
     writer.WriteInt(this.terrains.Count);
     for (int i = 0; i < this.terrains.Count; i++) {
@@ -33,18 +25,6 @@ public class NetUpdateMap : NetMessage {
     }
   }
   public override void Deserialize(DataStreamReader reader) {
-    // Units
-    int unitsCount = reader.ReadInt();
-    this.units = new List<Unit>();
-    for (int i = 0; i < unitsCount; i++) {
-      int ownerId = (int)reader.ReadByte();
-      int row = (int)reader.ReadByte();
-      int col = (int)reader.ReadByte();
-      Coordinate coordinate = new Coordinate(row, col);
-      Unit unit = new Unit(ownerId, coordinate);
-      this.units.Add(unit);
-    }
-
     // Terrains
     int terrainCount = reader.ReadInt();
     this.terrains = new List<Terrain>();
@@ -58,9 +38,9 @@ public class NetUpdateMap : NetMessage {
     }
   }
   public override void ReceivedOnClient() {
-    NetUtility.C_UPDATE_MAP?.Invoke(this);
+    NetUtility.C_UPDATE_TERRAINS?.Invoke(this);
   }
   public override void ReceivedOnServer(NetworkConnection cnn) {
-    NetUtility.S_UPDATE_MAP?.Invoke(this, cnn);
+    NetUtility.S_UPDATE_TERRAINS?.Invoke(this, cnn);
   }
 }

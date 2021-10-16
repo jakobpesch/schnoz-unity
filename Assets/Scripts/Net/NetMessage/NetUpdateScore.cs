@@ -15,13 +15,13 @@ public class NetUpdateScore : NetMessage {
 
   public override void Serialize(ref DataStreamWriter writer) {
     writer.WriteByte((byte)this.Code);
-    writer.WriteInt(ScorePlayer1);
-    writer.WriteInt(ScorePlayer2);
+    writer.WriteByte((byte)ScorePlayer1);
+    writer.WriteByte((byte)ScorePlayer2);
   }
 
   public override void Deserialize(DataStreamReader reader) {
-    ScorePlayer1 = reader.ReadInt();
-    ScorePlayer2 = reader.ReadInt();
+    this.ScorePlayer1 = (int)reader.ReadByte();
+    this.ScorePlayer2 = (int)reader.ReadByte();
   }
 
   public override void ReceivedOnClient() {

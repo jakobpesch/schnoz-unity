@@ -13,10 +13,11 @@ public class GameManager : MonoBehaviour {
   private void Start() {
     switch (NetworkManager.Instance.NI) {
       case NetworkManager.NetworkIdentity.DEDICATED_SERVER: {
-          Debug.Log("Loaded Scene as dedicated server");
-          gameServer = new GameObject("StandardGameServer").AddComponent<StandardGameServer>();
-          Server.Instance.Broadcast(new NetStartGame());
-          break;
+          throw new NotImplementedException();
+          // Debug.Log("Loaded Scene as dedicated server");
+          // gameServer = new GameObject("StandardGameServer").AddComponent<StandardGameServer>();
+          // Server.Instance.Broadcast(new NetStartGame());
+          // break;
         }
       case NetworkManager.NetworkIdentity.HOST: {
           Debug.Log("Loaded Scene as host");
@@ -37,5 +38,4 @@ public class GameManager : MonoBehaviour {
         }
     }
   }
-
 }
