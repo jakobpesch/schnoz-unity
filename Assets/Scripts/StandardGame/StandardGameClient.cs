@@ -102,6 +102,7 @@ namespace Schnoz {
         int selectedCardIdx = obj as int? ?? default(int);
         this.SelectedCardId = this.GameClient.OpenCards[selectedCardIdx].Id;
         this.viewManager.Render(this, new PropertyChangedEventArgs("SelectedCard"));
+        this.SetHoveringTiles(this.HoveringTile);
       }
       #endregion
     }

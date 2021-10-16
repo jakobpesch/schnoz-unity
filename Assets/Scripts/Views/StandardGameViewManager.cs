@@ -57,13 +57,13 @@ public class StandardGameViewManager : MonoBehaviour {
       this.game.HandlePlayerInput(this, InputEventNames.MirrorVerticalButton);
     }
     if (Input.GetKeyDown(KeyCode.Alpha1)) {
-      this.game.HandlePlayerInput(this, InputEventNames.SelectCard, 0);
+      this.game.HandlePlayerInput(this, InputEventNames.SelectCard, 2);
     }
     if (Input.GetKeyDown(KeyCode.Alpha2)) {
       this.game.HandlePlayerInput(this, InputEventNames.SelectCard, 1);
     }
     if (Input.GetKeyDown(KeyCode.Alpha3)) {
-      this.game.HandlePlayerInput(this, InputEventNames.SelectCard, 2);
+      this.game.HandlePlayerInput(this, InputEventNames.SelectCard, 0);
     }
     #endregion
   }

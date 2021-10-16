@@ -163,9 +163,10 @@ namespace Schnoz {
     }
     private void OnMakeMove(NetMessage msg, NetworkConnection cnn) {
       Debug.Log("Message to Server: OnMakeMove");
+      Schnoz gs = this.GameServer;
 
-      int ownerId = isLocalGame ? this.GameServer.ActivePlayerId : cnn.InternalId;
-      if (ownerId != this.GameServer.ActivePlayerId) {
+      int ownerId = isLocalGame ? gs.ActivePlayerId : cnn.InternalId;
+      if (ownerId != gs.ActivePlayerId) {
         Debug.Log("Cannot place unit because it is not your turn.");
         return;
       }
@@ -179,53 +180,53 @@ namespace Schnoz {
       unitFormation.mirrorHorizontal = mm.mirrorHorizontal == 1 ? true : false;
       unitFormation.mirrorVertical = mm.mirrorVertical == 1 ? true : false;
       Coordinate coordinate = new Coordinate(mm.row, mm.col);
-      bool canPlaceUnitFormation = this.GameServer.CanPlaceUnitFormation(ownerId, coordinate, unitFormation);
+      bool canPlaceUnitFormation = gs.CanPlaceUnitFormation(ownerId, coordinate, unitFormation);
       if (!canPlaceUnitFormation) {
         Debug.Log("Cannot place unit because at least one tile is not placeable.");
         return;
       }
-      this.GameServer.PlaceUnitFormation(ownerId, coordinate, unitFormation);
+      gs.PlaceUnitFormation(ownerId, coordinate, unitFormation);
 
       NetUpdateUnits uu = new NetUpdateUnits();
-      uu.addedUnits = this.GameServer.Map.Units;
+      uu.addedUnits = gs.Map.Units;
       Server.Instance.Broadcast(uu);
 
       NetUpdateTerrains ut = new NetUpdateTerrains();
-      ut.terrains = this.GameServer.Map.Terrains;
+      ut.terrains = gs.Map.Terrains;
       Server.Instance.Broadcast(ut);
 
       r.renderTypes.Add(RenderTypes.Map);
 
-      bool endOfStage = this.GameServer.Turn % GameServer.GameSettings.NumberOfTurnsPerStage == 0;
-      Debug.Log($"TURN: {this.GameServer.Turn}, endOfStage: {endOfStage}");
+      bool endOfStage = gs.Turn != 0 && gs.Turn % gs.GameSettings.NumberOfTurnsPerStage + 1 == 0;
+      Debug.Log($"TURN: {gs.Turn}, endOfStage: {endOfStage}");
       if (endOfStage) {
-        this.GameServer.GameSettings.Rules.ForEach(rule => {
-          Player ruleWinner = this.GameServer.DetermineRuleWinner(rule.RuleName);
+        gs.GameSettings.Rules.ForEach(rule => {
+          Player ruleWinner = gs.DetermineRuleWinner(rule.RuleName);
           if (ruleWinner != null) {
             ruleWinner.SetScore(ruleWinner.Score + 1);
           }
         });
         NetUpdateScore us = new NetUpdateScore();
-        us.ScorePlayer1 = this.GameServer.GameSettings.IdToPlayerDict[0].Score;
-        us.ScorePlayer2 = this.GameServer.GameSettings.IdToPlayerDict[1].Score;
+        us.ScorePlayer1 = gs.GameSettings.IdToPlayerDict[0].Score;
+        us.ScorePlayer2 = gs.GameSettings.IdToPlayerDict[1].Score;
         Debug.Log($"SERVER: Score P1:{us.ScorePlayer1.ToString()}, Score P2: {us.ScorePlayer2.ToString()}");
         Server.Instance.Broadcast(us);
 
         r.renderTypes.Add(RenderTypes.Score);
       }
 
-      bool oddTurn = this.GameServer.Turn % 2 != 0;
+      bool oddTurn = gs.Turn % 2 != 0;
       if (oddTurn) {
-        this.GameServer.DrawCards();
+        gs.DrawCards();
         NetUpdateCards uc = new NetUpdateCards();
-        uc.cards = this.GameServer.Deck.OpenCards;
+        uc.cards = gs.Deck.OpenCards;
         Server.Instance.Broadcast(uc);
         r.renderTypes.Add(RenderTypes.OpenCards);
       } else {
         r.renderTypes.Add(RenderTypes.CurrentPlayer);
       }
 
-      this.GameServer.EndTurn();
+      gs.EndTurn();
       Server.Instance.Broadcast(new NetEndTurn());
 
       Server.Instance.Broadcast(r);
