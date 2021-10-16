@@ -37,9 +37,9 @@ public class StandardGameViewManager : MonoBehaviour {
 
     #region On resize
     if (resolution.x != Screen.width || resolution.y != Screen.height) {
-      this.RenderOpenCards();
       resolution.x = Screen.width;
       resolution.y = Screen.height;
+      this.RenderOpenCards(resolution);
     }
     #endregion
 
@@ -98,11 +98,11 @@ public class StandardGameViewManager : MonoBehaviour {
       // StartCoroutine(this.RenderMapSlowly());
     }
     if (e.PropertyName == "OpenCards") {
-      this.RenderOpenCards();
+      this.RenderOpenCards(new Vector2(Screen.width, Screen.height));
       // StartCoroutine(this.RenderMapSlowly());
     }
     if (e.PropertyName == "SelectedCard") {
-      this.RenderOpenCards();
+      this.RenderOpenCards(new Vector2(Screen.width, Screen.height));
     }
     if (e.PropertyName == "Rules") {
       this.RenderRuleStanding();
@@ -156,17 +156,6 @@ public class StandardGameViewManager : MonoBehaviour {
     //        }
     //        ));
 
-  }
-  private void CreateCardsUI() {
-    Debug.Log("Creating Open Cards GO");
-    this.openCardsGO = new GameObject("OpenCards");
-    this.openCardsGO.transform.SetParent(GameObject.Find("UI").transform);
-    RectTransform rect = openCardsGO.AddComponent<RectTransform>();
-    rect.anchorMin = new Vector2(0, 0);
-    rect.anchorMax = new Vector2(0, 0);
-    openCardsGO.transform.localPosition = new Vector3(0, 0, 0);
-    rect.anchoredPosition = new Vector3(Screen.width * 0.01f, Screen.width * 0.01f, 0);
-    rect.sizeDelta = new Vector2(100, 100);
   }
   public void StartListening() {
     this.game.GameClient.PropertyChanged -= new PropertyChangedEventHandler(this.Render);
@@ -303,24 +292,38 @@ public class StandardGameViewManager : MonoBehaviour {
     sr.sortingOrder = 20;
     return cardGO;
   }
-  private void RenderOpenCards() {
+  private void RenderOpenCards(Vector2 resolution) {
     Debug.Log("Rendering Open Cards");
     if (this.openCardsGO != null) {
       Debug.Log("Destroying OpenCardsGo");
       GameObject.Destroy(this.openCardsGO);
     }
-    this.CreateCardsUI();
+    this.CreateCardsUI(resolution);
 
     int index = 0;
     this.game.GameClient.OpenCards.ForEach(card => {
       GameObject cardGO = this.RenderCard(card);
       cardGO.transform.SetParent(this.openCardsGO.transform);
-      cardGO.transform.localPosition = new Vector2(0, index++);
+      cardGO.transform.localScale = Vector3.one;
+      cardGO.transform.localPosition = new Vector2(0, (float)index++);
       CardView cardView = cardGO.AddComponent<CardView>();
       cardView.game = this.game;
       cardView.cardId = card.Id;
     });
   }
+  private void CreateCardsUI(Vector2 resolution) {
+    Debug.Log("Creating Open Cards GO");
+    this.openCardsGO = new GameObject("OpenCards");
+    this.openCardsGO.transform.SetParent(GameObject.Find("UI").transform);
+    RectTransform rect = openCardsGO.AddComponent<RectTransform>();
+    rect.anchorMin = new Vector2(0, 0);
+    rect.anchorMax = new Vector2(0, 0);
+    openCardsGO.transform.localPosition = new Vector3(0, 0, 0);
+    rect.anchoredPosition = new Vector3(Screen.height * 0.1f, Screen.height * 0.1f, 0);
+    rect.sizeDelta = Vector2.one;
+    rect.localScale = new Vector2(Screen.height * 0.1f, Screen.height * 0.1f);
+  }
+
   private void CreateRulesUI() {
 
     // Debug.Log("Creating Rules GO");
