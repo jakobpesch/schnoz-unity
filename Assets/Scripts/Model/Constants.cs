@@ -20,7 +20,7 @@ namespace Schnoz {
     Map, Highlight, OpenCards, SelectedCard, Rules, Score, CurrentPlayer
   }
   public enum InputEventNames {
-    OnMouseUp, OnMouseEnter, OnMouseExit, RotateRightButton, RotateLeftButton, MirrorHorizontalButton, MirrorVerticalButton
+    OnMouseUp, OnMouseEnter, OnMouseExit, RotateRightButton, RotateLeftButton, MirrorHorizontalButton, MirrorVerticalButton, SelectCard
   }
 
   public enum RuleNames {

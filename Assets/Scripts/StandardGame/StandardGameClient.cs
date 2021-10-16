@@ -98,6 +98,11 @@ namespace Schnoz {
           this.viewManager.Render(this, new PropertyChangedEventArgs("SelectedCard"));
         }
       }
+      if (evt == InputEventNames.SelectCard) {
+        int selectedCardIdx = obj as int? ?? default(int);
+        this.SelectedCardId = this.GameClient.OpenCards[selectedCardIdx].Id;
+        this.viewManager.Render(this, new PropertyChangedEventArgs("SelectedCard"));
+      }
       #endregion
     }
 

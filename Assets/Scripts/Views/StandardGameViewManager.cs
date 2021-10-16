@@ -56,6 +56,15 @@ public class StandardGameViewManager : MonoBehaviour {
     if (Input.GetKeyDown(KeyCode.S)) {
       this.game.HandlePlayerInput(this, InputEventNames.MirrorVerticalButton);
     }
+    if (Input.GetKeyDown(KeyCode.Alpha1)) {
+      this.game.HandlePlayerInput(this, InputEventNames.SelectCard, 0);
+    }
+    if (Input.GetKeyDown(KeyCode.Alpha2)) {
+      this.game.HandlePlayerInput(this, InputEventNames.SelectCard, 1);
+    }
+    if (Input.GetKeyDown(KeyCode.Alpha3)) {
+      this.game.HandlePlayerInput(this, InputEventNames.SelectCard, 2);
+    }
     #endregion
   }
   public void Zoom() {
