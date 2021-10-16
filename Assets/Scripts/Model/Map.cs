@@ -75,7 +75,7 @@ namespace Schnoz {
     }
 
     private void RandomizeTerrain() {
-      float partsGrass = 20, partsWater = 3, partsBush = 5, partsStone = 1;
+      float partsGrass = Constants.ratioGrass, partsWater = Constants.ratioWater, partsBush = Constants.ratioBush, partsStone = Constants.ratioStone;
       float total = partsGrass + partsWater + partsBush + partsStone;
       float chanceGrass = partsGrass / total;
       float chanceWater = partsWater / total;
