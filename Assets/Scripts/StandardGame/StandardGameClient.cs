@@ -95,6 +95,7 @@ namespace Schnoz {
         Guid cardId = (Guid)obj;
         if (evt == InputEventNames.OnMouseUp) {
           this.SelectedCardId = cardId;
+          this.viewManager.Render(this, new PropertyChangedEventArgs("SelectedCard"));
         }
       }
       #endregion
