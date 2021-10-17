@@ -234,8 +234,8 @@ namespace Schnoz {
       Debug.Log("Message to Client: OnUpdateScore");
       NetUpdateScore us = msg as NetUpdateScore;
       Debug.Log($"CLIENT: Score P1:{us.ScorePlayer1.ToString()}, Score P2: {us.ScorePlayer2.ToString()}");
-      this.GameClient.GameSettings.IdToPlayerDict[0].SetScore(us.ScorePlayer1);
-      this.GameClient.GameSettings.IdToPlayerDict[1].SetScore(us.ScorePlayer2);
+      this.GameClient.GameSettings.PlayerIdToPlayerDict[PlayerIds.Player1].SetScore(us.ScorePlayer1);
+      this.GameClient.GameSettings.PlayerIdToPlayerDict[PlayerIds.Player2].SetScore(us.ScorePlayer2);
     }
 
     private void OnEndTurn(NetMessage msg) {

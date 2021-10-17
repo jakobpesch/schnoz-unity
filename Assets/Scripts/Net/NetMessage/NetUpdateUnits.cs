@@ -35,7 +35,7 @@ public class NetUpdateUnits : NetMessage {
     int unitsCount = reader.ReadInt();
     this.addedUnits = new List<Unit>();
     for (int i = 0; i < unitsCount; i++) {
-      int ownerId = (int)reader.ReadByte();
+      PlayerIds ownerId = (PlayerIds)reader.ReadByte();
       int row = (int)reader.ReadByte();
       int col = (int)reader.ReadByte();
       Coordinate coordinate = new Coordinate(row, col);

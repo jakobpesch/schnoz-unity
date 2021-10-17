@@ -13,18 +13,18 @@ namespace Schnoz {
   [Serializable]
   public class Player {
     public string PlayerName { get; private set; }
-    public int Id { get; private set; }
+    public PlayerIds Id { get; private set; }
     public int Score { get; private set; }
     public List<List<RuleEvaluation>> EvaluationHistory { get; private set; }
     public int SinglePieces { get; private set; }
     public int Stones { get; private set; }
     public string SoundName { get; private set; }
 
-    public Player(int id) {
+    public Player(PlayerIds id) {
       this.Id = id;
       this.PlayerName = "Player " + id;
     }
-    public Player(int id, int singlePieces, string soundName = "") {
+    public Player(PlayerIds id, int singlePieces, string soundName = "") {
       this.Id = id;
       this.SinglePieces = singlePieces;
       this.SoundName = soundName;

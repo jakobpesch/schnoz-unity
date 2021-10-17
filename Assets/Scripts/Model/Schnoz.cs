@@ -25,7 +25,7 @@ namespace Schnoz {
       }
     }
 
-    public Dictionary<int, Standing> PlayerIdToCurrentStandingDict {
+    public Dictionary<PlayerIds, Standing> PlayerIdToCurrentStandingDict {
       get {
         return this.Players
           .Select(player => new Standing(player, this.GameSettings.Rules, this.Map))
@@ -43,11 +43,10 @@ namespace Schnoz {
     public List<Player> Players { get => this.GameSettings.Players; }
     public int Turn { get; private set; }
     [SerializeField] private int stage;
-    public List<int> PlayersIds { get => this.GameSettings.PlayerIds; }
-    public int ActivePlayerId { get => this.GameSettings.TurnOrder[this.Turn]; }
+    public PlayerIds ActivePlayerId { get => this.GameSettings.TurnOrder[this.Turn]; }
     public Player ActivePlayer {
-      get => this.GameSettings.IdToPlayerDict.ContainsKey(this.ActivePlayerId)
-      ? this.GameSettings.IdToPlayerDict[this.ActivePlayerId]
+      get => this.GameSettings.PlayerIdToPlayerDict.ContainsKey(this.ActivePlayerId)
+      ? this.GameSettings.PlayerIdToPlayerDict[this.ActivePlayerId]
       : null;
     }
     public Player NeutralPlayer;
@@ -55,8 +54,8 @@ namespace Schnoz {
     public void InitialiseMap() {
       Debug.Log("Map will be Created");
       this.Map = new Map(this.GameSettings.NRows, this.GameSettings.NCols);
-      this.NeutralPlayer = new Player(3);
-      this.PlaceUnit(2, this.Map.CenterTile.Coordinate);
+      this.NeutralPlayer = new Player(PlayerIds.NeutralPlayer);
+      this.PlaceUnit(PlayerIds.NeutralPlayer, this.Map.CenterTile.Coordinate);
     }
 
     public void CreateDeck() {
@@ -88,7 +87,7 @@ namespace Schnoz {
     //   tile.SetTerrain(TerrainType.Grass);
     // }
 
-    public void PlaceUnit(int ownerId, Coordinate coord) {
+    public void PlaceUnit(PlayerIds ownerId, Coordinate coord) {
       Debug.Log($"Placing Unit for player {ownerId}");
       Tile tile = this.Map.CoordinateToTileDict[coord];
       Unit unit = new Unit(ownerId, coord);
@@ -100,7 +99,7 @@ namespace Schnoz {
       Tile tile = this.Map.CoordinateToTileDict[coord];
       tile.SetUnit(null);
     }
-    public void PlaceUnitFormation(int ownerId, Coordinate coord, UnitFormation unitFormation) {
+    public void PlaceUnitFormation(PlayerIds ownerId, Coordinate coord, UnitFormation unitFormation) {
       List<Coordinate> underlayingCoords = this.GetUnderlayingCoords(coord, unitFormation);
       foreach (Coordinate c in underlayingCoords) {
         this.PlaceUnit(ownerId, c);
@@ -108,8 +107,8 @@ namespace Schnoz {
     }
 
     public void CalculateScore() {
-      var standingsPlayer1 = this.PlayerIdToCurrentStandingDict[0];
-      var standingsPlayer2 = this.PlayerIdToCurrentStandingDict[1];
+      var standingsPlayer1 = this.PlayerIdToCurrentStandingDict[PlayerIds.Player1];
+      var standingsPlayer2 = this.PlayerIdToCurrentStandingDict[PlayerIds.Player2];
 
       this.GameSettings.RuleNameToRuleDict.Keys.ToList()
       .ForEach(ruleName => {
@@ -145,12 +144,12 @@ namespace Schnoz {
         .Select(c => this.Map.CoordinateToTileDict[c]).ToList();
     }
 
-    public bool CanPlaceUnitFormation(int ownerId, Coordinate coord, UnitFormation unitFormation) {
+    public bool CanPlaceUnitFormation(PlayerIds ownerId, Coordinate coord, UnitFormation unitFormation) {
       Tile tile = this.Map.CoordinateToTileDict[coord];
 
       Func<Tile, bool> IsAdjacentToNeutralOrAlly = (Tile tile) => this.Map
         .GetAdjacentTiles(tile)
-        .Any(t => t != null && t.Unit != null && (t.Unit.OwnerId == ownerId || t.Unit.OwnerId == 2));
+        .Any(t => t != null && t.Unit != null && (t.Unit.OwnerId == ownerId || t.Unit.OwnerId == PlayerIds.NeutralPlayer));
 
       List<Tile> underlayingTiles = this.GetUnderlayingTiles(coord, unitFormation);
 
@@ -158,10 +157,10 @@ namespace Schnoz {
         && underlayingTiles.Any(tile => IsAdjacentToNeutralOrAlly(tile));
     }
 
-    public List<Coordinate> GetAllPossiblePlacements(int ownerId) {
+    public List<Coordinate> GetAllPossiblePlacements(PlayerIds ownerId) {
       // WIP
       List<Coordinate> possibleCoordinates = new List<Coordinate>();
-      Func<Unit, bool> unitIsAllyOrNeutral = (Unit unit) => unit.OwnerId == ownerId || unit.OwnerId == 2;
+      Func<Unit, bool> unitIsAllyOrNeutral = (Unit unit) => unit.OwnerId == ownerId || unit.OwnerId == PlayerIds.NeutralPlayer;
       foreach (Unit unit in this.Map.Units.Where(unitIsAllyOrNeutral)) {
         Func<Tile, bool> tileIsPlaceable = (Tile tile) => tile.Placeable;
         foreach (Coordinate c in this.Map

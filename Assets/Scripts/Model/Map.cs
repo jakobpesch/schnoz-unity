@@ -32,6 +32,9 @@ namespace Schnoz {
       }
     }
     public List<Tile> Tiles { get; }
+    public List<Tile> VisibleTiles {
+      get => this.Tiles.Where(tile => tile.Visible).ToList();
+    }
     public Dictionary<Coordinate, Tile> CoordinateToTileDict { get; }
     public List<List<Tile>> DiagonalsFromBottomLeftToTopRight { get => GetDiagonalsFromBottomLeftToTopRight(); }
     public List<List<Tile>> DiagonalsFromTopLeftToBottomRight { get => GetDiagonalsFromTopLeftToBottomRight(); }
@@ -124,7 +127,7 @@ namespace Schnoz {
       netMap.c = this.nCols;
       netMap.u = this.Units.Select(unit => {
         NetUnit netUnit = new NetUnit();
-        netUnit.i = unit.OwnerId;
+        netUnit.i = (int)unit.OwnerId;
         netUnit.r = unit.Coordinate.row;
         netUnit.c = unit.Coordinate.col;
         return netUnit;
@@ -154,22 +157,25 @@ namespace Schnoz {
         return distance <= radius + 0.2f;
       }).ToList();
     }
-    public IEnumerable<Unit> GetAdjacentEnemies(Tile centerTile, List<Tile> adjacentTiles) {
-      return adjacentTiles.FindAll(
-          at => at.Unit.OwnerId
-          != centerTile.Unit.OwnerId).Select(atWithEnemies => atWithEnemies.Unit);
+    public List<Unit> GetAdjacentEnemies(Tile centerTile, PlayerIds ownerId) {
+      return this.GetAdjacentTiles(centerTile).Select(adjacentTile => {
+        var unit = this.CoordinateToTileDict[adjacentTile.Coordinate].Unit;
+        if (unit == null || unit.OwnerId == ownerId || unit.OwnerId == PlayerIds.NeutralPlayer) {
+          return null;
+        } else {
+          return unit;
+        }
+      }).Where(unit => unit != null).ToList();
     }
-    public IEnumerable<Unit> GetAdjacentAllies(Tile centerTile, List<Tile> adjacentTiles) {
-      return GetAdjacentTiles(centerTile).Select(adjacentTile =>
-        this.CoordinateToTileDict.ContainsKey(adjacentTile.Coordinate)
-        ? this.CoordinateToTileDict[adjacentTile.Coordinate].Unit
-        : null
-      );
-    }
-    public IEnumerable<Tile> GetTilesWithUnitsFrom(List<Tile> tiles) {
-      return tiles.FindAll(tile =>
-          tile != null &&
-          tile.Unit != null);
+    public List<Unit> GetAdjacentAllies(Tile centerTile, PlayerIds ownerId) {
+      return this.GetAdjacentTiles(centerTile).Select(adjacentTile => {
+        var unit = this.CoordinateToTileDict[adjacentTile.Coordinate].Unit;
+        if (unit == null || unit.OwnerId != ownerId) {
+          return null;
+        } else {
+          return unit;
+        }
+      }).Where(unit => unit != null).ToList();
     }
     public List<Tile> GetAdjacentTiles(Tile middleTile) {
       List<Coordinate> directions = new List<Coordinate>()
@@ -185,8 +191,13 @@ namespace Schnoz {
           return null;
         }
         return this.CoordinateToTileDict[adjacentCoordinate];
-      }).ToList();
+      }).Where(tile => tile != null).ToList();
       return adjacentTiles.ToList();
+    }
+    public IEnumerable<Tile> GetTilesWithUnitsFrom(List<Tile> tiles) {
+      return tiles.FindAll(tile =>
+          tile != null &&
+          tile.Unit != null);
     }
     private List<List<Tile>> GetDiagonalsFromBottomLeftToTopRight() {
       IEnumerable<Tile> bottomAndLeftBorderTiles = this.Tiles.Where(tile =>

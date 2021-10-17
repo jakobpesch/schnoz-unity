@@ -41,6 +41,7 @@ namespace Schnoz {
       List<RuleNames> ruleNames = new List<RuleNames>();
       ruleNames.Add(RuleNames.DiagonalToTopRight);
       ruleNames.Add(RuleNames.Water);
+      ruleNames.Add(RuleNames.Holes);
 
       this.gameSettings = new GameSettings(Constants.mapSize, Constants.mapSize, 3, 0, 6, 60, ruleNames);
       this.GameServer = new Schnoz(this.gameSettings);
@@ -115,7 +116,7 @@ namespace Schnoz {
       Debug.Log("Message to Server: OnMakeMove");
       Schnoz gs = this.GameServer;
 
-      int ownerId = isLocalGame ? gs.ActivePlayerId : cnn.InternalId;
+      PlayerIds ownerId = isLocalGame ? gs.ActivePlayerId : (PlayerIds)cnn.InternalId;
       if (ownerId != gs.ActivePlayerId) {
         Debug.Log("Cannot place unit because it is not your turn.");
         return;
@@ -157,8 +158,8 @@ namespace Schnoz {
           }
         });
         NetUpdateScore us = new NetUpdateScore();
-        us.ScorePlayer1 = gs.GameSettings.IdToPlayerDict[0].Score;
-        us.ScorePlayer2 = gs.GameSettings.IdToPlayerDict[1].Score;
+        us.ScorePlayer1 = gs.GameSettings.PlayerIdToPlayerDict[PlayerIds.Player1].Score;
+        us.ScorePlayer2 = gs.GameSettings.PlayerIdToPlayerDict[PlayerIds.Player2].Score;
         Debug.Log($"SERVER: Score P1:{us.ScorePlayer1.ToString()}, Score P2: {us.ScorePlayer2.ToString()}");
         Server.Instance.Broadcast(us);
 

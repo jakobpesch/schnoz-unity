@@ -10,10 +10,10 @@ namespace Schnoz {
   [Serializable]
   public class RuleEvaluation {
     public RuleNames RuleName { get; private set; }
-    public int PlayerId { get; private set; }
+    public PlayerIds PlayerId { get; private set; }
     public int Points { get; private set; }
     // public IList<object> RelevantTiles { get; private set; }
-    public RuleEvaluation(RuleNames ruleName, int playerId, int Points)//, List<object> relevantTiles)
+    public RuleEvaluation(RuleNames ruleName, PlayerIds playerId, int Points)//, List<object> relevantTiles)
     {
       this.RuleName = ruleName;
       this.Points = Points;

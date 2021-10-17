@@ -126,7 +126,7 @@ public class StandardGameViewManager : MonoBehaviour {
 
   private void RenderCurrentPlayer() {
     this.game.GameClient.Players.ForEach(player => {
-      string charPath = $"UI/Points/Score Details/Player {player.Id + 1}/Character";
+      string charPath = $"UI/Points/Score Details/Player {(int)player.Id + 1}/Character";
       var scale = this.game.GameClient.ActivePlayerId == player.Id ? 110 : 90;
       GameObject.Find(charPath).transform.localScale = new Vector3(scale, scale, scale);
     });
@@ -196,9 +196,9 @@ public class StandardGameViewManager : MonoBehaviour {
     SpriteRenderer sr = unitGO.AddComponent<SpriteRenderer>();
     string untiSpritePath;
     switch (unit.OwnerId) {
-      case 0: { untiSpritePath = "Sprites/bob"; break; }
-      case 1: { untiSpritePath = "Sprites/sigene"; break; }
-      case 2: { untiSpritePath = "Sprites/house"; break; }
+      case PlayerIds.Player1: { untiSpritePath = "Sprites/bob"; break; }
+      case PlayerIds.Player2: { untiSpritePath = "Sprites/sigene"; break; }
+      case PlayerIds.NeutralPlayer: { untiSpritePath = "Sprites/house"; break; }
       default: { untiSpritePath = ""; break; }
     }
     sr.sprite = Resources.Load<Sprite>(untiSpritePath);
@@ -211,9 +211,9 @@ public class StandardGameViewManager : MonoBehaviour {
     SpriteRenderer sr = unitGO.AddComponent<SpriteRenderer>();
     string untiSpritePath;
     switch (unit.OwnerId) {
-      case 0: { untiSpritePath = "Sprites/bob"; break; }
-      case 1: { untiSpritePath = "Sprites/sigene"; break; }
-      case 2: { untiSpritePath = "Sprites/house"; break; }
+      case PlayerIds.Player1: { untiSpritePath = "Sprites/bob"; break; }
+      case PlayerIds.Player2: { untiSpritePath = "Sprites/sigene"; break; }
+      case PlayerIds.NeutralPlayer: { untiSpritePath = "Sprites/house"; break; }
       default: { untiSpritePath = ""; break; }
     }
     sr.sprite = Resources.Load<Sprite>(untiSpritePath);
@@ -383,7 +383,7 @@ public class StandardGameViewManager : MonoBehaviour {
     gc.Players.ForEach(player => {
       gc.GameSettings.Rules.ForEach(rule => {
         RuleEvaluation eval = rule.Evaluate(player, gc.Map);
-        string pathRule = $"UI/Points/Rule Details/VStack/{eval.RuleName}/Player{eval.PlayerId + 1}/Value";
+        string pathRule = $"UI/Points/Rule Details/VStack/{eval.RuleName}/Player{(int)eval.PlayerId + 1}/Value";
         GameObject.Find(pathRule).GetComponent<TextMeshProUGUI>().text = eval.Points.ToString();
       }
      );
@@ -395,7 +395,7 @@ public class StandardGameViewManager : MonoBehaviour {
 
     gc.Players.ForEach(player => {
       int score = player.Score;
-      string pathScore = $"UI/Points/Score Details/Player {player.Id + 1}/Value";
+      string pathScore = $"UI/Points/Score Details/Player {(int)player.Id + 1}/Value";
       GameObject.Find(pathScore).GetComponent<TextMeshProUGUI>().text = score.ToString();
     });
   }

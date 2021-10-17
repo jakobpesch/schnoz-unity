@@ -7,6 +7,7 @@ namespace Schnoz {
     public static Dictionary<RuleNames, RuleLogic> RuleNameToRuleLogicDict = new Dictionary<RuleNames, RuleLogic>() {
       {RuleNames.Water, RuleLogicMethods.Water},
       {RuleNames.DiagonalToTopRight, RuleLogicMethods.DiagonalToTopRight},
+      {RuleNames.Holes, RuleLogicMethods.Holes},
     };
     public const int mapSize = 31, ratioGrass = 50, ratioStone = 1, ratioWater = 3, ratioBush = 3, SaveArea = 3;
   }
@@ -24,7 +25,11 @@ namespace Schnoz {
   }
 
   public enum RuleNames {
-    DiagonalToTopRight, Water
+    DiagonalToTopRight, Water, Holes
+  }
+
+  public enum PlayerIds {
+    Player1, Player2, NeutralPlayer
   }
 
   public static class RuleLogicMethods {
@@ -50,6 +55,30 @@ namespace Schnoz {
       }
       int points = validUnitDiagonals.Count;
       return new RuleEvaluation(RuleNames.DiagonalToTopRight, player.Id, points);//, (List<object>)validUnitDiagonals);
+    };
+    public static RuleLogic Holes =
+    (Player player, Map map) => {
+      List<Tile> holes = new List<Tile>();
+      Debug.Log(map.VisibleTiles.Count);
+      foreach (Tile visibleTile in map.VisibleTiles) {
+        var placeable = visibleTile.Placeable;
+        if (!placeable) continue;
+        Debug.Log($"HOLES {visibleTile.Coordinate}: Placeable");
+        var atLeastOneAllyAdjacent = map.GetAdjacentAllies(visibleTile, player.Id).Count > 0;
+        if (!atLeastOneAllyAdjacent) continue;
+        Debug.Log($"HOLES {visibleTile.Coordinate}: AllyNearby");
+        var enclosed = map.GetAdjacentTiles(visibleTile).All(tile => !tile.Placeable);
+        if (!enclosed) continue;
+        Debug.Log($"HOLES {visibleTile.Coordinate}: Enclosed");
+
+        var enemyAdjacent = map.GetAdjacentEnemies(visibleTile, player.Id).Count > 0;
+        if (enemyAdjacent) continue;
+        Debug.Log($"HOLES {visibleTile.Coordinate}: No enemy Adjacent");
+
+        holes.Add(visibleTile);
+      }
+      int points = holes.Count;
+      return new RuleEvaluation(RuleNames.Holes, player.Id, points);//, (List<object>)validUnitDiagonals);
     };
 
     public static RuleLogic Water =
