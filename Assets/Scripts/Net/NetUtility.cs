@@ -3,17 +3,19 @@ using Unity.Networking.Transport;
 using System;
 
 public enum OpCode {
-  KEEP_ALIVE = 1,
-  WELCOME = 2,
-  START_GAME = 3,
-  MAKE_MOVE = 4,
-  INITIALISE_MAP = 5,
-  UPDATE_UNITS = 6,
-  UPDATE_TERRAINS = 7,
-  UPDATE_CARDS = 8,
-  END_TURN = 9,
-  UPDATE_SCORE = 10,
-  RENDER = 11,
+  KEEP_ALIVE,
+  WELCOME,
+  START_GAME,
+  MAKE_MOVE,
+  INITIALISE_MAP,
+  UPDATE_UNITS,
+  UPDATE_TERRAINS,
+  UPDATE_CARDS,
+  UPDATE_SINGLE_PIECES,
+  PUT_SINGLE_PIECE,
+  END_TURN,
+  UPDATE_SCORE,
+  RENDER,
 }
 
 
@@ -30,6 +32,8 @@ public static class NetUtility {
       case OpCode.UPDATE_UNITS: msg = new NetUpdateUnits(stream); break;
       case OpCode.UPDATE_TERRAINS: msg = new NetUpdateTerrains(stream); break;
       case OpCode.UPDATE_CARDS: msg = new NetUpdateCards(stream); break;
+      case OpCode.UPDATE_SINGLE_PIECES: msg = new NetUpdateSinglePieces(stream); break;
+      case OpCode.PUT_SINGLE_PIECE: msg = new NetPutSinglePiece(stream); break;
       case OpCode.END_TURN: msg = new NetEndTurn(stream); break;
       case OpCode.UPDATE_SCORE: msg = new NetUpdateScore(stream); break;
       case OpCode.RENDER: msg = new NetRender(stream); break;
@@ -44,26 +48,6 @@ public static class NetUtility {
       msg.ReceivedOnClient();
     }
   }
-  public static Action<NetMessage> C_KEEP_ALIVE;
-  public static Action<NetMessage> C_WELCOME;
-  public static Action<NetMessage> C_START_GAME;
-  public static Action<NetMessage> C_MAKE_MOVE;
-  public static Action<NetMessage> C_INITIALISE_MAP;
-  public static Action<NetMessage> C_UPDATE_UNITS;
-  public static Action<NetMessage> C_UPDATE_TERRAINS;
-  public static Action<NetMessage> C_UPDATE_CARDS;
-  public static Action<NetMessage> C_END_TURN;
-  public static Action<NetMessage> C_UPDATE_SCORE;
-  public static Action<NetMessage> C_RENDER;
-  public static Action<NetMessage, NetworkConnection> S_KEEP_ALIVE;
-  public static Action<NetMessage, NetworkConnection> S_WELCOME;
-  public static Action<NetMessage, NetworkConnection> S_START_GAME;
-  public static Action<NetMessage, NetworkConnection> S_MAKE_MOVE;
-  public static Action<NetMessage, NetworkConnection> S_INITIALISE_MAP;
-  public static Action<NetMessage, NetworkConnection> S_UPDATE_UNITS;
-  public static Action<NetMessage, NetworkConnection> S_UPDATE_TERRAINS;
-  public static Action<NetMessage, NetworkConnection> S_UPDATE_CARDS;
-  public static Action<NetMessage, NetworkConnection> S_END_TURN;
-  public static Action<NetMessage, NetworkConnection> S_UPDATE_SCORE;
-  public static Action<NetMessage, NetworkConnection> S_RENDER;
+  public static Action<NetMessage> C_KEEP_ALIVE, C_WELCOME, C_START_GAME, C_MAKE_MOVE, C_INITIALISE_MAP, C_UPDATE_UNITS, C_UPDATE_TERRAINS, C_UPDATE_CARDS, C_UPDATE_SINGLE_PIECES, C_PUT_SINGLE_PIECE, C_END_TURN, C_UPDATE_SCORE, C_RENDER;
+  public static Action<NetMessage, NetworkConnection> S_KEEP_ALIVE, S_WELCOME, S_START_GAME, S_MAKE_MOVE, S_INITIALISE_MAP, S_UPDATE_UNITS, S_UPDATE_TERRAINS, S_UPDATE_CARDS, S_UPDATE_SINGLE_PIECES, S_PUT_SINGLE_PIECE, S_END_TURN, S_UPDATE_SCORE, S_RENDER;
 }

@@ -47,7 +47,7 @@ namespace Schnoz {
       this.numberOfCardsPerTurn = numberOfCardsPerTurn;
       this.numberOfSinglePieces = numberOfSinglePieces;
       this.numberOfStages = numberOfStages;
-      this.Players = new List<Player>() { new Player(PlayerIds.Player1), new Player(PlayerIds.Player2) };
+      this.Players = new List<Player>() { new Player(PlayerIds.Player1, this.numberOfSinglePieces), new Player(PlayerIds.Player2, this.numberOfSinglePieces) };
       this.PlayerIdToPlayerDict = Players.ToDictionary(player => player.Id);
       this.Rules = ruleNames.Select(ruleName => new Rule(ruleName, Constants.RuleNameToRuleLogicDict[ruleName])).ToList();
       this.RuleNameToRuleDict = this.Rules.ToDictionary(rule => {

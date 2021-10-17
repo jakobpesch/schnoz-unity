@@ -12,7 +12,6 @@ public class TileView : MonoBehaviour {
     this.gameObject.AddComponent<BoxCollider2D>();
   }
   private void OnMouseUp() {
-    Debug.Log("Pan: Place Card");
     if (!this.viewManager.IsPanning) {
       this.game.HandlePlayerInput(this, InputEventNames.OnMouseUp, this.coordinate);
     }

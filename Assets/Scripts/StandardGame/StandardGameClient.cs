@@ -25,9 +25,10 @@ namespace Schnoz {
       get => this.selectedCardId;
       set {
         this.selectedCardId = value;
-        this.viewManager.Render(this, new PropertyChangedEventArgs("SelectedCard"));
+        this.viewManager.Render(this, new PropertyChangedEventArgs(RenderTypes.SelectedCard.ToString()));
       }
     }
+    public Guid SinglePieceId { get; set; }
     public Dictionary<Guid, Card> OpenCardsDict {
       get => this.GameClient.OpenCards.ToDictionary(card => card.Id);
     }
@@ -62,7 +63,7 @@ namespace Schnoz {
 
         // Place tile
         if (evt == InputEventNames.OnMouseUp) {
-          if (this.SelectedCardId != null
+          if (this.SelectedCardId != Guid.Empty
             && this.OpenCardsDict.ContainsKey(this.SelectedCardId)
             && this.OpenCardsDict[this.SelectedCardId] != null) {
             UnitFormation untiFormation = this.OpenCardsDict[this.SelectedCardId].unitFormation;
@@ -74,9 +75,14 @@ namespace Schnoz {
             mm.mirrorHorizontal = untiFormation.mirrorHorizontal ? 1 : 0;
             mm.mirrorVertical = untiFormation.mirrorVertical ? 1 : 0;
             mm.teamId = this.currentTeam;
-            Debug.Log(JsonUtility.ToJson(mm));
             Client.Instance.SendToServer(mm);
-            this.SelectedCardId = Guid.Empty;
+          }
+          if (this.SinglePieceId != Guid.Empty) {
+            if (this.GameClient.GameSettings.PlayerIdToPlayerDict[this.GameClient.ActivePlayerId].SinglePieces > 0) {
+              NetPutSinglePiece psp = new NetPutSinglePiece();
+              psp.coordinate = tile.Coordinate;
+              Client.Instance.SendToServer(psp);
+            }
           }
         }
 
@@ -102,7 +108,18 @@ namespace Schnoz {
       if (evt == InputEventNames.SelectCard) {
         int selectedCardIdx = obj as int? ?? default(int);
         this.SelectedCardId = this.GameClient.OpenCards[selectedCardIdx].Id;
+        this.SinglePieceId = Guid.Empty;
         this.SetHoveringTiles(this.HoveringTile);
+      }
+      #endregion
+
+      #region SinglePiece event
+      if (typeof(SinglePieceView) == sender?.GetType()) {
+        if (this.GameClient.GameSettings.PlayerIdToPlayerDict[this.GameClient.ActivePlayerId].SinglePieces > 0) {
+          this.SinglePieceId = (Guid)obj;
+          this.SelectedCardId = Guid.Empty;
+          Debug.Log(this.SinglePieceId);
+        }
       }
       #endregion
     }
@@ -111,14 +128,19 @@ namespace Schnoz {
     private void SetHoveringTiles(Tile tile) {
       if (tile == null) {
         this.HoveringTiles = new List<Tile>();
-        this.viewManager.Render(this, new PropertyChangedEventArgs("Highlight"));
+        this.viewManager.Render(this, new PropertyChangedEventArgs(RenderTypes.Highlight.ToString()));
         return;
       }
       this.hoveringTile = tile;
+      this.HoveringTiles = new List<Tile>();
       if (this.SelectedCardId == Guid.Empty) {
+        if (this.SinglePieceId == Guid.Empty) {
+          return;
+        }
+        this.HoveringTiles.Add(tile);
+        this.viewManager.Render(this, new PropertyChangedEventArgs(RenderTypes.Highlight.ToString()));
         return;
       }
-      this.HoveringTiles = new List<Tile>();
       Arrangement arrangement = this.OpenCardsDict[this.SelectedCardId].unitFormation.Arrangement;
       if (arrangement == null) {
         return;
@@ -130,7 +152,7 @@ namespace Schnoz {
           this.HoveringTiles.Add(t);
         }
       }
-      this.viewManager.Render(this, new PropertyChangedEventArgs("Highlight"));
+      this.viewManager.Render(this, new PropertyChangedEventArgs(RenderTypes.Highlight.ToString()));
     }
     #endregion
 
@@ -151,6 +173,7 @@ namespace Schnoz {
       NetUtility.C_RENDER += this.OnRender;
       NetUtility.C_END_TURN += this.OnEndTurn;
       NetUtility.C_UPDATE_SCORE += this.OnUpdateScore;
+      NetUtility.C_UPDATE_SINGLE_PIECES += this.OnUpdateSinglePieces;
     }
     private void UnregisterEvents() {
       NetUtility.C_WELCOME -= this.OnWelcome;
@@ -161,9 +184,14 @@ namespace Schnoz {
       NetUtility.C_RENDER -= this.OnRender;
       NetUtility.C_END_TURN -= this.OnEndTurn;
       NetUtility.C_UPDATE_SCORE -= this.OnUpdateScore;
+      NetUtility.C_UPDATE_SINGLE_PIECES -= this.OnUpdateSinglePieces;
     }
 
-
+    private void OnUpdateSinglePieces(NetMessage msg) {
+      NetUpdateSinglePieces usp = msg as NetUpdateSinglePieces;
+      this.GameClient.GameSettings.PlayerIdToPlayerDict[PlayerIds.Player1].SetSinglePiece(usp.SinglePiecesPlayer1);
+      this.GameClient.GameSettings.PlayerIdToPlayerDict[PlayerIds.Player2].SetSinglePiece(usp.SinglePiecesPlayer2);
+    }
 
     /// <summary>
     /// The server accepted the connection and assigned a team to the client
@@ -202,7 +230,7 @@ namespace Schnoz {
 
       NetInitialiseMap im = msg as NetInitialiseMap;
 
-      this.gameSettings = new GameSettings(im.nRows, im.nCols, 3, 0, 6, 60, im.ruleNames);
+      this.gameSettings = new GameSettings(im.nRows, im.nCols, 3, 3, 6, 60, im.ruleNames);
       this.GameClient = new Schnoz(gameSettings);
       this.CreateViewManager();
 

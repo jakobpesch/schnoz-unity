@@ -24,10 +24,8 @@ namespace Schnoz {
       this.Id = id;
       this.PlayerName = "Player " + id;
     }
-    public Player(PlayerIds id, int singlePieces, string soundName = "") {
-      this.Id = id;
+    public Player(PlayerIds id, int singlePieces) : this(id) {
       this.SinglePieces = singlePieces;
-      this.SoundName = soundName;
     }
     public void AddTurnEvaluation(List<RuleEvaluation> turnEvaluation) {
       EvaluationHistory.Add(turnEvaluation);
@@ -36,7 +34,16 @@ namespace Schnoz {
       }
     }
 
-    public void SetSinglePieces(int singlePieces) {
+    public void AddSinglePiece() {
+      this.SinglePieces++;
+    }
+
+    public void RemoveSinglePiece() {
+      if (this.SinglePieces > 0) {
+        this.SinglePieces--;
+      }
+    }
+    public void SetSinglePiece(int singlePieces) {
       this.SinglePieces = singlePieces;
     }
 

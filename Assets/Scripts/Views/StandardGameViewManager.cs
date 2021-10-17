@@ -98,38 +98,33 @@ public class StandardGameViewManager : MonoBehaviour {
   public void Render(object sender, PropertyChangedEventArgs e) {
     // Debug.Log($"{this} was notified about change in {e.PropertyName}.");
     // Debug.Log($"Render {e}");
-    if (e.PropertyName == "Map") {
+    if (e.PropertyName == RenderTypes.Map.ToString()) {
       this.RenderMap();
       // StartCoroutine(this.RenderMapSlowly());
     }
-    if (e.PropertyName == "Highlight") {
+    if (e.PropertyName == RenderTypes.Highlight.ToString()) {
       this.RenderHighlights();
       // StartCoroutine(this.RenderMapSlowly());
     }
-    if (e.PropertyName == "OpenCards") {
+    if (e.PropertyName == RenderTypes.OpenCards.ToString()) {
       this.RenderOpenCards(new Vector2(Screen.width, Screen.height));
       // StartCoroutine(this.RenderMapSlowly());
     }
-    if (e.PropertyName == "SelectedCard") {
+    if (e.PropertyName == RenderTypes.SelectedCard.ToString()) {
       this.RenderOpenCards(new Vector2(Screen.width, Screen.height));
     }
-    if (e.PropertyName == "Rules") {
+    if (e.PropertyName == RenderTypes.Rules.ToString()) {
       this.RenderRuleStanding();
     }
-    if (e.PropertyName == "Score") {
+    if (e.PropertyName == RenderTypes.Score.ToString()) {
       this.RenderScore();
     }
-    if (e.PropertyName == "CurrentPlayer") {
+    if (e.PropertyName == RenderTypes.CurrentPlayer.ToString()) {
       this.RenderCurrentPlayer();
     }
-  }
-
-  private void RenderCurrentPlayer() {
-    this.game.GameClient.Players.ForEach(player => {
-      string charPath = $"UI/Points/Score Details/Player {(int)player.Id + 1}/Character";
-      var scale = this.game.GameClient.ActivePlayerId == player.Id ? 110 : 90;
-      GameObject.Find(charPath).transform.localScale = new Vector3(scale, scale, scale);
-    });
+    if (e.PropertyName == RenderTypes.SinglePieces.ToString()) {
+      this.RenderSinglePieces();
+    }
   }
 
   private void Start() {
@@ -151,24 +146,8 @@ public class StandardGameViewManager : MonoBehaviour {
     // CreateCardsUI();
     #endregion
 
-    // this.scores = new List<TextMeshProUGUI>();
-    // this.game.GameClient.gameSettings
-    //    .Players.ForEach(player => this.game.GameClient.gameSettings
-    //    .Rules.ForEach(rule =>
-    //        {
-    //          Debug.Log("TESTSTSTTSTSTS");
-    //          var s = GameObject.Instantiate(Resources.Load<GameObject>("Prefab/Score")).GetComponent<TextMeshProUGUI>();
-    //          this.scores.Add(s);
-    //          s.transform.SetParent(GameObject.Find("UI").transform);
-    //          RectTransform rect = s.gameObject.AddComponent<RectTransform>();
-    //          rect.anchorMin = new Vector2(0, 1);
-    //          rect.anchorMax = new Vector2(0, 1);
-    //          s.transform.localPosition = new Vector3(0, 0, 0);
-    //          rect.anchoredPosition = new Vector3(Screen.width * 0.01f, Screen.width * 0.01f, 0);
-    //          rect.sizeDelta = new Vector2(100, 100);
-    //        }
-    //        ));
-
+    var singlePiecePlayer1 = GameObject.Find($"UI/SinglePieces/Player").GetComponent<SinglePieceView>();
+    singlePiecePlayer1.game = this.game;
   }
   public void StartListening() {
     this.game.GameClient.PropertyChanged -= new PropertyChangedEventHandler(this.Render);
@@ -251,7 +230,18 @@ public class StandardGameViewManager : MonoBehaviour {
     sr.sortingOrder = 20;
     return fogGO;
   }
+  private void RenderSinglePieces() {
+    string path = $"UI/SinglePieces/Player/Value";
+    GameObject.Find(path).GetComponent<TextMeshProUGUI>().text = this.game.GameClient.GameSettings.PlayerIdToPlayerDict[this.game.GameClient.ActivePlayerId].SinglePieces.ToString();
+  }
 
+  private void RenderCurrentPlayer() {
+    this.game.GameClient.Players.ForEach(player => {
+      string charPath = $"UI/Points/Score Details/Player {(int)player.Id + 1}/Character";
+      var scale = this.game.GameClient.ActivePlayerId == player.Id ? 110 : 90;
+      GameObject.Find(charPath).transform.localScale = new Vector3(scale, scale, scale);
+    });
+  }
   private void RenderHighlights() {
     foreach (GameObject hoverUnit in GameObject.FindGameObjectsWithTag("HoverUnit")) {
       Destroy(hoverUnit);

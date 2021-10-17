@@ -18,7 +18,7 @@ namespace Schnoz {
     Single_1, Straight_2, Straight_3, Straight_4, Diagonal_2, Corner_3, L_4, Z_4, Horse_3, Paralell_4
   }
   public enum RenderTypes {
-    Map, Highlight, OpenCards, SelectedCard, Rules, Score, CurrentPlayer
+    Map, Highlight, OpenCards, SelectedCard, Rules, Score, CurrentPlayer, SinglePieces
   }
   public enum InputEventNames {
     OnMouseUp, OnMouseEnter, OnMouseExit, RotateRightButton, RotateLeftButton, MirrorHorizontalButton, MirrorVerticalButton, SelectCard
@@ -86,10 +86,10 @@ namespace Schnoz {
       List<Tile> waterTiles = map.Tiles.Where(tile => tile.Terrain.Type == TerrainType.Water).ToList();
       List<Tile> relevantTiles = new List<Tile>();
       foreach (Tile waterTile in waterTiles) {
-        foreach (Tile tile in map.GetAdjacentTiles(waterTile)) {
-          if (tile != null && tile.Unit != null && tile.Unit.OwnerId == player.Id) {
-            relevantTiles.Add(tile);
-          }
+        var hasAdjacentAlly = map.GetAdjacentTiles(waterTile).Any(tile =>
+                tile != null && tile.Unit != null && tile.Unit.OwnerId == player.Id);
+        if (hasAdjacentAlly) {
+          relevantTiles.Add(waterTile);
         }
       }
       int points = relevantTiles.Count();
