@@ -135,11 +135,15 @@ public class StandardGameViewManager : MonoBehaviour {
   private void Start() {
     #region Camera movement setup
     this.mainCam = Camera.main;
-    float nCols = (float)this.game.GameClient.GameSettings.NCols;
-    float boardSize = (nCols + 1);
-    float initialZoomSize = 1.3f * nCols / 2;
+    var visibleTiles = this.game.GameClient.Map.Tiles.Where(tile => tile.Visible);
+    var min = visibleTiles.Min(tile => tile.Coordinate.col);
+    var max = visibleTiles.Max(tile => tile.Coordinate.col);
+    float nVisibleCols = (float)(max - min);
+    float visibleArea = (nVisibleCols + 1);
+    float boardSize = this.game.GameClient.GameSettings.NCols;
+    float initialZoomSize = 1.3f * nVisibleCols / 2;
     this.mainCam.orthographicSize = initialZoomSize;
-    this.mainCam.transform.position = new Vector3(nCols / 2, nCols / 2, -10);
+    this.mainCam.transform.position = new Vector3(boardSize / 2, boardSize / 2, -10);
     this.zoomMaxSize = 1 + boardSize / 2;
     #endregion
 
