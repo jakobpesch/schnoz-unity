@@ -8,7 +8,7 @@ namespace Schnoz {
   public class StandardGameClient : MonoBehaviour {
     // Multiplayer logic
     [SerializeField] private int currentTeam = -1;
-    [SerializeField] private StandardGameViewManager viewManager;
+    public StandardGameViewManager ViewManager { get; private set; }
     public Schnoz GameClient { get; private set; }
     [SerializeField] private GameSettings gameSettings;
     [SerializeField] private Tile hoveringTile;
@@ -25,7 +25,7 @@ namespace Schnoz {
       get => this.selectedCardId;
       set {
         this.selectedCardId = value;
-        this.viewManager.Render(this, new PropertyChangedEventArgs(RenderTypes.SelectedCard.ToString()));
+        this.ViewManager.Render(RenderTypes.SelectedCard);
       }
     }
     public Guid SinglePieceId { get; set; }
@@ -35,6 +35,8 @@ namespace Schnoz {
     public Dictionary<Coordinate, Tile> TileDict {
       get => this.GameClient.Map.Tiles.ToDictionary(tile => tile.Coordinate);
     }
+
+
     public void HandlePlayerInput(object sender, InputEventNames evt, object obj = null) {
       #region Change card orientation
       if (this.SelectedCardId != Guid.Empty) {
@@ -101,16 +103,17 @@ namespace Schnoz {
       #region Card events
       if (typeof(CardView) == sender?.GetType()) {
         Guid cardId = (Guid)obj;
-        if (evt == InputEventNames.OnMouseUp) {
+        if (evt == InputEventNames.SelectCard) {
           this.SelectedCardId = cardId;
+          this.SetHoveringTiles(this.HoveringTile);
         }
       }
-      if (evt == InputEventNames.SelectCard) {
-        int selectedCardIdx = obj as int? ?? default(int);
-        this.SelectedCardId = this.GameClient.OpenCards[selectedCardIdx].Id;
-        this.SinglePieceId = Guid.Empty;
-        this.SetHoveringTiles(this.HoveringTile);
-      }
+      // if (evt == InputEventNames.SelectCard) {
+      //   int selectedCardIdx = obj as int? ?? default(int);
+      //   this.SelectedCardId = this.GameClient.OpenCards[selectedCardIdx].Id;
+      //   this.SinglePieceId = Guid.Empty;
+      //   
+      // }
       #endregion
 
       #region SinglePiece event
@@ -128,7 +131,7 @@ namespace Schnoz {
     private void SetHoveringTiles(Tile tile) {
       if (tile == null) {
         this.HoveringTiles = new List<Tile>();
-        this.viewManager.Render(this, new PropertyChangedEventArgs(RenderTypes.Highlight.ToString()));
+        this.ViewManager.Render(RenderTypes.Highlight);
         return;
       }
       this.hoveringTile = tile;
@@ -138,7 +141,7 @@ namespace Schnoz {
           return;
         }
         this.HoveringTiles.Add(tile);
-        this.viewManager.Render(this, new PropertyChangedEventArgs(RenderTypes.Highlight.ToString()));
+        this.ViewManager.Render(RenderTypes.Highlight);
         return;
       }
       Arrangement arrangement = this.OpenCardsDict[this.SelectedCardId].unitFormation.Arrangement;
@@ -152,7 +155,7 @@ namespace Schnoz {
           this.HoveringTiles.Add(t);
         }
       }
-      this.viewManager.Render(this, new PropertyChangedEventArgs(RenderTypes.Highlight.ToString()));
+      this.ViewManager.Render(RenderTypes.Highlight);
     }
     #endregion
 
@@ -160,6 +163,7 @@ namespace Schnoz {
     // Setup and cleanup
     private void Awake() {
       this.RegisterEvents();
+      this.ViewManager = GameObject.Find("UIView").GetComponent<StandardGameViewManager>();
     }
     private void OnDestroy() {
       this.UnregisterEvents();
@@ -206,16 +210,10 @@ namespace Schnoz {
     private void OnRender(NetMessage msg) {
       Debug.Log("Message to Client: OnRender");
       NetRender r = msg as NetRender;
-      Debug.Log(r.renderTypes.Count);
       r.renderTypes.ForEach(r => Debug.Log(r));
-      r.renderTypes.ForEach(renderType => {
-        this.viewManager.Render(this, new PropertyChangedEventArgs(renderType.ToString()));
-      });
-      // this.viewManager.Render(this, new PropertyChangedEventArgs("Map"));
-      // this.viewManager.Render(this, new PropertyChangedEventArgs("OpenCards"));
-
-      // this.viewManager.Render(this, new PropertyChangedEventArgs("Rules"));
-
+      r.renderTypes.ForEach((Action<RenderTypes>)(renderType => {
+        this.ViewManager.Render(renderType);
+      }));
     }
     private void OnUpdateCards(NetMessage msg) {
       Debug.Log("Message to Client: OnUpdateCards");
@@ -232,7 +230,7 @@ namespace Schnoz {
 
       this.gameSettings = new GameSettings(im.nRows, im.nCols, 3, 3, 6, 60, im.ruleNames);
       this.GameClient = new Schnoz(gameSettings);
-      this.CreateViewManager();
+      this.ActivateViewManager();
 
       this.GameClient.InitialiseMap();
     }
@@ -273,11 +271,10 @@ namespace Schnoz {
     }
 
     #endregion
-    private void CreateViewManager() {
-      this.viewManager = this.gameObject.AddComponent<StandardGameViewManager>();
-      this.viewManager.enabled = true;
-      this.viewManager.game = this;
-      this.viewManager.StartListening();
+    private void ActivateViewManager() {
+      Debug.Log("VM: Enabling ViewManager");
+      this.ViewManager.enabled = true;
+      this.ViewManager.game = this;
     }
   }
 }

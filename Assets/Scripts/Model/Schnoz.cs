@@ -7,7 +7,7 @@ using UnityEngine;
 using TypeAliases;
 namespace Schnoz {
   [Serializable]
-  public class Schnoz : Observable {
+  public class Schnoz {
     public Schnoz(GameSettings gameSettings) {
       this.GameSettings = gameSettings;
       this.Turn = 0;
@@ -69,13 +69,14 @@ namespace Schnoz {
     }
 
     public void DrawCards() {
-      this.Deck.DiscardOpenCards();
-      for (int i = 0; i < GameSettings.NumberOfCardsPerTurn; i++) {
-        this.Deck.Draw();
-      }
+      // this.Deck.DiscardOpenCards();
+      // for (int i = 0; i < GameSettings.NumberOfCardsPerTurn; i++) {
+      //   this.Deck.Draw();
+      // }
+      this.Deck.DrawRandomCards(GameSettings.NumberOfCardsPerTurn);
     }
     public void PlaceTerrain(TerrainType type, Coordinate coord) {
-      Debug.Log($"Placing Terrain of type {type}");
+      // Debug.Log($"Placing Terrain of type {type}");
       Tile tile = this.Map.CoordinateToTileDict[coord];
       tile.SetTerrain(type);
     }
@@ -88,7 +89,7 @@ namespace Schnoz {
     // }
 
     public void PlaceUnit(PlayerIds ownerId, Coordinate coord) {
-      Debug.Log($"Placing Unit for player {ownerId}");
+      // Debug.Log($"Placing Unit for player {ownerId}");
       Tile tile = this.Map.CoordinateToTileDict[coord];
       Unit unit = new Unit(ownerId, coord);
       tile.SetUnit(unit);
@@ -154,7 +155,8 @@ namespace Schnoz {
       List<Tile> underlayingTiles = this.GetUnderlayingTiles(coord, unitFormation);
 
       return underlayingTiles.All(tile => tile.Placeable)
-        && underlayingTiles.Any(tile => IsAdjacentToNeutralOrAlly(tile));
+        && (unitFormation.Type == CardType.Single_1 ||
+         underlayingTiles.Any(tile => IsAdjacentToNeutralOrAlly(tile)));
     }
 
     public List<Coordinate> GetAllPossiblePlacements(PlayerIds ownerId) {

@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace Schnoz {
   [Serializable]
-  public class Deck : Observable {
+  public class Deck {
     public List<Card> Cards { get; private set; }
     public List<Card> OpenCards { get; private set; }
     public Deck(int size = Defaults.DeckSize) {
@@ -41,7 +41,23 @@ namespace Schnoz {
     public void Shuffle() {
       Debug.Log("Shuffling Deck");
       this.Cards = this.Cards.OrderBy(x => UnityEngine.Random.value).ToList();
-      this.NotifyPropertyChanged("Deck.Cards");
+    }
+
+    public void DrawRandomCards(int quantity) {
+      var random = new System.Random();
+      List<CardType> allCardTypes = Enum.GetValues(typeof(CardType)).Cast<CardType>().ToList();
+      List<CardType> cardTypes = new List<CardType>();
+      while (cardTypes.Count < quantity) {
+        int index = random.Next(allCardTypes.Count);
+        CardType cardType = allCardTypes[index];
+
+        if (cardTypes.Contains(cardType)) {
+          continue;
+        }
+
+        cardTypes.Add(cardType);
+      }
+      this.OpenCards = cardTypes.Select(cardType => new Card(cardType)).ToList();
     }
 
     public string SerializeOpenCards() {

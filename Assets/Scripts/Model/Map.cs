@@ -8,7 +8,7 @@ using UnityEngine;
 
 namespace Schnoz {
   [Serializable]
-  public class Map : Observable {
+  public class Map {
     [SerializeField] private int nRows;
     [SerializeField] private int nCols;
     [SerializeField] private List<Unit> units;
@@ -54,8 +54,6 @@ namespace Schnoz {
 
       if (randomize) {
         this.RandomizeTerrain();
-        this.CenterTile.SetTerrain(TerrainType.Grass);
-
         foreach (Tile t in this.GetTilesWithinRadius(CenterTile, Constants.SaveArea)) {
           t.SetTerrain(TerrainType.Grass);
         }

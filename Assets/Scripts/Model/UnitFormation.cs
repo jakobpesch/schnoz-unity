@@ -36,7 +36,7 @@ namespace Schnoz {
       { CardType.Single_1, new Arrangement() { (0, 0) } },
       { CardType.Straight_2, new Arrangement() { (0, 0), (0, 1) } },
       { CardType.Straight_3, new Arrangement() { (0, 0), (0, 1), (0, 2) } },
-      { CardType.Straight_4, new Arrangement() { (0, 0), (0, 1), (0, 2) , (0, 3) } },
+      { CardType.Straight_4, new Arrangement() { (0, 0), (0, 1), (0, 2), (0, 3) } },
       { CardType.Horse_3, new Arrangement() { (0, 0), (1, 0), (2, 1) } },
       { CardType.Corner_3, new Arrangement() { (0, 0), (0, 1), (1,0) } },
       { CardType.Z_4, new Arrangement() { (0, 0), (-1, 0), (-1, 1), (-2, 1) } },
@@ -47,7 +47,7 @@ namespace Schnoz {
 
     public UnitFormation(CardType type) {
       this.Type = type;
-      Debug.Log($"CardType Type: {type.GetType()}, Value: {type}");
+      // Debug.Log($"CardType Type: {type.GetType()}, Value: {type}");
       this.defaultArrangement = UnitFormation.arrangements[type];
     }
     private Arrangement defaultArrangement;

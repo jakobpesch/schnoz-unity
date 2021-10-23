@@ -42,8 +42,8 @@ namespace Schnoz {
     }
     private void InitGame() {
       List<RuleNames> ruleNames = new List<RuleNames>();
-      ruleNames.Add(RuleNames.DiagonalToTopRight);
       ruleNames.Add(RuleNames.Water);
+      ruleNames.Add(RuleNames.DiagonalToTopRight);
       ruleNames.Add(RuleNames.Holes);
 
       this.gameSettings = new GameSettings(Constants.mapSize, Constants.mapSize, 3, 3, 6, 60, ruleNames);
@@ -76,7 +76,7 @@ namespace Schnoz {
 
       NetRender r = new NetRender();
       r.renderTypes = new List<RenderTypes>() {
-        RenderTypes.Map, RenderTypes.OpenCards, RenderTypes.CurrentPlayer, RenderTypes.Rules, RenderTypes.SinglePieces
+        RenderTypes.Map, RenderTypes.OpenCards, RenderTypes.Rules, RenderTypes.SinglePieces
       };
 
       Server.Instance.Broadcast(im);
@@ -190,7 +190,6 @@ namespace Schnoz {
         r.renderTypes.Add(RenderTypes.OpenCards);
       } else {
         r.renderTypes.Add(RenderTypes.SinglePieces);
-        r.renderTypes.Add(RenderTypes.CurrentPlayer);
       }
 
       gs.EndTurn();

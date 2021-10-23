@@ -9,6 +9,11 @@ namespace Schnoz {
       {RuleNames.DiagonalToTopRight, RuleLogicMethods.DiagonalToTopRight},
       {RuleNames.Holes, RuleLogicMethods.Holes},
     };
+    public static Dictionary<PlayerIds, Color> PlayerColors = new Dictionary<PlayerIds, Color>() {
+      {PlayerIds.Player1, new Color(0.6235294f,0.3137255f,0.3137255f)},
+      {PlayerIds.Player2, new Color(0.1204165f,0.4365113f,0.6226415f)},
+      {PlayerIds.NeutralPlayer, Color.gray},
+    };
     public const int mapSize = 31, ratioGrass = 50, ratioStone = 1, ratioWater = 3, ratioBush = 3, SaveArea = 3;
   }
   public enum TerrainType {
@@ -18,10 +23,10 @@ namespace Schnoz {
     Single_1, Straight_2, Straight_3, Straight_4, Diagonal_2, Corner_3, L_4, Z_4, Horse_3, Paralell_4
   }
   public enum RenderTypes {
-    Map, Highlight, OpenCards, SelectedCard, Rules, Score, CurrentPlayer, SinglePieces
+    Map, Highlight, OpenCards, SelectedCard, Rules, Score, SinglePieces
   }
   public enum InputEventNames {
-    OnMouseUp, OnMouseEnter, OnMouseExit, RotateRightButton, RotateLeftButton, MirrorHorizontalButton, MirrorVerticalButton, SelectCard
+    OnMouseUp, OnMouseEnter, OnMouseExit, RotateRightButton, RotateLeftButton, MirrorHorizontalButton, MirrorVerticalButton, SelectCard, OnCardViewClick, ShowRelevantTiles
   }
 
   public enum RuleNames {
@@ -59,21 +64,21 @@ namespace Schnoz {
     public static RuleLogic Holes =
     (Player player, Map map) => {
       List<Tile> holes = new List<Tile>();
-      Debug.Log(map.VisibleTiles.Count);
+      // Debug.Log(map.VisibleTiles.Count);
       foreach (Tile visibleTile in map.VisibleTiles) {
         var placeable = visibleTile.Placeable;
         if (!placeable) continue;
-        Debug.Log($"HOLES {visibleTile.Coordinate}: Placeable");
+        // Debug.Log($"HOLES {visibleTile.Coordinate}: Placeable");
         var atLeastOneAllyAdjacent = map.GetAdjacentAllies(visibleTile, player.Id).Count > 0;
         if (!atLeastOneAllyAdjacent) continue;
-        Debug.Log($"HOLES {visibleTile.Coordinate}: AllyNearby");
+        // Debug.Log($"HOLES {visibleTile.Coordinate}: AllyNearby");
         var enclosed = map.GetAdjacentTiles(visibleTile).All(tile => !tile.Placeable);
         if (!enclosed) continue;
-        Debug.Log($"HOLES {visibleTile.Coordinate}: Enclosed");
+        // Debug.Log($"HOLES {visibleTile.Coordinate}: Enclosed");
 
         var enemyAdjacent = map.GetAdjacentEnemies(visibleTile, player.Id).Count > 0;
         if (enemyAdjacent) continue;
-        Debug.Log($"HOLES {visibleTile.Coordinate}: No enemy Adjacent");
+        // Debug.Log($"HOLES {visibleTile.Coordinate}: No enemy Adjacent");
 
         holes.Add(visibleTile);
       }
