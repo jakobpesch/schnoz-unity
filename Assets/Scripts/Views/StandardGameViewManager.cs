@@ -30,6 +30,7 @@ public class StandardGameViewManager : MonoBehaviour {
   [SerializeField] private Sprite fogSprite;
   [SerializeField] private Sprite bobSprite;
   [SerializeField] private Sprite sigeneSprite;
+  [SerializeField] private Sprite mauriceSprite;
   [SerializeField] private Sprite houseSprite;
   [SerializeField] private Sprite grassTileSprite;
   [SerializeField] private Sprite terrainWater;
@@ -41,6 +42,7 @@ public class StandardGameViewManager : MonoBehaviour {
     this.fogSprite = Array.Find(Resources.LoadAll<Sprite>("Sprites/Tiles"), s => s.name == "fog");
     this.bobSprite = Resources.Load<Sprite>("Sprites/bob");
     this.sigeneSprite = Resources.Load<Sprite>("Sprites/sigene");
+    this.mauriceSprite = Resources.Load<Sprite>("Sprites/maurice");
     this.houseSprite = Resources.Load<Sprite>("Sprites/house");
     var tiles = Resources.LoadAll<Sprite>("Sprites/Tiles");
     this.grassTileSprite = Array.Find(tiles, s => s.name == "terrain_grass");
@@ -169,7 +171,7 @@ public class StandardGameViewManager : MonoBehaviour {
     Sprite unitSprite;
     switch (unit.OwnerId) {
       case PlayerIds.Player1: { unitSprite = this.bobSprite; break; }
-      case PlayerIds.Player2: { unitSprite = this.sigeneSprite; break; }
+      case PlayerIds.Player2: { unitSprite = this.mauriceSprite; break; }
       case PlayerIds.NeutralPlayer: { unitSprite = this.houseSprite; break; }
       default: { unitSprite = null; break; }
     }

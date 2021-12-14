@@ -1410,6 +1410,7 @@ MonoBehaviour:
   fogSprite: {fileID: 0}
   bobSprite: {fileID: 0}
   sigeneSprite: {fileID: 0}
+  mauriceSprite: {fileID: 0}
   houseSprite: {fileID: 0}
   grassTileSprite: {fileID: 0}
   terrainWater: {fileID: 0}
@@ -2286,7 +2287,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 70506eee0acf247769edcd3f9f25ce32, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 25700235b0ab145e09af6a8199fbd929, type: 3}
   m_Type: 0
   m_PreserveAspect: 1
   m_FillCenter: 1
