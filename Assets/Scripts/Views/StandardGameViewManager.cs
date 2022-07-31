@@ -146,8 +146,8 @@ public class StandardGameViewManager : MonoBehaviour {
     // CreateCardsUI();
     #endregion
 
-    var singlePiecePlayer1 = GameObject.Find($"UI/SinglePieces/Player").GetComponent<SinglePieceView>();
-    singlePiecePlayer1.game = this.game;
+    // var singlePiecePlayer1 = GameObject.Find($"UI/SinglePieces/Player").GetComponent<SinglePieceView>();
+    // singlePiecePlayer1.game = this.game;
   }
   public void StartListening() {
     this.game.GameClient.PropertyChanged -= new PropertyChangedEventHandler(this.Render);
@@ -176,7 +176,7 @@ public class StandardGameViewManager : MonoBehaviour {
     string untiSpritePath;
     switch (unit.OwnerId) {
       case PlayerIds.Player1: { untiSpritePath = "Sprites/bob"; break; }
-      case PlayerIds.Player2: { untiSpritePath = "Sprites/sigene"; break; }
+      case PlayerIds.Player2: { untiSpritePath = "Sprites/maurice"; break; }
       case PlayerIds.NeutralPlayer: { untiSpritePath = "Sprites/house"; break; }
       default: { untiSpritePath = ""; break; }
     }
@@ -191,7 +191,7 @@ public class StandardGameViewManager : MonoBehaviour {
     string untiSpritePath;
     switch (unit.OwnerId) {
       case PlayerIds.Player1: { untiSpritePath = "Sprites/bob"; break; }
-      case PlayerIds.Player2: { untiSpritePath = "Sprites/sigene"; break; }
+      case PlayerIds.Player2: { untiSpritePath = "Sprites/maurice"; break; }
       case PlayerIds.NeutralPlayer: { untiSpritePath = "Sprites/house"; break; }
       default: { untiSpritePath = ""; break; }
     }
@@ -231,8 +231,8 @@ public class StandardGameViewManager : MonoBehaviour {
     return fogGO;
   }
   private void RenderSinglePieces() {
-    string path = $"UI/SinglePieces/Player/Value";
-    GameObject.Find(path).GetComponent<TextMeshProUGUI>().text = this.game.GameClient.GameSettings.PlayerIdToPlayerDict[this.game.GameClient.ActivePlayerId].SinglePieces.ToString();
+    // string path = $"UI/SinglePieces/Player/Value";
+    // GameObject.Find(path).GetComponent<TextMeshProUGUI>().text = this.game.GameClient.GameSettings.PlayerIdToPlayerDict[this.game.GameClient.ActivePlayerId].SinglePieces.ToString();
   }
 
   private void RenderCurrentPlayer() {
