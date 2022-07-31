@@ -14,6 +14,9 @@ namespace Schnoz {
       this.OpenCards = new List<Card>();
       int i = 0;
       List<CardType> cardTypes = Enum.GetValues(typeof(CardType)).Cast<CardType>().ToList();
+      if (size == 0) {
+        return;
+      }
       while (true) {
         foreach (CardType cardType in cardTypes) {
           this.Cards.Add(new Card(cardType));

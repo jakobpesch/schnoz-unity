@@ -8,15 +8,12 @@ using Schnoz;
 
 public class RuleView : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler {
   public StandardGameClient GameClient;
-  private RuleNames ruleName;
+  public RuleNames ruleName;
   public RuleNames RuleName {
     get => this.ruleName;
     set {
       if (this.ruleName != value) {
         this.ruleName = value;
-        string fileName = this.ruleName.ToString();
-        Sprite sprite = Resources.Load<Sprite>($"Sprites/{fileName}");
-        this.Image.sprite = sprite;
       }
     }
   }
@@ -24,12 +21,12 @@ public class RuleView : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
   public TextMeshProUGUI TextFieldPlayer1;
   public TextMeshProUGUI TextFieldPlayer2;
   public PlayerIds RuleWinner;
-  public Image Image;
+  public Image Background;
+  public Image Icon;
   private void Awake() {
     this.PlayerIdToTextField = new Dictionary<PlayerIds, TextMeshProUGUI>() {
       {PlayerIds.Player1, TextFieldPlayer1}, {PlayerIds.Player2, TextFieldPlayer2}
     };
-    this.Image = this.GetComponent<Image>();
   }
   public void ShowRelevantTiles() {
     this.GameClient.HandlePlayerInput(this, InputEventNames.ShowRelevantTiles, this.RuleName);

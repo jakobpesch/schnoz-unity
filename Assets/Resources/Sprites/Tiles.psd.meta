@@ -82,10 +82,10 @@ TextureImporter:
     second: minus
   - first:
       213: -597964597613064270
-    second: RPG Nature Tileset_26
+    second: rule_diagonals-to-top-right
   - first:
       213: -2763244392963688283
-    second: RPG Nature Tileset_27
+    second: rule_diagonals-to-top-left
   - first:
       213: -7428598597229537186
     second: RPG Nature Tileset_28
@@ -307,7 +307,7 @@ TextureImporter:
     second: RPG Nature Tileset_100
   - first:
       213: -126460698082989856
-    second: RPG Nature Tileset_101
+    second: rule_holes
   - first:
       213: 2162859386720575857
     second: RPG Nature Tileset_102
@@ -494,7 +494,7 @@ TextureImporter:
   maxTextureSize: 2048
   textureSettings:
     serializedVersion: 2
-    filterMode: 1
+    filterMode: 0
     aniso: 1
     mipBias: 0
     wrapU: 1
@@ -504,13 +504,13 @@ TextureImporter:
   lightmap: 0
   compressionQuality: 50
   spriteMode: 2
-  spriteExtrude: 1
+  spriteExtrude: 0
   spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
   spritePixelsToUnits: 32
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
-  spriteGenerateFallbackPhysicsShape: 1
+  spriteGenerateFallbackPhysicsShape: 0
   alphaUsage: 1
   alphaIsTransparency: 1
   spriteTessellationDetail: -1
@@ -530,8 +530,8 @@ TextureImporter:
     maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: -1
-    textureCompression: 1
-    compressionQuality: 50
+    textureCompression: 2
+    compressionQuality: 0
     crunchedCompression: 0
     allowsAlphaSplitting: 0
     overridden: 0
@@ -542,8 +542,8 @@ TextureImporter:
     maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: -1
-    textureCompression: 1
-    compressionQuality: 50
+    textureCompression: 2
+    compressionQuality: 0
     crunchedCompression: 0
     allowsAlphaSplitting: 0
     overridden: 0
@@ -1060,7 +1060,7 @@ TextureImporter:
       name: plus
       rect:
         serializedVersion: 2
-        x: 159
+        x: 160
         y: 192
         width: 32
         height: 32
@@ -1099,7 +1099,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: RPG Nature Tileset_26
+      name: rule_diagonals-to-top-right
       rect:
         serializedVersion: 2
         x: 224
@@ -1120,7 +1120,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: RPG Nature Tileset_27
+      name: rule_diagonals-to-top-left
       rect:
         serializedVersion: 2
         x: 256
@@ -2674,7 +2674,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: RPG Nature Tileset_101
+      name: rule_holes
       rect:
         serializedVersion: 2
         x: 256

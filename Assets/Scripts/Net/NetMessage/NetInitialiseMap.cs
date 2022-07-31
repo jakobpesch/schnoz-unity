@@ -5,8 +5,7 @@ using TypeAliases;
 
 public class NetInitialiseMap : NetMessage {
 
-  public int nRows;
-  public int nCols;
+  public int mapSize;
   public List<RuleNames> ruleNames = new List<RuleNames>();
 
   public NetInitialiseMap() {
@@ -20,8 +19,7 @@ public class NetInitialiseMap : NetMessage {
     writer.WriteByte((byte)this.Code);
 
     // Map size
-    writer.WriteByte((byte)this.nRows);
-    writer.WriteByte((byte)this.nCols);
+    writer.WriteByte((byte)this.mapSize);
 
     // Rules
     writer.WriteInt(this.ruleNames.Count);
@@ -31,8 +29,7 @@ public class NetInitialiseMap : NetMessage {
   }
   public override void Deserialize(DataStreamReader reader) {
     // Map size
-    this.nRows = reader.ReadByte();
-    this.nCols = reader.ReadByte();
+    this.mapSize = reader.ReadByte();
 
     // Rules
     int ruleNamesCount = reader.ReadInt();

@@ -1,6 +1,7 @@
 using System;
 using Schnoz;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 public class GameManager : MonoBehaviour {
   public static GameManager Instance { set; get; }
   [SerializeField] private StandardGameServer gameServer;
@@ -11,6 +12,7 @@ public class GameManager : MonoBehaviour {
   }
 
   private void Start() {
+    var gameScene = SceneManager.GetSceneByBuildIndex((int)SceneIndexes.GAME);
     switch (NetworkManager.Instance.NI) {
       case NetworkManager.NetworkIdentity.DEDICATED_SERVER: {
           throw new NotImplementedException();
@@ -21,19 +23,24 @@ public class GameManager : MonoBehaviour {
         }
       case NetworkManager.NetworkIdentity.HOST: {
           Debug.Log("Loaded Scene as host");
-          gameServer = new GameObject("StandardGameServer").AddComponent<StandardGameServer>();
-          gameClient = new GameObject("StandardGameClient").AddComponent<StandardGameClient>();
+          this.gameServer = new GameObject("StandardGameServer").AddComponent<StandardGameServer>();
+          this.gameClient = new GameObject("StandardGameClient").AddComponent<StandardGameClient>();
+          SceneManager.MoveGameObjectToScene(this.gameServer.gameObject, gameScene);
+          SceneManager.MoveGameObjectToScene(this.gameClient.gameObject, gameScene);
           break;
         }
       case NetworkManager.NetworkIdentity.LOCAL: {
           Debug.Log("Loaded Scene as local game");
-          gameServer = new GameObject("StandardGameServer").AddComponent<StandardGameServer>();
-          gameClient = new GameObject("StandardGameClient").AddComponent<StandardGameClient>();
+          this.gameServer = new GameObject("StandardGameServer").AddComponent<StandardGameServer>();
+          this.gameClient = new GameObject("StandardGameClient").AddComponent<StandardGameClient>();
+          SceneManager.MoveGameObjectToScene(this.gameServer.gameObject, gameScene);
+          SceneManager.MoveGameObjectToScene(this.gameClient.gameObject, gameScene);
           break;
         }
       default: {
           Debug.Log("Loaded Scene as client");
-          gameClient = new GameObject("StandardGameClient").AddComponent<StandardGameClient>();
+          this.gameClient = new GameObject("StandardGameClient").AddComponent<StandardGameClient>();
+          SceneManager.MoveGameObjectToScene(this.gameClient.gameObject, gameScene);
           break;
         }
     }

@@ -4,6 +4,7 @@ using UnityEngine;
 namespace Schnoz {
   public static class Constants {
     public const ushort port = 8007;
+    public const int numberOfStages = 4;
     public static Dictionary<RuleNames, RuleLogic> RuleNameToRuleLogicDict = new Dictionary<RuleNames, RuleLogic>() {
       {RuleNames.Water, RuleLogicMethods.Water},
       {RuleNames.DiagonalToTopRight, RuleLogicMethods.DiagonalToTopRight},
@@ -23,7 +24,7 @@ namespace Schnoz {
     Single_1, Straight_2, Straight_3, Straight_4, Diagonal_2, Corner_3, L_4, Z_4, Horse_3, Paralell_4
   }
   public enum RenderTypes {
-    Map, Highlight, OpenCards, SelectedCard, Rules, Score, SinglePieces
+    Map, Turns, Highlight, OpenCards, SelectedCard, Rules, Score, SinglePieces, Timer, GameSettings
   }
   public enum InputEventNames {
     OnMouseUp, OnMouseEnter, OnMouseExit, RotateRightButton, RotateLeftButton, MirrorHorizontalButton, MirrorVerticalButton, SelectCard, OnCardViewClick, ShowRelevantTiles
@@ -31,6 +32,10 @@ namespace Schnoz {
 
   public enum RuleNames {
     DiagonalToTopRight, Water, Holes
+  }
+
+  public enum PlayerRoles {
+    ADMIN, PLAYER
   }
 
   public enum PlayerIds {

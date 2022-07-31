@@ -8,8 +8,13 @@ namespace Schnoz {
   public class StandardGameClient : MonoBehaviour {
     // Multiplayer logic
     [SerializeField] private int currentTeam = -1;
+    public PlayerRoles AssignedRole { get; private set; }
+    public bool ReadyToStartGame { get; private set; }
+
     public StandardGameViewManager ViewManager { get; private set; }
     public Schnoz GameClient { get; private set; }
+    public float Timer;
+    private bool gameStarted = false;
     [SerializeField] private GameSettings gameSettings;
     [SerializeField] private Tile hoveringTile;
     public Tile HoveringTile {
@@ -165,11 +170,24 @@ namespace Schnoz {
       this.RegisterEvents();
       this.ViewManager = GameObject.Find("UIView").GetComponent<StandardGameViewManager>();
     }
+
+    private void Update() {
+      if (this.gameStarted) {
+        if (this.Timer > 0) {
+          this.Timer -= Time.deltaTime;
+        } else {
+          this.Timer = 0;
+        }
+        this.ViewManager.Render(RenderTypes.Timer);
+      }
+    }
+
     private void OnDestroy() {
       this.UnregisterEvents();
     }
     private void RegisterEvents() {
       NetUtility.C_WELCOME += this.OnWelcome;
+      NetUtility.C_ALL_PLAYERS_CONNECTED += this.OnAllPlayersConnected;
       NetUtility.C_INITIALISE_MAP += this.OnInitialiseMap;
       NetUtility.C_UPDATE_TERRAINS += this.OnUpdateTerrains;
       NetUtility.C_UPDATE_UNITS += this.OnUpdateUnits;
@@ -178,9 +196,11 @@ namespace Schnoz {
       NetUtility.C_END_TURN += this.OnEndTurn;
       NetUtility.C_UPDATE_SCORE += this.OnUpdateScore;
       NetUtility.C_UPDATE_SINGLE_PIECES += this.OnUpdateSinglePieces;
+      NetUtility.C_GAME_OVER += this.OnGameOver;
     }
     private void UnregisterEvents() {
       NetUtility.C_WELCOME -= this.OnWelcome;
+      NetUtility.C_ALL_PLAYERS_CONNECTED -= this.OnAllPlayersConnected;
       NetUtility.C_INITIALISE_MAP -= this.OnInitialiseMap;
       NetUtility.C_UPDATE_TERRAINS -= this.OnUpdateTerrains;
       NetUtility.C_UPDATE_UNITS -= this.OnUpdateUnits;
@@ -189,6 +209,7 @@ namespace Schnoz {
       NetUtility.C_END_TURN -= this.OnEndTurn;
       NetUtility.C_UPDATE_SCORE -= this.OnUpdateScore;
       NetUtility.C_UPDATE_SINGLE_PIECES -= this.OnUpdateSinglePieces;
+      NetUtility.C_GAME_OVER -= this.OnGameOver;
     }
 
     private void OnUpdateSinglePieces(NetMessage msg) {
@@ -204,16 +225,31 @@ namespace Schnoz {
     private void OnWelcome(NetMessage msg) {
       Debug.Log("Message to Client: OnWelcome");
       NetWelcome nw = msg as NetWelcome;
-      this.currentTeam = nw.AssinedTeam;
+      this.currentTeam = nw.AssignedTeam;
+      this.AssignedRole = nw.AssignedRole;
+      this.ActivateViewManager();
+    }
+
+    private void OnAllPlayersConnected(NetMessage msg) {
+      this.ReadyToStartGame = true;
+      Debug.Log(this.AssignedRole);
+      this.ViewManager.Render(RenderTypes.GameSettings);
     }
 
     private void OnRender(NetMessage msg) {
       Debug.Log("Message to Client: OnRender");
       NetRender r = msg as NetRender;
-      r.renderTypes.ForEach(r => Debug.Log(r));
+      // r.renderTypes.ForEach(r => Debug.Log(r));
       r.renderTypes.ForEach((Action<RenderTypes>)(renderType => {
         this.ViewManager.Render(renderType);
       }));
+    }
+
+    private void OnGameOver(NetMessage msg) {
+      Debug.Log("Message to Client: OnGameOver");
+      this.GameClient.GameOver = true;
+      Destroy(this.ViewManager.CardsView.gameObject);
+      Destroy(this.ViewManager.TurnsView.gameObject);
     }
     private void OnUpdateCards(NetMessage msg) {
       Debug.Log("Message to Client: OnUpdateCards");
@@ -228,11 +264,17 @@ namespace Schnoz {
 
       NetInitialiseMap im = msg as NetInitialiseMap;
 
-      this.gameSettings = new GameSettings(im.nRows, im.nCols, 3, 3, 6, 60, im.ruleNames);
-      this.GameClient = new Schnoz(gameSettings);
-      this.ActivateViewManager();
+      foreach (var ruleName in im.ruleNames) {
+        Debug.Log($"Client Rule names {ruleName.ToString()}");
+      }
 
+      this.gameSettings = new GameSettings(im.mapSize, 3, 3, Constants.numberOfStages, 60, im.ruleNames);
+      this.GameClient = new Schnoz(gameSettings);
+      // this.ActivateViewManager();
+      this.Timer = this.GameClient.GameSettings.SecondsPerTurn;
+      this.gameStarted = true;
       this.GameClient.InitialiseMap();
+      this.ViewManager.SetCamera();
     }
 
     private void OnUpdateUnits(NetMessage msg) {
@@ -267,6 +309,7 @@ namespace Schnoz {
     private void OnEndTurn(NetMessage msg) {
       Debug.Log("Message to Client: OnEndTurn");
       NetEndTurn et = msg as NetEndTurn;
+      this.Timer = this.GameClient.GameSettings.SecondsPerTurn;
       this.GameClient.EndTurn();
     }
 

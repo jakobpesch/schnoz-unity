@@ -3,6 +3,7 @@ using System.Linq;
 using System.Collections.Generic;
 using System.Collections;
 using System.ComponentModel;
+using UnityEngine.SceneManagement;
 using UnityEngine;
 using Schnoz;
 using TMPro;
@@ -11,7 +12,10 @@ public class StandardGameViewManager : MonoBehaviour {
   public StandardGameClient game;
   public StandingView StandingView;
   public CardsView CardsView;
+  public TurnsView TurnsView;
   public ActionsView ActionsView;
+  public TimerView TimerView;
+  public GameSettingsView GameSettingsView;
   private Vector2 resolution;
   private GameObject mapGO;
   [SerializeField] private GameObject openCardsGO;
@@ -51,6 +55,15 @@ public class StandardGameViewManager : MonoBehaviour {
     this.terrainStone = Array.Find(tiles, s => s.name == "terrain_stone");
   }
   private void Update() {
+    if (this.game.GameClient == null) {
+      return;
+    }
+    if (this.game.GameClient.GameOver && Input.GetKeyDown(KeyCode.Escape)) {
+      SchnozSceneManager.Instance.ChangeScene(SceneIndexes.GAME, SceneIndexes.MAIN_MENU);
+      Client.Instance.Shutdown();
+      Server.Instance.Shutdown();
+    }
+
     #region Camera movement update
     this.mousePositionWorldPoint = this.mainCam.ScreenToWorldPoint(Input.mousePosition);
     this.Pan();
@@ -101,9 +114,25 @@ public class StandardGameViewManager : MonoBehaviour {
     }
   }
   public void Render(RenderTypes renderType) {
+    var gameScene = SceneManager.GetSceneByBuildIndex((int)SceneIndexes.GAME);
+    SceneManager.SetActiveScene(gameScene);
     switch (renderType) {
       case RenderTypes.Map: {
           this.RenderMap();
+          break;
+        }
+      case RenderTypes.GameSettings: {
+          this.GameSettingsView.GameClient = this.game;
+          this.GameSettingsView.Render();
+          break;
+        }
+      case RenderTypes.Turns: {
+          this.RenderTurns();
+          break;
+        }
+      case RenderTypes.Timer: {
+          this.TimerView.GameClient = this.game;
+          this.TimerView.Render();
           break;
         }
       case RenderTypes.Highlight: {
@@ -137,7 +166,13 @@ public class StandardGameViewManager : MonoBehaviour {
     }
 
   }
-  private void Start() {
+
+  private void RenderTurns() {
+    this.TurnsView.GameClient = this.game;
+    this.TurnsView.Render();
+  }
+
+  public void SetCamera() {
     #region Camera movement setup
     this.mainCam = Camera.main;
     var visibleTiles = this.game.GameClient.Map.Tiles.Where(tile => tile.Visible);
@@ -212,10 +247,13 @@ public class StandardGameViewManager : MonoBehaviour {
     sr.sortingOrder = 5;
     return terrainGO;
   }
-  private GameObject RenderFog() {
+  private GameObject RenderFog(Tile tile) {
     GameObject fogGO = new GameObject("Fog");
     SpriteRenderer sr = fogGO.AddComponent<SpriteRenderer>();
     sr.sprite = this.fogSprite;
+    if (this.game.GameClient.Map.GetAdjacentTiles(tile).Any(t => t.Visible)) {
+      sr.color = new Color(1, 1, 1, 0.5f);
+    }
     sr.sortingOrder = 20;
     return fogGO;
   }
@@ -229,12 +267,20 @@ public class StandardGameViewManager : MonoBehaviour {
     foreach (GameObject hoverUnit in GameObject.FindGameObjectsWithTag("HoverUnit")) {
       Destroy(hoverUnit);
     }
+
     foreach (Tile hoveringTile in this.game.HoveringTiles) {
       // sr.color = new Color(0.9f, 0.9f, 0.9f);
+      GameObject fogGO = new GameObject("HoverUnit");
+      fogGO.tag = "HoverUnit";
+      fogGO.transform.SetParent(GameObject.Find($"Map/{hoveringTile.Coordinate}").transform);
+      fogGO.transform.localPosition = new Vector2(0, 0);
+      SpriteRenderer sr = fogGO.AddComponent<SpriteRenderer>();
+      sr.sprite = this.fogSprite;
+      sr.color = new Color(1, 1, 1, 0.1f);
+
       GameObject hoveringUnitGO = this.RenderUnitHover(new Unit(this.game.GameClient.ActivePlayerId, hoveringTile.Coordinate));
       hoveringUnitGO.transform.SetParent(GameObject.Find($"Map/{hoveringTile.Coordinate}").transform);
       hoveringUnitGO.transform.localPosition = new Vector2(0, 0);
-
     }
   }
   private void RenderMap() {
@@ -260,7 +306,7 @@ public class StandardGameViewManager : MonoBehaviour {
       }
 
       if (!tile.Visible) {
-        GameObject fogGO = this.RenderFog();
+        GameObject fogGO = this.RenderFog(tile);
         fogGO.transform.SetParent(tileGO.transform);
         fogGO.transform.localPosition = new Vector2(0, 0);
       }
