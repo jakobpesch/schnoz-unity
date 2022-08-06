@@ -25,7 +25,7 @@ public class RuleView : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
   public Image Icon;
   private void Awake() {
     this.PlayerIdToTextField = new Dictionary<PlayerIds, TextMeshProUGUI>() {
-      {PlayerIds.Player1, TextFieldPlayer1}, {PlayerIds.Player2, TextFieldPlayer2}
+      {PlayerIds.Player1, this.TextFieldPlayer1}, {PlayerIds.Player2, this.TextFieldPlayer2}
     };
   }
   public void ShowRelevantTiles() {

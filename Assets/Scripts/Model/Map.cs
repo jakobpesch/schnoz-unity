@@ -11,6 +11,10 @@ namespace Schnoz {
   public class Map {
     [SerializeField] private int nRows;
     [SerializeField] private int nCols;
+    [SerializeField] private int partsGrass;
+    [SerializeField] private int partsStone;
+    [SerializeField] private int partsWater;
+    [SerializeField] private int partsBush;
     [SerializeField] private List<Unit> units;
     public List<Unit> Units {
       get {
@@ -38,10 +42,14 @@ namespace Schnoz {
     public Dictionary<Coordinate, Tile> CoordinateToTileDict { get; }
     public List<List<Tile>> DiagonalsFromBottomLeftToTopRight { get => GetDiagonalsFromBottomLeftToTopRight(); }
     public List<List<Tile>> DiagonalsFromTopLeftToBottomRight { get => GetDiagonalsFromTopLeftToBottomRight(); }
-    public Map(int nRows, int nCols, bool randomize = true) {
+    public Map(int nRows, int nCols, bool randomize = true, int partsGrass = 0, int partsStone = 0, int partsWater = 0, int partsBush = 0) {
       Debug.Log($"Initialize map with {nRows} and {nCols}");
       this.nRows = nRows;
       this.nCols = nCols;
+      this.partsGrass = partsGrass;
+      this.partsStone = partsStone;
+      this.partsWater = partsWater;
+      this.partsBush = partsBush;
       this.Tiles = new List<Tile>();
       this.CoordinateToTileDict = new Dictionary<Coordinate, Tile>();
       for (int row = 0; row < nRows; row++) {
@@ -61,7 +69,7 @@ namespace Schnoz {
 
 
     }
-    public Map(int row, int col, List<Unit> units, List<Terrain> terrains) : this(row, col, false) {
+    public Map(int row, int col, List<Unit> units, List<Terrain> terrains) : this(row, col, false, 0, 0, 0, 0) {
       units.ForEach(unit => {
         Coordinate coordinate = unit.Coordinate;
         Debug.Log(coordinate);
@@ -76,12 +84,11 @@ namespace Schnoz {
     }
 
     private void RandomizeTerrain() {
-      float partsGrass = Constants.ratioGrass, partsWater = Constants.ratioWater, partsBush = Constants.ratioBush, partsStone = Constants.ratioStone;
-      float total = partsGrass + partsWater + partsBush + partsStone;
-      float chanceGrass = partsGrass / total;
-      float chanceWater = partsWater / total;
-      float chanceBush = partsBush / total;
-      float chanceStone = partsStone / total;
+      float total = this.partsGrass + this.partsWater + this.partsBush + this.partsStone;
+      float chanceGrass = this.partsGrass / total;
+      float chanceWater = this.partsWater / total;
+      float chanceBush = this.partsBush / total;
+      float chanceStone = this.partsStone / total;
       List<TerrainType> probabilityArray = new List<TerrainType>();
       TerrainType terrainGrass = TerrainType.Grass;
       TerrainType terrainBush = TerrainType.Bush;

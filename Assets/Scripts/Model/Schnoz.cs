@@ -55,7 +55,7 @@ namespace Schnoz {
 
     public void InitialiseMap() {
       Debug.Log("Map will be Created");
-      this.Map = new Map(this.GameSettings.NRows, this.GameSettings.NCols);
+      this.Map = new Map(this.GameSettings.NRows, this.GameSettings.NCols, true, this.GameSettings.PartsGrass, this.GameSettings.PartsStone, this.GameSettings.PartsWater, this.GameSettings.PartsBush);
       this.NeutralPlayer = new Player(PlayerIds.NeutralPlayer);
       this.PlaceUnit(PlayerIds.NeutralPlayer, this.Map.CenterTile.Coordinate);
     }

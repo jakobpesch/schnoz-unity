@@ -346,7 +346,7 @@ MonoBehaviour:
   ruleName: 0
   TextFieldPlayer1: {fileID: 4645956772465872086}
   TextFieldPlayer2: {fileID: 750980316007526052}
-  RuleWinner: 0
+  RuleWinner: 2
   Background: {fileID: 645375842896845086}
   Icon: {fileID: 309680067504357041}
 --- !u!114 &4255396046557705309
@@ -406,7 +406,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.5, g: 0.5, b: 0.5, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1

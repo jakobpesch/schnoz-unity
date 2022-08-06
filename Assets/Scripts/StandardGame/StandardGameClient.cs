@@ -264,11 +264,7 @@ namespace Schnoz {
 
       NetInitialiseMap im = msg as NetInitialiseMap;
 
-      foreach (var ruleName in im.ruleNames) {
-        Debug.Log($"Client Rule names {ruleName.ToString()}");
-      }
-
-      this.gameSettings = new GameSettings(im.mapSize, 3, 3, Constants.numberOfStages, 60, im.ruleNames);
+      this.gameSettings = new GameSettings(im.mapSize, im.partsGrass, im.partsStone, im.partsWater, im.partsBush, 3, 0, im.numberOfStages, im.secondsPerTurn, im.ruleNames);
       this.GameClient = new Schnoz(gameSettings);
       // this.ActivateViewManager();
       this.Timer = this.GameClient.GameSettings.SecondsPerTurn;

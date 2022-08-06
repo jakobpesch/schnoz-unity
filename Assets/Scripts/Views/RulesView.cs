@@ -9,14 +9,20 @@ public class RulesView : MonoBehaviour {
   public List<Rule> Rules { get => this.GameClient.GameClient.GameSettings.Rules; }
   public StandardGameClient GameClient;
 
+  private void Awake() {
+
+  }
+
   public void Render() {
     if (this.RuleViews.Count == this.Rules.Count) {
       this.UpdateRules();
       return;
     }
 
-    for (int i = 0; i < this.RuleViews.Count; i++) {
-      RuleView ruleView = this.RuleViews[i];
+    int ruleViewCount = this.RuleViews.Count;
+    for (int i = 0; i < ruleViewCount; i++) {
+      Debug.Log(this.RuleViews.Count);
+      RuleView ruleView = this.RuleViews[0];
       Destroy(ruleView.gameObject);
     }
 
@@ -29,7 +35,7 @@ public class RulesView : MonoBehaviour {
       rect.localScale = Vector3.one;
       ruleView.GameClient = this.GameClient;
       ruleView.gameObject.name = rule.RuleName.ToString();
-      ruleView.RuleName = rule.RuleName; // updates the image
+      ruleView.RuleName = rule.RuleName;
       string fileName = ruleView.ruleName.ToString();
       if (fileName == "Water") {
         fileName = "terrain_water";
@@ -49,8 +55,7 @@ public class RulesView : MonoBehaviour {
       ruleView.RuleWinner = ruleWinnerPlayer != null ? ruleWinnerPlayer.Id : PlayerIds.NeutralPlayer;
       ruleView.Background.color = Constants.PlayerColors[ruleView.RuleWinner];
 
-      for (int j = 0; j < this.GameClient.GameClient.Players.Count; j++) {
-        Player player = this.GameClient.GameClient.Players[i];
+      foreach (Player player in this.GameClient.GameClient.Players) {
         ruleView.PlayerIdToTextField[player.Id].text = rule.Evaluate(player, this.GameClient.GameClient.Map).Points.ToString();
       }
 
@@ -67,8 +72,7 @@ public class RulesView : MonoBehaviour {
       ruleView.RuleWinner = ruleWinnerPlayer != null ? ruleWinnerPlayer.Id : PlayerIds.NeutralPlayer;
       ruleView.Background.color = Constants.PlayerColors[ruleView.RuleWinner];
 
-      for (int j = 0; j < this.GameClient.GameClient.Players.Count; j++) {
-        Player player = this.GameClient.GameClient.Players[j];
+      foreach (Player player in this.GameClient.GameClient.Players) {
         ruleView.PlayerIdToTextField[player.Id].text = rule.Evaluate(player, this.GameClient.GameClient.Map).Points.ToString();
       }
     }

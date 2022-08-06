@@ -86,7 +86,7 @@ namespace Schnoz {
         Debug.Log($"Server Rule names {ruleName.ToString()}");
       }
 
-      this.gameSettings = new GameSettings(sg.mapSize, 3, 0, sg.numberOfStages, sg.secondsPerTurn, sg.ruleNames);
+      this.gameSettings = new GameSettings(sg.mapSize, sg.partsGrass, sg.partsStone, sg.partsWater, sg.partsBush, 3, 0, sg.numberOfStages, sg.secondsPerTurn, sg.ruleNames);
       this.InitGame();
     }
 
@@ -105,6 +105,14 @@ namespace Schnoz {
 
       NetInitialiseMap im = new NetInitialiseMap();
       im.mapSize = settings.NRows;
+      im.numberOfStages = settings.NumberOfStages;
+      im.secondsPerTurn = settings.SecondsPerTurn;
+
+      im.partsGrass = settings.PartsGrass;
+      im.partsStone = settings.PartsStone;
+      im.partsWater = settings.PartsWater;
+      im.partsBush = settings.PartsBush;
+
       im.ruleNames = settings.Rules.Select(rule => rule.RuleName).ToList();
 
       NetUpdateTerrains ut = new NetUpdateTerrains();

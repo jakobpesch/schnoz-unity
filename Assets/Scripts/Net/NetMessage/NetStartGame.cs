@@ -8,6 +8,11 @@ public class NetStartGame : NetMessage {
   public int mapSize;
   public int numberOfStages;
   public int secondsPerTurn;
+  public int partsGrass;
+  public int partsStone;
+  public int partsWater;
+  public int partsBush;
+
   public List<RuleNames> ruleNames = new List<RuleNames>();
 
   public NetStartGame() {
@@ -24,6 +29,11 @@ public class NetStartGame : NetMessage {
     writer.WriteByte((byte)this.numberOfStages);
     writer.WriteByte((byte)this.secondsPerTurn);
 
+    writer.WriteByte((byte)this.partsGrass);
+    writer.WriteByte((byte)this.partsStone);
+    writer.WriteByte((byte)this.partsWater);
+    writer.WriteByte((byte)this.partsBush);
+
     writer.WriteByte((byte)this.ruleNames.Count);
     for (int i = 0; i < this.ruleNames.Count; i++) {
       Debug.Log($"Write rulename: {this.ruleNames[i]}");
@@ -34,6 +44,11 @@ public class NetStartGame : NetMessage {
     this.mapSize = (int)reader.ReadByte();
     this.numberOfStages = (int)reader.ReadByte();
     this.secondsPerTurn = (int)reader.ReadByte();
+
+    this.partsGrass = (int)reader.ReadByte();
+    this.partsStone = (int)reader.ReadByte();
+    this.partsWater = (int)reader.ReadByte();
+    this.partsBush = (int)reader.ReadByte();
 
     int ruleCount = reader.ReadByte();
     for (int i = 0; i < ruleCount; i++) {

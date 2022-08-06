@@ -17,6 +17,10 @@ namespace Schnoz {
     public List<Player> Players { get; private set; }
     public Dictionary<PlayerIds, Player> PlayerIdToPlayerDict { get; private set; }
     public int MapSize { get; private set; }
+    public int PartsGrass { get; private set; }
+    public int PartsStone { get; private set; }
+    public int PartsWater { get; private set; }
+    public int PartsBush { get; private set; }
     public int SecondsPerTurn { get; private set; }
     public int NRows { get => this.MapSize; }
     public int NCols { get => this.MapSize; }
@@ -24,12 +28,20 @@ namespace Schnoz {
 
     public GameSettings(
       int mapSize,
+      int partsGrass,
+      int partsStone,
+      int partsWater,
+      int partsBush,
       int numberOfCardsPerTurn,
       int numberOfSinglePieces,
       int numberOfStages,
       int secondsPerTurn,
       List<RuleNames> ruleNames) {
       this.MapSize = mapSize;
+      this.PartsGrass = partsGrass;
+      this.PartsStone = partsStone;
+      this.PartsWater = partsWater;
+      this.PartsBush = partsBush;
       this.NumberOfCardsPerTurn = numberOfCardsPerTurn;
       this.SecondsPerTurn = secondsPerTurn;
       this.NumberOfSinglePieces = numberOfSinglePieces;
