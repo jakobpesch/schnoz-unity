@@ -16,6 +16,9 @@ public class GameSettingsView : MonoBehaviour {
   public SliderControlView partsStoneSlider;
   public SliderControlView partsWaterSlider;
   public SliderControlView partsBushSlider;
+  public SliderControlView ruleWaterSlider;
+  public SliderControlView ruleHolesSlider;
+  public SliderControlView ruleDiagonalsToTopRightSlider;
   private int mapSize { get => (int)mapSizeSlider.slider.value; }
   private int numberOfStages { get => (int)numberOfStagesSlider.slider.value; }
   private int secondsPerTurn { get => (int)secondsPerTurnSlider.slider.value; }
@@ -23,6 +26,9 @@ public class GameSettingsView : MonoBehaviour {
   private int partsStone { get => (int)partsStoneSlider.slider.value; }
   private int partsWater { get => (int)partsWaterSlider.slider.value; }
   private int partsBush { get => (int)partsBushSlider.slider.value; }
+  private int ruleWater { get => (int)ruleWaterSlider.slider.value; }
+  private int ruleHoles { get => (int)ruleHolesSlider.slider.value; }
+  private int ruleDiagonalsToTopRight { get => (int)ruleDiagonalsToTopRightSlider.slider.value; }
   public Button StartGameButton;
   public TextMeshProUGUI StartGameButtonTextField;
   public void Render() {
@@ -43,12 +49,14 @@ public class GameSettingsView : MonoBehaviour {
     this.partsWaterSlider.UpdateText();
     this.partsBushSlider.UpdateText();
 
+    this.ruleWaterSlider.UpdateText();
+    this.ruleHolesSlider.UpdateText();
+    this.ruleDiagonalsToTopRightSlider.UpdateText();
+
     this.StartGameButton.gameObject.SetActive(this.GameClient.ReadyToStartGame);
   }
 
   public void OnStartGameButton() {
-    Debug.Log("OnStartGameButton");
-
     NetStartGame sg = new NetStartGame();
     sg.mapSize = this.mapSize;
     sg.numberOfStages = this.numberOfStages;
@@ -59,11 +67,24 @@ public class GameSettingsView : MonoBehaviour {
     sg.partsWater = this.partsWater;
     sg.partsBush = this.partsBush;
 
-    // TODO
     List<RuleNames> ruleNames = new List<RuleNames>();
-    ruleNames.Add(RuleNames.Water);
-    ruleNames.Add(RuleNames.DiagonalToTopRight);
-    ruleNames.Add(RuleNames.Holes);
+    if (ruleWaterSlider.slider.value == 1) {
+      ruleNames.Add(RuleNames.Water);
+
+    }
+    if (ruleHolesSlider.slider.value == 1) {
+      ruleNames.Add(RuleNames.Holes);
+    }
+
+    if (ruleDiagonalsToTopRightSlider.slider.value == 1) {
+      ruleNames.Add(RuleNames.DiagonalToTopRight);
+    }
+
+    if (ruleNames.Count == 0) {
+      Debug.Log("At least one rule needs to be selected");
+      return;
+    }
+
     sg.ruleNames = ruleNames;
 
     Client.Instance.SendToServer(sg);
@@ -77,5 +98,8 @@ public class GameSettingsView : MonoBehaviour {
     this.partsStoneSlider.slider.onValueChanged.AddListener(delegate { this.Render(); });
     this.partsWaterSlider.slider.onValueChanged.AddListener(delegate { this.Render(); });
     this.partsBushSlider.slider.onValueChanged.AddListener(delegate { this.Render(); });
+    this.ruleWaterSlider.slider.onValueChanged.AddListener(delegate { this.Render(); });
+    this.ruleHolesSlider.slider.onValueChanged.AddListener(delegate { this.Render(); });
+    this.ruleDiagonalsToTopRightSlider.slider.onValueChanged.AddListener(delegate { this.Render(); });
   }
 }
