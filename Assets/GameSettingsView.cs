@@ -3,8 +3,6 @@ using Schnoz;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
-using System.Linq;
-using System;
 
 public class GameSettingsView : MonoBehaviour {
   public StandardGameClient GameClient;
