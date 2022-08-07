@@ -5,8 +5,13 @@ using TypeAliases;
 
 public class NetInitialiseMap : NetMessage {
 
-  public int nRows;
-  public int nCols;
+  public int mapSize;
+  public int numberOfStages;
+  public int secondsPerTurn;
+  public int partsGrass;
+  public int partsStone;
+  public int partsWater;
+  public int partsBush;
   public List<RuleNames> ruleNames = new List<RuleNames>();
 
   public NetInitialiseMap() {
@@ -19,9 +24,14 @@ public class NetInitialiseMap : NetMessage {
   public override void Serialize(ref DataStreamWriter writer) {
     writer.WriteByte((byte)this.Code);
 
-    // Map size
-    writer.WriteByte((byte)this.nRows);
-    writer.WriteByte((byte)this.nCols);
+    writer.WriteByte((byte)this.mapSize);
+    writer.WriteByte((byte)this.numberOfStages);
+    writer.WriteByte((byte)this.secondsPerTurn);
+
+    writer.WriteByte((byte)this.partsGrass);
+    writer.WriteByte((byte)this.partsStone);
+    writer.WriteByte((byte)this.partsWater);
+    writer.WriteByte((byte)this.partsBush);
 
     // Rules
     writer.WriteInt(this.ruleNames.Count);
@@ -30,9 +40,15 @@ public class NetInitialiseMap : NetMessage {
     }
   }
   public override void Deserialize(DataStreamReader reader) {
-    // Map size
-    this.nRows = reader.ReadByte();
-    this.nCols = reader.ReadByte();
+
+    this.mapSize = reader.ReadByte();
+    this.numberOfStages = reader.ReadByte();
+    this.secondsPerTurn = reader.ReadByte();
+
+    this.partsGrass = reader.ReadByte();
+    this.partsStone = reader.ReadByte();
+    this.partsWater = reader.ReadByte();
+    this.partsBush = reader.ReadByte();
 
     // Rules
     int ruleNamesCount = reader.ReadInt();

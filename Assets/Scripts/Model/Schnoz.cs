@@ -49,18 +49,20 @@ namespace Schnoz {
       ? this.GameSettings.PlayerIdToPlayerDict[this.ActivePlayerId]
       : null;
     }
+    public bool GameOver = false;
+
     public Player NeutralPlayer;
 
     public void InitialiseMap() {
       Debug.Log("Map will be Created");
-      this.Map = new Map(this.GameSettings.NRows, this.GameSettings.NCols);
+      this.Map = new Map(this.GameSettings.NRows, this.GameSettings.NCols, true, this.GameSettings.PartsGrass, this.GameSettings.PartsStone, this.GameSettings.PartsWater, this.GameSettings.PartsBush);
       this.NeutralPlayer = new Player(PlayerIds.NeutralPlayer);
       this.PlaceUnit(PlayerIds.NeutralPlayer, this.Map.CenterTile.Coordinate);
     }
 
     public void CreateDeck() {
       Debug.Log("Deck will be Created");
-      this.Deck = new Deck(this.GameSettings.DeckSize);
+      this.Deck = new Deck();
     }
 
     public void ShuffleDeck() {
@@ -194,6 +196,11 @@ namespace Schnoz {
     public Player DetermineRuleWinner(RuleNames ruleName) {
       return this.Players.Aggregate((Func<Player, Player, Player>)((player1, player2) => {
         Rule rule = this.GameSettings.RuleNameToRuleDict[ruleName];
+        Debug.Log(rule);
+        Debug.Log(ruleName);
+        foreach (var r in this.GameSettings.RuleNameToRuleDict.ToArray()) {
+          Debug.Log(r);
+        }
         int pointsPlayer1 = rule.Evaluate(player1, (Map)this.Map).Points;
         int pointsPlayer2 = rule.Evaluate(player2, (Map)this.Map).Points;
         return pointsPlayer1 == pointsPlayer2 ? null : pointsPlayer1 > pointsPlayer2 ? player1 : player2;

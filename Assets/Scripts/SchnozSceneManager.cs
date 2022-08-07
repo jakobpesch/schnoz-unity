@@ -21,45 +21,7 @@ public enum SceneIndexes {
 public class SchnozSceneManager : MonoBehaviour {
   public static SchnozSceneManager Instance { set; get; }
   private void Awake() {
-    // Map map = new Map(3, 3);
-    // Tile tile1 = map.CoordinateToTileDict[new Coordinate(0, 1)];
-    // tile1.SetUnit(new Unit(new Player(0).Id, tile1.Coordinate));
-    // Tile tile2 = map.CoordinateToTileDict[new Coordinate(2, 2)];
-    // tile2.SetUnit(new Unit(new Player(0).Id, tile2.Coordinate));
-    // NetMap netMap = new NetMap();
-    // netMap.r = 3;
-    // netMap.c = 3;
-    // netMap.u = map.Units.Select(unit =>
-    // {
-    //   NetUnit netUnit = new NetUnit();
-    //   netUnit.id = unit.OwnerId;
-    //   netUnit.r = unit.Coordinate.row;
-    //   netUnit.c = unit.Coordinate.col;
-    //   return netUnit;
-    // }).ToList();
-    // FixedString4096 json = JsonUtility.ToJson(netMap);
-    // NetMap newNetMap = JsonUtility.FromJson<NetMap>(json.ToString());
-    // Map newMap = new Map(newNetMap);
-    // FixedString4096 json2 = JsonUtility.ToJson(newNetMap);
-    // Debug.Log(json);
-    // Debug.Log(json2);
     Instance = this;
-
-
-    // string[] args = System.Environment.GetCommandLineArgs();
-    // for (int i = 0; i < args.Length; i++)
-    // {
-    //   Debug.Log(args[i]);
-    //   if (args[i] == "server")
-    //   {
-    //     Server.Instance.Init(Constants.port);
-    //     SceneManager.LoadSceneAsync((int)SceneIndexes.GAME, LoadSceneMode.Additive);
-    //   }
-    //   if (args[i] == "client")
-    //   {
-    //     SceneManager.LoadSceneAsync((int)SceneIndexes.MAIN_MENU, LoadSceneMode.Additive);
-    //   }
-    // }
   }
   private void Start() {
     if (ClonesManager.IsClone()) {
