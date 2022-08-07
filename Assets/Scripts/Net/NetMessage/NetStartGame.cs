@@ -36,7 +36,6 @@ public class NetStartGame : NetMessage {
 
     writer.WriteByte((byte)this.ruleNames.Count);
     for (int i = 0; i < this.ruleNames.Count; i++) {
-      Debug.Log($"Write rulename: {this.ruleNames[i]}");
       writer.WriteByte((byte)this.ruleNames[i]);
     }
   }
@@ -53,8 +52,6 @@ public class NetStartGame : NetMessage {
     int ruleCount = reader.ReadByte();
     for (int i = 0; i < ruleCount; i++) {
       var ruleName = (RuleNames)reader.ReadByte();
-      Debug.Log($"Read rulename: {ruleName}");
-
       this.ruleNames.Add(ruleName);
     }
   }

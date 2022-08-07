@@ -172,7 +172,7 @@ namespace Schnoz {
     }
 
     private void Update() {
-      if (this.gameStarted) {
+      if (this.gameStarted && !this.GameClient.GameOver) {
         if (this.Timer > 0) {
           this.Timer -= Time.deltaTime;
         } else {
@@ -223,7 +223,6 @@ namespace Schnoz {
     /// </summary>
     /// <param name="msg"></param>
     private void OnWelcome(NetMessage msg) {
-      Debug.Log("Message to Client: OnWelcome");
       NetWelcome nw = msg as NetWelcome;
       this.currentTeam = nw.AssignedTeam;
       this.AssignedRole = nw.AssignedRole;
@@ -237,31 +236,35 @@ namespace Schnoz {
     }
 
     private void OnRender(NetMessage msg) {
-      Debug.Log("Message to Client: OnRender");
       NetRender r = msg as NetRender;
-      // r.renderTypes.ForEach(r => Debug.Log(r));
       r.renderTypes.ForEach((Action<RenderTypes>)(renderType => {
         this.ViewManager.Render(renderType);
       }));
     }
 
     private void OnGameOver(NetMessage msg) {
-      Debug.Log("Message to Client: OnGameOver");
+      NetGameOver go = msg as NetGameOver;
       this.GameClient.GameOver = true;
-      Destroy(this.ViewManager.CardsView.gameObject);
-      Destroy(this.ViewManager.TurnsView.gameObject);
+      this.ViewManager.CardsView.gameObject.SetActive(false);
+      this.ViewManager.TurnsView.gameObject.SetActive(false);
+      this.ViewManager.GameSettingsView.gameObject.SetActive(false);
+      this.ViewManager.TimerView.gameObject.SetActive(false);
+
+      Player winner = this.GameClient.Players.Find(player => player.Id == go.winnerId);
+      if (winner == null) {
+        this.ViewManager.GameOverView.Result.text = "It's a draw";
+      } else {
+        this.ViewManager.GameOverView.Result.text = winner.PlayerName + " won!";
+      }
+      this.ViewManager.Render(RenderTypes.GameOver);
     }
     private void OnUpdateCards(NetMessage msg) {
-      Debug.Log("Message to Client: OnUpdateCards");
-
       NetUpdateCards uc = msg as NetUpdateCards;
       this.GameClient.OpenCards = uc.cards;
       this.selectedCardId = Guid.Empty;
     }
 
     private void OnInitialiseMap(NetMessage msg) {
-      Debug.Log("Message to Client: OnInitialiseMap");
-
       NetInitialiseMap im = msg as NetInitialiseMap;
 
       this.gameSettings = new GameSettings(im.mapSize, im.partsGrass, im.partsStone, im.partsWater, im.partsBush, 3, 0, im.numberOfStages, im.secondsPerTurn, im.ruleNames);
@@ -269,12 +272,11 @@ namespace Schnoz {
       // this.ActivateViewManager();
       this.Timer = this.GameClient.GameSettings.SecondsPerTurn;
       this.gameStarted = true;
-      this.GameClient.InitialiseMap();
+      this.GameClient.InitialiseEmptyMap();
       this.ViewManager.SetCamera();
     }
 
     private void OnUpdateUnits(NetMessage msg) {
-      Debug.Log("Message to Client: OnUpdateUnits");
       NetUpdateUnits uu = msg as NetUpdateUnits;
 
       foreach (Unit unit in uu.addedUnits) {
@@ -287,7 +289,6 @@ namespace Schnoz {
     }
 
     private void OnUpdateTerrains(NetMessage msg) {
-      Debug.Log("Message to Client: OnUpdateTerrains");
       NetUpdateTerrains ut = msg as NetUpdateTerrains;
       foreach (Terrain terrain in ut.terrains) {
         this.GameClient.PlaceTerrain(terrain.Type, terrain.Coordinate);
@@ -295,15 +296,12 @@ namespace Schnoz {
     }
 
     private void OnUpdateScore(NetMessage msg) {
-      Debug.Log("Message to Client: OnUpdateScore");
       NetUpdateScore us = msg as NetUpdateScore;
-      Debug.Log($"CLIENT: Score P1:{us.ScorePlayer1.ToString()}, Score P2: {us.ScorePlayer2.ToString()}");
       this.GameClient.GameSettings.PlayerIdToPlayerDict[PlayerIds.Player1].SetScore(us.ScorePlayer1);
       this.GameClient.GameSettings.PlayerIdToPlayerDict[PlayerIds.Player2].SetScore(us.ScorePlayer2);
     }
 
     private void OnEndTurn(NetMessage msg) {
-      Debug.Log("Message to Client: OnEndTurn");
       NetEndTurn et = msg as NetEndTurn;
       this.Timer = this.GameClient.GameSettings.SecondsPerTurn;
       this.GameClient.EndTurn();
@@ -311,7 +309,6 @@ namespace Schnoz {
 
     #endregion
     private void ActivateViewManager() {
-      Debug.Log("VM: Enabling ViewManager");
       this.ViewManager.enabled = true;
       this.ViewManager.game = this;
     }

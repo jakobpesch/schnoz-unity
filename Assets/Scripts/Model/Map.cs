@@ -69,19 +69,6 @@ namespace Schnoz {
 
 
     }
-    public Map(int row, int col, List<Unit> units, List<Terrain> terrains) : this(row, col, false, 0, 0, 0, 0) {
-      units.ForEach(unit => {
-        Coordinate coordinate = unit.Coordinate;
-        Debug.Log(coordinate);
-        Debug.Log(CoordinateToTileDict.ToString());
-        this.CoordinateToTileDict[coordinate].SetUnit(unit);
-      });
-
-      terrains.ForEach(terrain => {
-        Coordinate coordinate = terrain.Coordinate;
-        this.CoordinateToTileDict[coordinate].SetTerrain(terrain.Type);
-      });
-    }
 
     private void RandomizeTerrain() {
       float total = this.partsGrass + this.partsWater + this.partsBush + this.partsStone;

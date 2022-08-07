@@ -1,8 +1,6 @@
 using System;
 using System.Linq;
 using System.Collections.Generic;
-using System.Collections;
-using System.ComponentModel;
 using UnityEngine.SceneManagement;
 using UnityEngine;
 using Schnoz;
@@ -16,6 +14,7 @@ public class StandardGameViewManager : MonoBehaviour {
   public ActionsView ActionsView;
   public TimerView TimerView;
   public GameSettingsView GameSettingsView;
+  public GameOverView GameOverView;
   private Vector2 resolution;
   private GameObject mapGO;
   [SerializeField] private GameObject openCardsGO;
@@ -119,6 +118,11 @@ public class StandardGameViewManager : MonoBehaviour {
     switch (renderType) {
       case RenderTypes.Map: {
           this.RenderMap();
+          break;
+        }
+      case RenderTypes.GameOver: {
+          this.GameOverView.GameClient = this.game;
+          this.GameOverView.Render();
           break;
         }
       case RenderTypes.GameSettings: {

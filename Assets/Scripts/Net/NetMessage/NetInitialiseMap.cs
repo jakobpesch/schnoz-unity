@@ -41,20 +41,20 @@ public class NetInitialiseMap : NetMessage {
   }
   public override void Deserialize(DataStreamReader reader) {
 
-    this.mapSize = reader.ReadByte();
-    this.numberOfStages = reader.ReadByte();
-    this.secondsPerTurn = reader.ReadByte();
+    this.mapSize = (int)reader.ReadByte();
+    this.numberOfStages = (int)reader.ReadByte();
+    this.secondsPerTurn = (int)reader.ReadByte();
 
-    this.partsGrass = reader.ReadByte();
-    this.partsStone = reader.ReadByte();
-    this.partsWater = reader.ReadByte();
-    this.partsBush = reader.ReadByte();
+    this.partsGrass = (int)reader.ReadByte();
+    this.partsStone = (int)reader.ReadByte();
+    this.partsWater = (int)reader.ReadByte();
+    this.partsBush = (int)reader.ReadByte();
 
     // Rules
     int ruleNamesCount = reader.ReadInt();
     this.ruleNames = new List<RuleNames>();
     for (int i = 0; i < ruleNamesCount; i++) {
-      this.ruleNames.Add((RuleNames)reader.ReadByte());
+      this.ruleNames.Add((RuleNames)(int)reader.ReadByte());
     }
   }
   public override void ReceivedOnClient() {

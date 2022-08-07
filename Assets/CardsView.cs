@@ -11,7 +11,6 @@ public class CardsView : MonoBehaviour {
     get => this.gameClient;
     set {
       this.gameClient = value;
-      Debug.Log($"set GameClient to {value}");
     }
   }
   public const int Alpha1 = 49; // Enum value for: KeyCode.Alpha1
@@ -52,9 +51,6 @@ public class CardsView : MonoBehaviour {
     for (int i = 0; i < cards.Count; i++) {
       Card card = cards[i];
       CardView cardView = this.CardViews[i];
-      if (cardView.IsSelected) {
-        Debug.Log($"Card {card.Id} is selected.");
-      }
       cardView.Image.color = cardView.IsSelected ? Color.green : Color.white;
       cardView.CardId = card.Id;
     }
