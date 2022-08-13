@@ -7,7 +7,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using Schnoz;
 using TypeAliases;
-using ParrelSync;
+// using ParrelSync;
 
 public enum SceneIndexes {
   MANAGER = 0,
@@ -24,21 +24,21 @@ public class SchnozSceneManager : MonoBehaviour {
     Instance = this;
   }
   private void Start() {
-    if (ClonesManager.IsClone()) {
-      string customArgument = ClonesManager.GetArgument();
-      if (customArgument == "server") {
-        NetworkManager.Instance.NI = NetworkManager.NetworkIdentity.DEDICATED_SERVER;
-        Server.Instance.Init(Constants.port);
-        SceneManager.LoadSceneAsync((int)SceneIndexes.GAME, LoadSceneMode.Additive);
-      }
-      if (customArgument == "client") {
-        NetworkManager.Instance.NI = NetworkManager.NetworkIdentity.CLIENT;
-        SceneManager.LoadSceneAsync((int)SceneIndexes.MAIN_MENU, LoadSceneMode.Additive);
-      }
-    } else {
-      NetworkManager.Instance.NI = NetworkManager.NetworkIdentity.CLIENT;
-      SceneManager.LoadSceneAsync((int)SceneIndexes.MAIN_MENU, LoadSceneMode.Additive);
-    }
+    // if (ClonesManager.IsClone()) {
+    //   string customArgument = ClonesManager.GetArgument();
+    //   if (customArgument == "server") {
+    //     NetworkManager.Instance.NI = NetworkManager.NetworkIdentity.DEDICATED_SERVER;
+    //     Server.Instance.Init(Constants.port);
+    //     SceneManager.LoadSceneAsync((int)SceneIndexes.GAME, LoadSceneMode.Additive);
+    //   }
+    //   if (customArgument == "client") {
+    //     NetworkManager.Instance.NI = NetworkManager.NetworkIdentity.CLIENT;
+    //     SceneManager.LoadSceneAsync((int)SceneIndexes.MAIN_MENU, LoadSceneMode.Additive);
+    //   }
+    // } else {
+    NetworkManager.Instance.NI = NetworkManager.NetworkIdentity.CLIENT;
+    SceneManager.LoadSceneAsync((int)SceneIndexes.MAIN_MENU, LoadSceneMode.Additive);
+    // }
   }
   public GameObject loadingScreen;
   private List<AsyncOperation> scenesLoading = new List<AsyncOperation>();

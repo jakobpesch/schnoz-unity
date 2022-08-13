@@ -6,21 +6,25 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
+    path: Assets/Samples/Relay/1.0.3/Interactive Relay Sample (using UTP)/relay-sdk-test
+      (UTP).unity
+    guid: a0ee9211f9c1ef64182f86af8c587556
+  - enabled: 0
     path: Assets/Scenes/PersitentScene.unity
     guid: 83f8bb108567649cda109861581203ee
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/MainMenu.unity
     guid: c0faf5fa0db554751b7c2ab6c988cb79
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/OnlineGameMenu.unity
     guid: 2e449923984984e83ac0ee1cf024e0b3
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/WaitingForPlayers.unity
     guid: c5a756311f8694f54a543c19ef2fab5c
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/Connecting.unity
     guid: b80fbd774752447df86a784496d265e2
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/Game.unity
     guid: 4e3491298182f4dd39515bd3a8a8dd1b
   m_configObjects: {}
