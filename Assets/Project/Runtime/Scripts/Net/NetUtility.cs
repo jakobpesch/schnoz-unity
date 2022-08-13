@@ -22,7 +22,7 @@ public enum OpCode {
 
 
 public static class NetUtility {
-  public static void OnData(DataStreamReader stream, NetworkConnection cnn, Server server = null) {
+  public static void OnData(DataStreamReader stream, NetworkConnection cnn, bool isServer = false) {
     NetMessage msg = null;
     var opCode = (OpCode)stream.ReadByte();
     switch (opCode) {
@@ -46,7 +46,7 @@ public static class NetUtility {
         break;
     }
 
-    if (server != null) {
+    if (isServer) {
       msg.ReceivedOnServer(cnn);
     } else {
       msg.ReceivedOnClient();

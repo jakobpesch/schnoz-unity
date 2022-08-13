@@ -63,12 +63,12 @@ namespace Schnoz {
       NetWelcome nw = msg as NetWelcome;
       nw.AssignedTeam = ++this.playerCount;
       nw.AssignedRole = this.playerCount == 0 ? PlayerRoles.ADMIN : PlayerRoles.PLAYER;
-      Server.Instance.SendToClient(cnn, nw);
+      RelayNetworking.Instance.SendToClient(cnn, nw);
 
       bool allPlayersPresent = this.playerCount == 1;
       if (this.isLocalGame || allPlayersPresent) {
         Debug.Log("All players present");
-        Server.Instance.Broadcast(new NetAllPlayersConnected());
+        RelayNetworking.Instance.Broadcast(new NetAllPlayersConnected());
       } else {
         Debug.Log($"Waiting for {1 - this.playerCount} more players.");
       }
@@ -122,12 +122,12 @@ namespace Schnoz {
         RenderTypes.Map, RenderTypes.Turns, RenderTypes.Timer, RenderTypes.OpenCards, RenderTypes.Rules, RenderTypes.SinglePieces
       };
 
-      Server.Instance.Broadcast(im);
-      Server.Instance.Broadcast(ut);
-      Server.Instance.Broadcast(uu);
-      Server.Instance.Broadcast(uc);
-      Server.Instance.Broadcast(usp);
-      Server.Instance.Broadcast(r);
+      RelayNetworking.Instance.Broadcast(im);
+      RelayNetworking.Instance.Broadcast(ut);
+      RelayNetworking.Instance.Broadcast(uu);
+      RelayNetworking.Instance.Broadcast(uc);
+      RelayNetworking.Instance.Broadcast(usp);
+      RelayNetworking.Instance.Broadcast(r);
       this.Timer = this.GameServer.GameSettings.SecondsPerTurn;
       this.gameStarted = true;
     }
@@ -161,11 +161,11 @@ namespace Schnoz {
 
         NetUpdateUnits uu = new NetUpdateUnits();
         uu.addedUnits = gs.Map.Units;
-        Server.Instance.Broadcast(uu);
+        RelayNetworking.Instance.Broadcast(uu);
 
         NetUpdateTerrains ut = new NetUpdateTerrains();
         ut.terrains = gs.Map.Terrains;
-        Server.Instance.Broadcast(ut);
+        RelayNetworking.Instance.Broadcast(ut);
 
         r.renderTypes.Add(RenderTypes.Map);
       }
@@ -181,14 +181,14 @@ namespace Schnoz {
         NetUpdateScore us = new NetUpdateScore();
         us.ScorePlayer1 = gs.GameSettings.PlayerIdToPlayerDict[PlayerIds.Player1].Score;
         us.ScorePlayer2 = gs.GameSettings.PlayerIdToPlayerDict[PlayerIds.Player2].Score;
-        Server.Instance.Broadcast(us);
+        RelayNetworking.Instance.Broadcast(us);
         r.renderTypes.Add(RenderTypes.Score);
 
         // this.GameServer.GameSettings.Players.ForEach(player => player.AddSinglePiece());
         // NetUpdateSinglePieces usp = new NetUpdateSinglePieces();
         // usp.SinglePiecesPlayer1 = this.GameServer.GameSettings.PlayerIdToPlayerDict[PlayerIds.Player1].SinglePieces;
         // usp.SinglePiecesPlayer2 = this.GameServer.GameSettings.PlayerIdToPlayerDict[PlayerIds.Player2].SinglePieces;
-        // Server.Instance.Broadcast(usp);
+        // RelayNetworking.Instance.Broadcast(usp);
         // r.renderTypes.Add(RenderTypes.SinglePieces);
       }
 
@@ -197,7 +197,7 @@ namespace Schnoz {
         gs.DrawCards();
         NetUpdateCards uc = new NetUpdateCards();
         uc.cards = gs.Deck.OpenCards;
-        Server.Instance.Broadcast(uc);
+        RelayNetworking.Instance.Broadcast(uc);
         r.renderTypes.Add(RenderTypes.OpenCards);
       } else {
         // r.renderTypes.Add(RenderTypes.SinglePieces);
@@ -210,16 +210,16 @@ namespace Schnoz {
         PlayerIds leadingPlayerId = this.GameServer.GetLeadingPlayerId();
 
         go.winnerId = leadingPlayerId;
-        Server.Instance.Broadcast(go);
+        RelayNetworking.Instance.Broadcast(go);
       } else {
         gs.EndTurn();
-        Server.Instance.Broadcast(new NetEndTurn());
+        RelayNetworking.Instance.Broadcast(new NetEndTurn());
       }
       r.renderTypes.Add(RenderTypes.Turns);
 
       r.renderTypes.Add(RenderTypes.Timer);
       r.renderTypes.Add(RenderTypes.Rules);
-      Server.Instance.Broadcast(r);
+      RelayNetworking.Instance.Broadcast(r);
       this.Timer = this.GameServer.GameSettings.SecondsPerTurn;
     }
 
@@ -253,13 +253,13 @@ namespace Schnoz {
       usp.SinglePiecesPlayer2 = this.GameServer.GameSettings.PlayerIdToPlayerDict[PlayerIds.Player2].SinglePieces;
       r.renderTypes.Add(RenderTypes.SinglePieces);
       r.renderTypes.Add(RenderTypes.Rules);
-      Server.Instance.Broadcast(usp);
+      RelayNetworking.Instance.Broadcast(usp);
 
       NetUpdateUnits uu = new NetUpdateUnits();
       uu.addedUnits = gs.Map.Units;
-      Server.Instance.Broadcast(uu);
+      RelayNetworking.Instance.Broadcast(uu);
 
-      Server.Instance.Broadcast(r);
+      RelayNetworking.Instance.Broadcast(r);
     }
     #endregion
 

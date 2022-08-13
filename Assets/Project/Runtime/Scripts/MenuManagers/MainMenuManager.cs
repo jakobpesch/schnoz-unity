@@ -8,9 +8,10 @@ public class MainMenuManager : MonoBehaviour {
     SchnozSceneManager.Instance.ChangeScene(SceneIndexes.MAIN_MENU, SceneIndexes.ONLINE_GAME_MENU, false);
   }
   public void OnLocalGameButton() {
-    Debug.Log("Local Game");
-    NetworkManager.Instance.LocalGame();
-    SchnozSceneManager.Instance.ChangeScene(SceneIndexes.MAIN_MENU, SceneIndexes.GAME);
+    Debug.Log("Not yet implemented");
+    // Debug.Log("Local Game");
+    // NetworkManager.Instance.LocalGame();
+    // SchnozSceneManager.Instance.ChangeScene(SceneIndexes.MAIN_MENU, SceneIndexes.GAME);
   }
   public void OnQuitButton() {
     Application.Quit();

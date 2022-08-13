@@ -3,8 +3,8 @@ using Unity.Collections;
 using Unity.Networking.Transport;
 using UnityEngine;
 
-public class Client : MonoBehaviour {
-  public static Client Instance { set; get; }
+public class deprecated_Client : MonoBehaviour {
+  public static deprecated_Client Instance { set; get; }
   private void Awake() {
     Instance = this;
   }
@@ -79,12 +79,6 @@ public class Client : MonoBehaviour {
   public void SendToServer(NetMessage msg) {
     DataStreamWriter writer;
     this.driver.BeginSend(this.connection, out writer);
-    msg.Serialize(ref writer);
-    this.driver.EndSend(writer);
-  }
-  public void SendToClient(NetworkConnection connection, NetMessage msg) {
-    DataStreamWriter writer;
-    this.driver.BeginSend(connection, out writer);
     msg.Serialize(ref writer);
     this.driver.EndSend(writer);
   }

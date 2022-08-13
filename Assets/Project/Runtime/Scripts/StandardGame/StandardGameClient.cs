@@ -82,13 +82,13 @@ namespace Schnoz {
             mm.mirrorHorizontal = untiFormation.mirrorHorizontal ? 1 : 0;
             mm.mirrorVertical = untiFormation.mirrorVertical ? 1 : 0;
             mm.teamId = this.currentTeam;
-            Client.Instance.SendToServer(mm);
+            RelayNetworking.Instance.SendToServer(mm);
           }
           if (this.SinglePieceId != Guid.Empty) {
             if (this.GameClient.GameSettings.PlayerIdToPlayerDict[this.GameClient.ActivePlayerId].SinglePieces > 0) {
               NetPutSinglePiece psp = new NetPutSinglePiece();
               psp.coordinate = tile.Coordinate;
-              Client.Instance.SendToServer(psp);
+              RelayNetworking.Instance.SendToServer(psp);
             }
           }
         }

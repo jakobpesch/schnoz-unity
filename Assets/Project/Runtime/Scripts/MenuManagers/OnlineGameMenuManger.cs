@@ -5,10 +5,10 @@ using TMPro;
 using UnityEngine.SceneManagement;
 
 public class OnlineGameMenuManger : MonoBehaviour {
-  [SerializeField] private string ipAddress = "127.0.0.1";
+  [SerializeField] private string joinCode = "";
   [SerializeField] private TMP_InputField inputField;
   private void Awake() {
-    this.inputField.text = ipAddress;
+    this.inputField.text = joinCode;
   }
   public void OnHostButton() {
     Debug.Log("Hosting...");
@@ -17,7 +17,6 @@ public class OnlineGameMenuManger : MonoBehaviour {
   }
   public void OnConnectButton() {
     Debug.Log("Connecting...");
-    Debug.Log(this.inputField.text);
     NetworkManager.Instance.Connect(this.inputField.text);
     SchnozSceneManager.Instance.ChangeScene(SceneIndexes.ONLINE_GAME_MENU, SceneIndexes.GAME);
   }

@@ -59,8 +59,7 @@ public class StandardGameViewManager : MonoBehaviour {
     }
     if (this.game.GameClient.GameOver && Input.GetKeyDown(KeyCode.Escape)) {
       SchnozSceneManager.Instance.ChangeScene(SceneIndexes.GAME, SceneIndexes.MAIN_MENU);
-      Client.Instance.Shutdown();
-      Server.Instance.Shutdown();
+      RelayNetworking.Instance.Shutdown();
     }
 
     #region Camera movement update

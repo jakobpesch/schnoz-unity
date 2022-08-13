@@ -14,7 +14,6 @@ public class GameOverView : MonoBehaviour {
 
   public void OnMainMenuButton() {
     SchnozSceneManager.Instance.ChangeScene(SceneIndexes.GAME, SceneIndexes.MAIN_MENU, true);
-    NetworkManager.Instance.client.Shutdown();
-    NetworkManager.Instance.server.Shutdown();
+    RelayNetworking.Instance.Shutdown();
   }
 }

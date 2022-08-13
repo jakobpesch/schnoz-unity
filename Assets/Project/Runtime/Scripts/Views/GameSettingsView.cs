@@ -85,7 +85,7 @@ public class GameSettingsView : MonoBehaviour {
 
     sg.ruleNames = ruleNames;
 
-    Client.Instance.SendToServer(sg);
+    RelayNetworking.Instance.SendToServer(sg);
     this.gameObject.SetActive(false);
   }
   private void Awake() {

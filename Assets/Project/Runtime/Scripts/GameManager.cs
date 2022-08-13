@@ -6,7 +6,7 @@ public class GameManager : MonoBehaviour {
   public static GameManager Instance { set; get; }
   [SerializeField] private StandardGameServer gameServer;
   [SerializeField] private StandardGameClient gameClient;
-  [SerializeField] private GameObject startGameButton;
+
   private void Awake() {
     Instance = this;
   }
