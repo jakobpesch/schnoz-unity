@@ -24,7 +24,7 @@ namespace Schnoz {
     Single_1, Straight_2, Straight_3, Straight_4, Diagonal_2, Corner_3, L_4, Z_4, Horse_3, Paralell_4
   }
   public enum RenderTypes {
-    Map, Turns, Highlight, OpenCards, SelectedCard, Rules, Score, SinglePieces, Timer, GameSettings, GameOver
+    Map, Turns, Highlight, OpenCards, SelectedCard, Rules, Score, SinglePieces, Timer, GameSettings, GameOver, NetworkStatus
   }
   public enum InputEventNames {
     OnMouseUp, OnMouseEnter, OnMouseExit, RotateRightButton, RotateLeftButton, MirrorHorizontalButton, MirrorVerticalButton, SelectCard, OnCardViewClick, ShowRelevantTiles

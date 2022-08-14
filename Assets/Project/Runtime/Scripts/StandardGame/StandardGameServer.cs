@@ -10,7 +10,7 @@ namespace Schnoz {
   public class StandardGameServer : MonoBehaviour {
     // Multiplayer logic
     private bool isLocalGame {
-      get => NetworkManager.Instance.NI == NetworkManager.NetworkIdentity.LOCAL;
+      get => RelayNetworking.Instance.NI == RelayNetworking.NetworkIdentity.LOCAL;
     }
     [SerializeField] private int playerCount = -1;
     public Schnoz GameServer { get; private set; }
@@ -60,6 +60,7 @@ namespace Schnoz {
 
 
     private void OnWelcome(NetMessage msg, NetworkConnection cnn) {
+      Debug.Log("OnWelcome");
       NetWelcome nw = msg as NetWelcome;
       nw.AssignedTeam = ++this.playerCount;
       nw.AssignedRole = this.playerCount == 0 ? PlayerRoles.ADMIN : PlayerRoles.PLAYER;
@@ -85,64 +86,62 @@ namespace Schnoz {
 
       this.Timer = this.GameServer.GameSettings.SecondsPerTurn;
 
-      Schnoz gs = this.GameServer;
       GameSettings settings = this.GameServer.GameSettings;
-      gs.InitialiseMap();
-      gs.CreateDeck();
-      // gs.ShuffleDeck();
-      gs.DrawCards();
+      this.GameServer.InitialiseMap();
+      this.GameServer.CreateDeck();
+      // this.GameServer.ShuffleDeck();
+      this.GameServer.DrawCards();
 
-      NetInitialiseMap im = new NetInitialiseMap();
-      im.mapSize = settings.NRows;
-      im.numberOfStages = settings.NumberOfStages;
-      im.secondsPerTurn = settings.SecondsPerTurn;
+      NetInitialiseMap initialiseMap = new NetInitialiseMap();
+      initialiseMap.mapSize = settings.NRows;
+      initialiseMap.numberOfStages = settings.NumberOfStages;
+      initialiseMap.secondsPerTurn = settings.SecondsPerTurn;
 
-      im.partsGrass = settings.PartsGrass;
-      im.partsStone = settings.PartsStone;
-      im.partsWater = settings.PartsWater;
-      im.partsBush = settings.PartsBush;
+      initialiseMap.partsGrass = settings.PartsGrass;
+      initialiseMap.partsStone = settings.PartsStone;
+      initialiseMap.partsWater = settings.PartsWater;
+      initialiseMap.partsBush = settings.PartsBush;
 
-      im.ruleNames = settings.Rules.Select(rule => rule.RuleName).ToList();
+      initialiseMap.ruleNames = settings.Rules.Select(rule => rule.RuleName).ToList();
 
-      NetUpdateTerrains ut = new NetUpdateTerrains();
-      ut.terrains = gs.Map.Terrains;
+      NetUpdateTerrains updateTerrain = new NetUpdateTerrains();
+      updateTerrain.terrains = this.GameServer.Map.Terrains;
 
-      NetUpdateUnits uu = new NetUpdateUnits();
-      uu.addedUnits = gs.Map.Units;
+      NetUpdateUnits updateUnits = new NetUpdateUnits();
+      updateUnits.addedUnits = this.GameServer.Map.Units;
 
-      NetUpdateCards uc = new NetUpdateCards();
-      uc.cards = gs.Deck.OpenCards;
+      NetUpdateCards updateCards = new NetUpdateCards();
+      updateCards.cards = this.GameServer.Deck.OpenCards;
 
-      NetUpdateSinglePieces usp = new NetUpdateSinglePieces();
-      usp.SinglePiecesPlayer1 = this.GameServer.GameSettings.PlayerIdToPlayerDict[PlayerIds.Player1].SinglePieces;
-      usp.SinglePiecesPlayer2 = this.GameServer.GameSettings.PlayerIdToPlayerDict[PlayerIds.Player2].SinglePieces;
+      NetUpdateSinglePieces updateSinglePieces = new NetUpdateSinglePieces();
+      updateSinglePieces.SinglePiecesPlayer1 = this.GameServer.GameSettings.PlayerIdToPlayerDict[PlayerIds.Player1].SinglePieces;
+      updateSinglePieces.SinglePiecesPlayer2 = this.GameServer.GameSettings.PlayerIdToPlayerDict[PlayerIds.Player2].SinglePieces;
 
-      NetRender r = new NetRender();
-      r.renderTypes = new List<RenderTypes>() {
+      NetRender render = new NetRender();
+      render.renderTypes = new List<RenderTypes>() {
         RenderTypes.Map, RenderTypes.Turns, RenderTypes.Timer, RenderTypes.OpenCards, RenderTypes.Rules, RenderTypes.SinglePieces
       };
 
-      RelayNetworking.Instance.Broadcast(im);
-      RelayNetworking.Instance.Broadcast(ut);
-      RelayNetworking.Instance.Broadcast(uu);
-      RelayNetworking.Instance.Broadcast(uc);
-      RelayNetworking.Instance.Broadcast(usp);
-      RelayNetworking.Instance.Broadcast(r);
+      RelayNetworking.Instance.Broadcast(initialiseMap);
+      RelayNetworking.Instance.Broadcast(updateTerrain);
+      RelayNetworking.Instance.Broadcast(updateUnits);
+      RelayNetworking.Instance.Broadcast(updateCards);
+      RelayNetworking.Instance.Broadcast(updateSinglePieces);
+      RelayNetworking.Instance.Broadcast(render);
       this.Timer = this.GameServer.GameSettings.SecondsPerTurn;
       this.gameStarted = true;
     }
 
     private void OnMakeMove(NetMessage msg, NetworkConnection cnn) {
-      Schnoz gs = this.GameServer;
       NetMakeMove mm = msg as NetMakeMove;
 
-      NetRender r = new NetRender();
-      r.renderTypes = new List<RenderTypes>();
+      NetRender render = new NetRender();
+      render.renderTypes = new List<RenderTypes>();
 
       bool timedOut = msg == null;
       if (!timedOut) {
-        PlayerIds ownerId = msg != null && isLocalGame ? gs.ActivePlayerId : (PlayerIds)cnn.InternalId;
-        if (ownerId != gs.ActivePlayerId) {
+        PlayerIds ownerId = msg != null && isLocalGame ? this.GameServer.ActivePlayerId : (PlayerIds)cnn.InternalId;
+        if (ownerId != this.GameServer.ActivePlayerId) {
           Debug.Log("Cannot place unit because it is not your turn.");
           return;
         }
@@ -152,37 +151,37 @@ namespace Schnoz {
         unitFormation.mirrorHorizontal = mm.mirrorHorizontal == 1;
         unitFormation.mirrorVertical = mm.mirrorVertical == 1;
         Coordinate coordinate = new Coordinate(mm.row, mm.col);
-        bool canPlaceUnitFormation = gs.CanPlaceUnitFormation(ownerId, coordinate, unitFormation);
+        bool canPlaceUnitFormation = this.GameServer.CanPlaceUnitFormation(ownerId, coordinate, unitFormation);
         if (!canPlaceUnitFormation) {
           Debug.Log("Cannot place unit because at least one tile is not placeable.");
           return;
         }
-        gs.PlaceUnitFormation(ownerId, coordinate, unitFormation);
+        this.GameServer.PlaceUnitFormation(ownerId, coordinate, unitFormation);
 
-        NetUpdateUnits uu = new NetUpdateUnits();
-        uu.addedUnits = gs.Map.Units;
-        RelayNetworking.Instance.Broadcast(uu);
+        NetUpdateUnits updateUnits = new NetUpdateUnits();
+        updateUnits.addedUnits = this.GameServer.Map.Units;
+        RelayNetworking.Instance.Broadcast(updateUnits);
 
-        NetUpdateTerrains ut = new NetUpdateTerrains();
-        ut.terrains = gs.Map.Terrains;
-        RelayNetworking.Instance.Broadcast(ut);
+        NetUpdateTerrains updateTerrains = new NetUpdateTerrains();
+        updateTerrains.terrains = this.GameServer.Map.Terrains;
+        RelayNetworking.Instance.Broadcast(updateTerrains);
 
-        r.renderTypes.Add(RenderTypes.Map);
+        render.renderTypes.Add(RenderTypes.Map);
       }
 
-      bool endOfStage = gs.Turn != 0 && (gs.Turn + 1) % gs.GameSettings.NumberOfTurnsPerStage == 0;
+      bool endOfStage = this.GameServer.Turn != 0 && (this.GameServer.Turn + 1) % this.GameServer.GameSettings.NumberOfTurnsPerStage == 0;
       if (endOfStage) {
-        gs.GameSettings.Rules.ForEach(rule => {
-          Player ruleWinner = gs.DetermineRuleWinner(rule.RuleName);
+        this.GameServer.GameSettings.Rules.ForEach(rule => {
+          Player ruleWinner = this.GameServer.DetermineRuleWinner(rule.RuleName);
           if (ruleWinner != null) {
             ruleWinner.SetScore(ruleWinner.Score + 1);
           }
         });
         NetUpdateScore us = new NetUpdateScore();
-        us.ScorePlayer1 = gs.GameSettings.PlayerIdToPlayerDict[PlayerIds.Player1].Score;
-        us.ScorePlayer2 = gs.GameSettings.PlayerIdToPlayerDict[PlayerIds.Player2].Score;
+        us.ScorePlayer1 = this.GameServer.GameSettings.PlayerIdToPlayerDict[PlayerIds.Player1].Score;
+        us.ScorePlayer2 = this.GameServer.GameSettings.PlayerIdToPlayerDict[PlayerIds.Player2].Score;
         RelayNetworking.Instance.Broadcast(us);
-        r.renderTypes.Add(RenderTypes.Score);
+        render.renderTypes.Add(RenderTypes.Score);
 
         // this.GameServer.GameSettings.Players.ForEach(player => player.AddSinglePiece());
         // NetUpdateSinglePieces usp = new NetUpdateSinglePieces();
@@ -192,18 +191,18 @@ namespace Schnoz {
         // r.renderTypes.Add(RenderTypes.SinglePieces);
       }
 
-      bool oddTurn = gs.Turn % 2 != 0;
+      bool oddTurn = this.GameServer.Turn % 2 != 0;
       if (oddTurn) {
-        gs.DrawCards();
-        NetUpdateCards uc = new NetUpdateCards();
-        uc.cards = gs.Deck.OpenCards;
-        RelayNetworking.Instance.Broadcast(uc);
-        r.renderTypes.Add(RenderTypes.OpenCards);
+        this.GameServer.DrawCards();
+        NetUpdateCards updateCards = new NetUpdateCards();
+        updateCards.cards = this.GameServer.Deck.OpenCards;
+        RelayNetworking.Instance.Broadcast(updateCards);
+        render.renderTypes.Add(RenderTypes.OpenCards);
       } else {
         // r.renderTypes.Add(RenderTypes.SinglePieces);
       }
 
-      bool gameOver = gs.Turn == gs.GameSettings.TurnOrder.Count - 1;
+      bool gameOver = this.GameServer.Turn == this.GameServer.GameSettings.TurnOrder.Count - 1;
       if (gameOver) {
         this.GameServer.GameOver = true;
         NetGameOver go = new NetGameOver();
@@ -212,14 +211,14 @@ namespace Schnoz {
         go.winnerId = leadingPlayerId;
         RelayNetworking.Instance.Broadcast(go);
       } else {
-        gs.EndTurn();
+        this.GameServer.EndTurn();
         RelayNetworking.Instance.Broadcast(new NetEndTurn());
       }
-      r.renderTypes.Add(RenderTypes.Turns);
+      render.renderTypes.Add(RenderTypes.Turns);
 
-      r.renderTypes.Add(RenderTypes.Timer);
-      r.renderTypes.Add(RenderTypes.Rules);
-      RelayNetworking.Instance.Broadcast(r);
+      render.renderTypes.Add(RenderTypes.Timer);
+      render.renderTypes.Add(RenderTypes.Rules);
+      RelayNetworking.Instance.Broadcast(render);
       this.Timer = this.GameServer.GameSettings.SecondsPerTurn;
     }
 

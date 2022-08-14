@@ -36,7 +36,7 @@ public class SchnozSceneManager : MonoBehaviour {
     //     SceneManager.LoadSceneAsync((int)SceneIndexes.MAIN_MENU, LoadSceneMode.Additive);
     //   }
     // } else {
-    NetworkManager.Instance.NI = NetworkManager.NetworkIdentity.CLIENT;
+    RelayNetworking.Instance.NI = RelayNetworking.NetworkIdentity.CLIENT;
     SceneManager.LoadSceneAsync((int)SceneIndexes.MAIN_MENU, LoadSceneMode.Additive);
     // }
   }

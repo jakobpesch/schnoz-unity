@@ -23,36 +23,52 @@ public class RelayNetworking : MonoBehaviour {
       _instance = this;
     }
   }
+  public bool HostIsConnected { get { return HostDriver.IsCreated && isRelayServerConnected; } }
+  public bool ClientIsConnected { get { return PlayerDriver.IsCreated && clientConnection.IsCreated; } }
   public Text PlayerIdText;
   public Text SelectedRegion;
   public Text HostAllocationIdText;
   public Text JoinCodeText;
   public Text PlayerAllocationIdText;
   public InputField JoinCodeInput;
-  private Guid hostAllocationId;
-  private Guid playerAllocationId;
-  private string joinCode = "n/a";
-  private string playerId = "n/a";
-  private string regionId = "n/a";
-  private List<string> regions = new List<string>();
-  private Allocation hostAllocation;
-  private NativeList<NetworkConnection> serverConnections;
-  private NetworkConnection clientConnection;
-  private bool isRelayServerConnected = false;
-
+  [SerializeField] private Guid hostAllocationId;
+  [SerializeField] private Guid playerAllocationId;
+  public string JoinCode { get; private set; }
+  [SerializeField] private string playerId = "n/a";
+  [SerializeField] private string regionId = "n/a";
+  [SerializeField] private List<string> regions = new List<string>();
+  [SerializeField] private Allocation hostAllocation;
+  [SerializeField] private NativeList<NetworkConnection> serverConnections;
+  [SerializeField] private NetworkConnection clientConnection;
+  [SerializeField] private bool isRelayServerConnected = false;
   public NetworkDriver HostDriver;
   public NetworkDriver PlayerDriver;
+  public NetworkIdentity NI { get; set; }
+  public enum NetworkIdentity {
+    DEDICATED_SERVER, HOST, CLIENT, LOCAL
+  }
+
+  public void LocalGame() {
+    // this.RelayNetworking = RelayNetworking.Instance;
+    // this.server.Init(Constants.port);
+    // this.client.Init("127.0.0.1", Constants.port);
+    // this.NI = NetworkIdentity.LOCAL;
+  }
+  public void Connect(string joinCode) {
+    Instance.Join(joinCode);
+  }
 
   // Start is called before the first frame update
   async void Start() {
     await UnityServices.InitializeAsync();
     await AuthenticationService.Instance.SignInAnonymouslyAsync();
     playerId = AuthenticationService.Instance.PlayerId;
-    serverConnections = new NativeList<NetworkConnection>(16, Allocator.Persistent);
+    serverConnections = new NativeList<NetworkConnection>(2, Allocator.Persistent);
     // StartCoroutine(UpdateUI());
   }
 
   private void OnApplicationQuit() {
+    Debug.Log("OnApplicationQuit");
     serverConnections.Dispose();
     serverConnections = default;
   }
@@ -71,28 +87,28 @@ public class RelayNetworking : MonoBehaviour {
 
   // Update the NetworkDrivers regularily to ensure the host/player is kept online.
   void Update() {
-    if (HostDriver.IsCreated && isRelayServerConnected) {
+    if (HostIsConnected) {
       HostUpdate();
     }
 
-    if (PlayerDriver.IsCreated && clientConnection.IsCreated) {
+    if (ClientIsConnected) {
       ClientUpdate();
     }
   }
 
   private void OnDestroy() {
+    Debug.Log("OnDestroy");
     this.Shutdown();
   }
 
   public void Shutdown() {
-    HostDriver.Dispose();
-    PlayerDriver.Dispose();
-    this.serverConnections.Dispose();
-
+    try {
+      this.HostDriver.Dispose();
+      this.PlayerDriver.Dispose();
+    } catch (ObjectDisposedException e) {
+      Debug.Log(e);
+    }
   }
-
-
-
 
   public void Host() {
     //Disabling the ability to run multiple hosts on the same instance.
@@ -100,7 +116,7 @@ public class RelayNetworking : MonoBehaviour {
       Debug.Log("Host already active. Server listening for inbound connections.");
       return;
     }
-
+    NI = NetworkIdentity.HOST;
     StartCoroutine(StartServerAndJoin());
   }
 
@@ -109,6 +125,7 @@ public class RelayNetworking : MonoBehaviour {
       Debug.Log("Client already active and connected to a Host. Disconnect from the current server before attempting to join another.");
       return;
     }
+    NI = NetworkIdentity.CLIENT;
     StartCoroutine(ClientBindAndConnect(joinCode));
   }
 
@@ -141,12 +158,15 @@ public class RelayNetworking : MonoBehaviour {
     }
 
     //Process events from all connections
+    DataStreamReader stream;
     for (int i = 0; i < serverConnections.Length; i++) {
       Assert.IsTrue(serverConnections[i].IsCreated);
 
       NetworkEvent.Type eventType;
-      while ((eventType = HostDriver.PopEventForConnection(serverConnections[i], out _)) != NetworkEvent.Type.Empty) {
-        if (eventType == NetworkEvent.Type.Disconnect) {
+      while ((eventType = HostDriver.PopEventForConnection(serverConnections[i], out stream)) != NetworkEvent.Type.Empty) {
+        if (eventType == NetworkEvent.Type.Data) {
+          NetUtility.OnData(stream, this.serverConnections[i], this);
+        } else if (eventType == NetworkEvent.Type.Disconnect) {
           Debug.Log("Client disconnected from server");
           serverConnections[i] = default(NetworkConnection);
         }
@@ -159,9 +179,16 @@ public class RelayNetworking : MonoBehaviour {
 
     //Resolve event queue
     NetworkEvent.Type eventType;
-    while ((eventType = clientConnection.PopEvent(PlayerDriver, out _)) != NetworkEvent.Type.Empty) {
+    DataStreamReader stream;
+    while ((eventType = clientConnection.PopEvent(PlayerDriver, out stream)) != NetworkEvent.Type.Empty) {
+      // if (eventType == NetworkEvent.Type.Connect) {
+      //   Debug.Log("Client connected to the server");
+      // }
       if (eventType == NetworkEvent.Type.Connect) {
-        Debug.Log("Client connected to the server");
+        Debug.Log("We're connected!");
+        this.SendToServer(new NetWelcome());
+      } else if (eventType == NetworkEvent.Type.Data) {
+        NetUtility.OnData(stream, default(NetworkConnection));
       } else if (eventType == NetworkEvent.Type.Disconnect) {
         Debug.Log("Client got disconnected from server");
         clientConnection = default(NetworkConnection);
@@ -171,7 +198,7 @@ public class RelayNetworking : MonoBehaviour {
 
   private IEnumerator StartServerAndJoin() {
     yield return StartCoroutine(StartRelayServer());
-    StartCoroutine(ClientBindAndConnect(joinCode));
+    StartCoroutine(ClientBindAndConnect(JoinCode));
   }
 
   // Launch this method as a coroutine
@@ -222,8 +249,8 @@ public class RelayNetworking : MonoBehaviour {
     }
 
     // Get the Join Code, you can then share it with the clients so they can join
-    joinCode = joinCodeTask.Result;
-    Debug.Log($"Join Code recieved. Join Code: {joinCode}");
+    JoinCode = joinCodeTask.Result;
+    Debug.Log($"Join Code recieved. Join Code: {JoinCode}");
   }
 
   // Launch this method as a coroutine
@@ -367,6 +394,7 @@ public class RelayNetworking : MonoBehaviour {
   }
 
   public void SendToServer(NetMessage msg) {
+    Debug.Log("SendToServer");
     DataStreamWriter writer;
     this.PlayerDriver.BeginSend(this.clientConnection, out writer);
     msg.Serialize(ref writer);

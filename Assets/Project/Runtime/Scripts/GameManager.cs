@@ -13,15 +13,15 @@ public class GameManager : MonoBehaviour {
 
   private void Start() {
     var gameScene = SceneManager.GetSceneByBuildIndex((int)SceneIndexes.GAME);
-    switch (NetworkManager.Instance.NI) {
-      case NetworkManager.NetworkIdentity.DEDICATED_SERVER: {
+    switch (RelayNetworking.Instance.NI) {
+      case RelayNetworking.NetworkIdentity.DEDICATED_SERVER: {
           throw new NotImplementedException();
           // Debug.Log("Loaded Scene as dedicated server");
           // gameServer = new GameObject("StandardGameServer").AddComponent<StandardGameServer>();
           // Server.Instance.Broadcast(new NetStartGame());
           // break;
         }
-      case NetworkManager.NetworkIdentity.HOST: {
+      case RelayNetworking.NetworkIdentity.HOST: {
           Debug.Log("Loaded Scene as host");
           this.gameServer = new GameObject("StandardGameServer").AddComponent<StandardGameServer>();
           this.gameClient = new GameObject("StandardGameClient").AddComponent<StandardGameClient>();
@@ -29,7 +29,7 @@ public class GameManager : MonoBehaviour {
           SceneManager.MoveGameObjectToScene(this.gameClient.gameObject, gameScene);
           break;
         }
-      case NetworkManager.NetworkIdentity.LOCAL: {
+      case RelayNetworking.NetworkIdentity.LOCAL: {
           Debug.Log("Loaded Scene as local game");
           this.gameServer = new GameObject("StandardGameServer").AddComponent<StandardGameServer>();
           this.gameClient = new GameObject("StandardGameClient").AddComponent<StandardGameClient>();

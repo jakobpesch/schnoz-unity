@@ -21,6 +21,7 @@ public class StandardGameViewManager : MonoBehaviour {
   [SerializeField] private GameObject rulesGO;
 
   [SerializeField] private List<TextMeshProUGUI> scores;
+  [SerializeField] private TextMeshProUGUI networkStatus;
 
   #region Camera movement properties
   private Camera mainCam;
@@ -115,6 +116,10 @@ public class StandardGameViewManager : MonoBehaviour {
     var gameScene = SceneManager.GetSceneByBuildIndex((int)SceneIndexes.GAME);
     SceneManager.SetActiveScene(gameScene);
     switch (renderType) {
+      case RenderTypes.NetworkStatus: {
+          this.RenderNetworkStatus();
+          break;
+        }
       case RenderTypes.Map: {
           this.RenderMap();
           break;
@@ -169,12 +174,21 @@ public class StandardGameViewManager : MonoBehaviour {
     }
 
   }
+  private void RenderNetworkStatus() {
 
+    if (this.game.AssignedRole == PlayerRoles.PLAYER) {
+      this.networkStatus.text = "Waiting for host to start the game";
+    }
+    if (this.game.AssignedRole == PlayerRoles.ADMIN) {
+      this.networkStatus.gameObject.SetActive(!this.game.ReadyToStartGame);
+      this.networkStatus.text = $"Join code: {RelayNetworking.Instance.JoinCode}. \n Waiting for second player to join.";
+    }
+
+  }
   private void RenderTurns() {
     this.TurnsView.GameClient = this.game;
     this.TurnsView.Render();
   }
-
   public void SetCamera() {
     #region Camera movement setup
     this.mainCam = Camera.main;
@@ -279,7 +293,7 @@ public class StandardGameViewManager : MonoBehaviour {
       fogGO.transform.localPosition = new Vector2(0, 0);
       SpriteRenderer sr = fogGO.AddComponent<SpriteRenderer>();
       sr.sprite = this.fogSprite;
-      sr.color = new Color(1, 1, 1, 0.1f);
+      sr.color = new Color(1, 1, 1, 0.5f);
 
       GameObject hoveringUnitGO = this.RenderUnitHover(new Unit(this.game.GameClient.ActivePlayerId, hoveringTile.Coordinate));
       hoveringUnitGO.transform.SetParent(GameObject.Find($"Map/{hoveringTile.Coordinate}").transform);

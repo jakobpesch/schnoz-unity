@@ -12,12 +12,13 @@ public class OnlineGameMenuManger : MonoBehaviour {
   }
   public void OnHostButton() {
     Debug.Log("Hosting...");
-    NetworkManager.Instance.Host();
     SchnozSceneManager.Instance.ChangeScene(SceneIndexes.ONLINE_GAME_MENU, SceneIndexes.GAME);
+    RelayNetworking.Instance.Host();
   }
+
   public void OnConnectButton() {
     Debug.Log("Connecting...");
-    NetworkManager.Instance.Connect(this.inputField.text);
+    RelayNetworking.Instance.Connect(this.inputField.text);
     SchnozSceneManager.Instance.ChangeScene(SceneIndexes.ONLINE_GAME_MENU, SceneIndexes.GAME);
   }
   public void OnBackButton() {

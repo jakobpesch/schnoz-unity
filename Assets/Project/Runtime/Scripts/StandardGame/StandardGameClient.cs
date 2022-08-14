@@ -10,7 +10,6 @@ namespace Schnoz {
     [SerializeField] private int currentTeam = -1;
     public PlayerRoles AssignedRole { get; private set; }
     public bool ReadyToStartGame { get; private set; }
-
     public StandardGameViewManager ViewManager { get; private set; }
     public Schnoz GameClient { get; private set; }
     public float Timer;
@@ -223,16 +222,21 @@ namespace Schnoz {
     /// </summary>
     /// <param name="msg"></param>
     private void OnWelcome(NetMessage msg) {
+      Debug.Log("OnWelcome");
       NetWelcome nw = msg as NetWelcome;
       this.currentTeam = nw.AssignedTeam;
       this.AssignedRole = nw.AssignedRole;
       this.ActivateViewManager();
+      this.ViewManager.Render(RenderTypes.NetworkStatus);
     }
 
     private void OnAllPlayersConnected(NetMessage msg) {
       this.ReadyToStartGame = true;
       Debug.Log(this.AssignedRole);
-      this.ViewManager.Render(RenderTypes.GameSettings);
+      if (this.AssignedRole == PlayerRoles.ADMIN) {
+        this.ViewManager.Render(RenderTypes.GameSettings);
+      }
+      this.ViewManager.Render(RenderTypes.NetworkStatus);
     }
 
     private void OnRender(NetMessage msg) {
@@ -268,6 +272,7 @@ namespace Schnoz {
       NetInitialiseMap im = msg as NetInitialiseMap;
 
       this.gameSettings = new GameSettings(im.mapSize, im.partsGrass, im.partsStone, im.partsWater, im.partsBush, 3, 0, im.numberOfStages, im.secondsPerTurn, im.ruleNames);
+      this.ViewManager.GameSettingsView.gameObject.SetActive(false);
       this.GameClient = new Schnoz(gameSettings);
       // this.ActivateViewManager();
       this.Timer = this.GameClient.GameSettings.SecondsPerTurn;
