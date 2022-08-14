@@ -61,10 +61,10 @@ namespace Schnoz {
 
     private void OnWelcome(NetMessage msg, NetworkConnection cnn) {
       Debug.Log("OnWelcome");
-      NetWelcome nw = msg as NetWelcome;
-      nw.AssignedTeam = ++this.playerCount;
-      nw.AssignedRole = this.playerCount == 0 ? PlayerRoles.ADMIN : PlayerRoles.PLAYER;
-      RelayNetworking.Instance.SendToClient(cnn, nw);
+      NetWelcome welcome = msg as NetWelcome;
+      welcome.AssignedPlayerId = (PlayerIds)(++this.playerCount);
+      welcome.AssignedRole = this.playerCount == 0 ? PlayerRoles.ADMIN : PlayerRoles.PLAYER;
+      RelayNetworking.Instance.SendToClient(cnn, welcome);
 
       bool allPlayersPresent = this.playerCount == 1;
       if (this.isLocalGame || allPlayersPresent) {

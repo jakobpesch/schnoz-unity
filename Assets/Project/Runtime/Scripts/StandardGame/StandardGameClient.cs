@@ -7,7 +7,7 @@ using System.ComponentModel;
 namespace Schnoz {
   public class StandardGameClient : MonoBehaviour {
     // Multiplayer logic
-    [SerializeField] private int currentTeam = -1;
+    [SerializeField] private PlayerIds myId = PlayerIds.NeutralPlayer;
     public PlayerRoles AssignedRole { get; private set; }
     public bool ReadyToStartGame { get; private set; }
     public StandardGameViewManager ViewManager { get; private set; }
@@ -39,7 +39,7 @@ namespace Schnoz {
     public Dictionary<Coordinate, Tile> TileDict {
       get => this.GameClient.Map.Tiles.ToDictionary(tile => tile.Coordinate);
     }
-
+    public bool NotMyTurn { get { return GameClient.ActivePlayerId != myId; } }
 
     public void HandlePlayerInput(object sender, InputEventNames evt, object obj = null) {
       #region Change card orientation
@@ -80,7 +80,7 @@ namespace Schnoz {
             mm.rotation = untiFormation.rotation;
             mm.mirrorHorizontal = untiFormation.mirrorHorizontal ? 1 : 0;
             mm.mirrorVertical = untiFormation.mirrorVertical ? 1 : 0;
-            mm.teamId = this.currentTeam;
+            mm.playerId = this.myId;
             RelayNetworking.Instance.SendToServer(mm);
           }
           if (this.SinglePieceId != Guid.Empty) {
@@ -133,7 +133,7 @@ namespace Schnoz {
 
     #region UI
     private void SetHoveringTiles(Tile tile) {
-      if (tile == null) {
+      if (this.NotMyTurn || tile == null) {
         this.HoveringTiles = new List<Tile>();
         this.ViewManager.Render(RenderTypes.Highlight);
         return;
@@ -224,7 +224,7 @@ namespace Schnoz {
     private void OnWelcome(NetMessage msg) {
       Debug.Log("OnWelcome");
       NetWelcome nw = msg as NetWelcome;
-      this.currentTeam = nw.AssignedTeam;
+      this.myId = nw.AssignedPlayerId;
       this.AssignedRole = nw.AssignedRole;
       this.ActivateViewManager();
       this.ViewManager.Render(RenderTypes.NetworkStatus);
@@ -309,6 +309,7 @@ namespace Schnoz {
     private void OnEndTurn(NetMessage msg) {
       NetEndTurn et = msg as NetEndTurn;
       this.Timer = this.GameClient.GameSettings.SecondsPerTurn;
+      this.SelectedCardId = Guid.Empty;
       this.GameClient.EndTurn();
     }
 
