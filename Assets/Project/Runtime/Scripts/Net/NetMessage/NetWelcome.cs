@@ -3,7 +3,7 @@ using Unity.Networking.Transport;
 using Schnoz;
 
 public class NetWelcome : NetMessage {
-  public int AssignedTeam { get; set; }
+  public PlayerIds AssignedPlayerId { get; set; }
   public PlayerRoles AssignedRole { get; set; }
   public NetWelcome() {
     this.Code = OpCode.WELCOME;
@@ -14,12 +14,12 @@ public class NetWelcome : NetMessage {
   }
   public override void Serialize(ref DataStreamWriter writer) {
     writer.WriteByte((byte)this.Code);
-    writer.WriteInt(AssignedTeam);
-    writer.WriteInt((int)AssignedRole);
+    writer.WriteByte((byte)AssignedPlayerId);
+    writer.WriteByte((byte)AssignedRole);
   }
   public override void Deserialize(DataStreamReader reader) {
-    AssignedTeam = reader.ReadInt();
-    AssignedRole = (PlayerRoles)reader.ReadInt();
+    AssignedPlayerId = (PlayerIds)reader.ReadByte();
+    AssignedRole = (PlayerRoles)reader.ReadByte();
   }
   public override void ReceivedOnClient() {
     NetUtility.C_WELCOME?.Invoke(this);
