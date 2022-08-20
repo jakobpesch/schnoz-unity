@@ -186,6 +186,7 @@ public class StandardGameViewManager : MonoBehaviour {
 
   }
   private void RenderTurns() {
+    Debug.Log("RenderTurns");
     this.TurnsView.GameClient = this.game;
     this.TurnsView.Render();
   }
