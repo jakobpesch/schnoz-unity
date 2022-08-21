@@ -1946,7 +1946,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 500de9b5937f14f249878d965eaf2f3e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  joinCodeInputField: {fileID: 0}
+  joinCodeInputField: {fileID: 688520534}
   networkStatus: {fileID: 1537230879}
   retryButton: {fileID: 1930112215}
   statusView: {fileID: 611351368}
