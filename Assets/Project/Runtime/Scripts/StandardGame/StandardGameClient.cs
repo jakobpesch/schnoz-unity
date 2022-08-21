@@ -182,6 +182,7 @@ namespace Schnoz {
     }
 
     private void OnDestroy() {
+      Debug.Log("Unregistering Events");
       this.UnregisterEvents();
     }
     private void RegisterEvents() {

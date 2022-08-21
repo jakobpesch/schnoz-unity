@@ -58,17 +58,19 @@ public class RelayNetworking : MonoBehaviour {
     Instance.Join(joinCode);
   }
 
-  // Start is called before the first frame update
-  async void Start() {
+  public async Task Initialise() {
+    Debug.Log("Initialising");
     await UnityServices.InitializeAsync();
+    Debug.Log("Unity services initialised");
     await AuthenticationService.Instance.SignInAnonymouslyAsync();
+    Debug.Log("Auth services signed in anonymously");
     playerId = AuthenticationService.Instance.PlayerId;
+    Debug.Log("Player id = " + playerId);
     serverConnections = new NativeList<NetworkConnection>(2, Allocator.Persistent);
     // StartCoroutine(UpdateUI());
   }
 
   private void OnApplicationQuit() {
-    Debug.Log("OnApplicationQuit");
     serverConnections.Dispose();
     serverConnections = default;
   }
@@ -102,12 +104,11 @@ public class RelayNetworking : MonoBehaviour {
   }
 
   public void Shutdown() {
-    try {
-      this.HostDriver.Dispose();
-      this.PlayerDriver.Dispose();
-    } catch (ObjectDisposedException e) {
-      Debug.Log(e);
-    }
+    Disconnect();
+    this.HostDriver.Dispose();
+    this.PlayerDriver.Dispose();
+    AuthenticationService.Instance.SignOut(clearCredentials: true);
+    AuthenticationService.Instance.ClearSessionToken();
   }
 
   public void Host() {

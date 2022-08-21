@@ -37,6 +37,7 @@ public class TurnsView : MonoBehaviour {
     }
     int turn = this.GameClient.GameClient.Turn;
     if (turn > 0) {
+      Debug.Log("destroying turn view");
       Destroy(this.TurnViews[0].gameObject);
       this.TurnViews.RemoveAt(0);
       bool endOfStage = turn % nTurnPerStage == 0;
