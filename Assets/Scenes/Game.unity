@@ -4914,7 +4914,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8118743898234786535, guid: 44e994416c2bd44eab54dd903f9f582a, type: 3}
       propertyPath: m_Value
-      value: 1
+      value: 60
       objectReference: {fileID: 0}
     - target: {fileID: 8118743898234786535, guid: 44e994416c2bd44eab54dd903f9f582a, type: 3}
       propertyPath: m_MaxValue

@@ -17,8 +17,11 @@ public class StandardGameViewManager : MonoBehaviour {
   public GameOverView GameOverView;
   private Vector2 resolution;
   private GameObject mapGO;
+
   [SerializeField] private GameObject openCardsGO;
   [SerializeField] private GameObject rulesGO;
+  [SerializeField] private List<GameObject> units;
+  [SerializeField] private List<GameObject> terrains;
 
   [SerializeField] private List<TextMeshProUGUI> scores;
   [SerializeField] private TextMeshProUGUI networkStatus;
@@ -300,27 +303,37 @@ public class StandardGameViewManager : MonoBehaviour {
       hoveringUnitGO.transform.SetParent(GameObject.Find($"Map/{hoveringTile.Coordinate}").transform);
       hoveringUnitGO.transform.localPosition = new Vector2(0, 0);
     }
+
+    // foreach (Tile placeableTile in this.game.PlaceableTiles) {
+    // if (this.terrainGOs.Any(terrainGO => {
+    //   terrainGO.GetComponent<Terrain()
+    // }))
+    // }
   }
   private void RenderMap() {
     if (this.mapGO != null) {
       Destroy(mapGO);
     }
     this.mapGO = new GameObject("Map");
+    this.units = new List<GameObject>();
+    this.terrains = new List<GameObject>();
 
     this.game.GameClient.Map.Tiles.ForEach((Tile tile) => {
       GameObject tileGO = this.RenderTile(tile);
       tileGO.transform.SetParent(this.mapGO.transform);
       tileGO.transform.localPosition = new Vector2(tile.Coordinate.col, tile.Coordinate.row);
       if (tile.Unit != null) {
-        GameObject unitGO = this.RenderUnit(tile.Unit);
-        unitGO.transform.SetParent(tileGO.transform);
-        unitGO.transform.localPosition = new Vector2(0, 0);
+        GameObject unit = this.RenderUnit(tile.Unit);
+        unit.transform.SetParent(tileGO.transform);
+        unit.transform.localPosition = new Vector2(0, 0);
+        units.Add(unit);
       }
 
       if (tile.Terrain.Type != TerrainType.Grass) {
-        GameObject terrainGO = this.RenderTerrain(tile.Terrain);
-        terrainGO.transform.SetParent(tileGO.transform);
-        terrainGO.transform.localPosition = new Vector2(0, 0);
+        GameObject terrain = this.RenderTerrain(tile.Terrain);
+        terrain.transform.SetParent(tileGO.transform);
+        terrain.transform.localPosition = new Vector2(0, 0);
+        terrains.Add(terrain);
       }
 
       if (!tile.Visible) {
@@ -329,7 +342,6 @@ public class StandardGameViewManager : MonoBehaviour {
         fogGO.transform.localPosition = new Vector2(0, 0);
       }
     });
-    // Debug.Log("Rendered Map successfully!");
   }
   private void RenderRuleStanding() {
     this.StandingView.GameClient = this.game;

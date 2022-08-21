@@ -24,6 +24,7 @@ namespace Schnoz {
       }
     }
     public List<Tile> HoveringTiles;
+    public List<Tile> PlaceableTiles;
     public Guid selectedCardId;
     public Guid SelectedCardId {
       get => this.selectedCardId;
@@ -110,6 +111,7 @@ namespace Schnoz {
         if (evt == InputEventNames.SelectCard) {
           this.SelectedCardId = cardId;
           this.SetHoveringTiles(this.HoveringTile);
+          this.SetPlaceableTiles();
         }
       }
       // if (evt == InputEventNames.SelectCard) {
@@ -157,6 +159,20 @@ namespace Schnoz {
         if (this.GameClient.Map.CoordinateToTileDict.ContainsKey(c)) {
           Tile t = this.GameClient.Map.CoordinateToTileDict[c];
           this.HoveringTiles.Add(t);
+        }
+      }
+      this.ViewManager.Render(RenderTypes.Highlight);
+    }
+    private void SetPlaceableTiles() {
+      List<Unit> units = this.GameClient.Map.Units;
+      Dictionary<Coordinate, Tile> tilesDict = this.GameClient.Map.CoordinateToTileDict;
+      this.PlaceableTiles = new List<Tile>();
+      foreach (var unit in units) {
+        Tile tile = tilesDict[unit.Coordinate];
+        var adjacentTiles = this.GameClient.Map.GetAdjacentTiles(tile);
+        bool isPlaceable = adjacentTiles.All(tile => tile.Placeable);
+        if (isPlaceable) {
+          this.PlaceableTiles.Add(tile);
         }
       }
       this.ViewManager.Render(RenderTypes.Highlight);
